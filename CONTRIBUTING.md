@@ -1,6 +1,4 @@
 # Table of Contents
-
--   [Table of Contents](#table-of-contents)
 -   [Welcome](#welcome)
 -   [Code of Conduct](#code-of-conduct)
 -   [Guidelines](#guidelines)

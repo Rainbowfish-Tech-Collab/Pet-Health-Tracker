@@ -1,5 +1,4 @@
 # Table of Contents
-- [Table of Contents](#table-of-contents)
 - [Introduction 🐟](#introduction-)
   - [Project Description](#project-description)
   - [About Us](#about-us)
