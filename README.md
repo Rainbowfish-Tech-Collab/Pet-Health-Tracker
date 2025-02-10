@@ -43,7 +43,7 @@ TBD
 TBD
 
 # ✍️ Contributing
-Join us in creating something meaningful while sharpening your development skills! Please read the [contribution guidelines]() first.
+Join us in creating something meaningful while sharpening your development skills! Please read the [contribution guidelines](https://github.com/Rainbowfish-Tech-Collab/Pet-Health-Tracker/blob/main/CONTRIBUTING.md) first.
 
 # 📃 License
 This open-source project is licensed under [Apache License v2.0](https://www.apache.org/licenses/LICENSE-2.0).
