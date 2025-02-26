@@ -1,9 +1,11 @@
 # Table of Contents
 
+- [Table of Contents](#table-of-contents)
 - [Overview 🐟](#overview-)
 	- [Project Description](#project-description)
 	- [About Us](#about-us)
 		- [Why is it called "Rainbowfish"?](#why-is-it-called-rainbowfish)
+		- [Our Contributers](#our-contributers)
 - [Tech Stack 💻](#tech-stack-)
 - [Getting Started 🚀](#getting-started-)
 	- [Requirements](#requirements)
@@ -31,6 +33,8 @@ The rainbowfish-tech-collab, created by [Char](https://github.com/charburton18) 
 The Rainbow Fish is a children's book by Marcus Pfister that promotes generosity, kindness, and friendship. Read the story [here](https://milldamschool.org/wp-content/uploads/sites/4/2022/09/The_rainbow_fish.pdf). Like the Rainbow Fish, we believe we are all better when we share our unique qualities with each other.
 
 ### Our Contributers
+
+- Robin
 
 # Tech Stack 💻
 
