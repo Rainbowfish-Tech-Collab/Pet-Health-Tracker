@@ -1,9 +1,11 @@
 # Table of Contents
 
+- [Table of Contents](#table-of-contents)
 - [Overview 🐟](#overview-)
 	- [Project Description](#project-description)
 	- [About Us](#about-us)
 		- [Why is it called "Rainbowfish"?](#why-is-it-called-rainbowfish)
+		- [Our Contributers](#our-contributers)
 - [Tech Stack 💻](#tech-stack-)
 - [Getting Started 🚀](#getting-started-)
 	- [Requirements](#requirements)
@@ -32,6 +34,8 @@ The Rainbow Fish is a children's book by Marcus Pfister that promotes generosity
 
 ### Our Contributors
 - Ken Yeh
+
+- Robin
 
 # Tech Stack 💻
 
