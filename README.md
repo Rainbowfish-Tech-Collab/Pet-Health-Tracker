@@ -37,6 +37,7 @@ The Rainbow Fish is a children's book by Marcus Pfister that promotes generosity
 
 - Robin
 
+- Jacky Yang
 # Tech Stack 💻
 
 TBD
