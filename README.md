@@ -1,13 +1,20 @@
 # Table of Contents
 
-- [Project Description](#project-description)
-- [About Us](#about-us)
-	- [Why is it called "Rainbowfish"?](#why-is-it-called-rainbowfish)
-	- [Our Contributors](#our-contributors)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Usage](#usage)
+- [Table of Contents](#table-of-contents)
+- [Overview 🐟](#overview-)
+	- [Project Description](#project-description)
+	- [About Us](#about-us)
+		- [Why is it called "Rainbowfish"?](#why-is-it-called-rainbowfish)
+		- [Our Contributers](#our-contributers)
+- [Tech Stack 💻](#tech-stack-)
+- [Getting Started 🚀](#getting-started-)
+	- [Requirements](#requirements)
+	- [Installation](#installation)
+	- [Configuration](#configuration)
+	- [Usage](#usage)
+- [Contributing ✍️](#contributing-️)
+- [License 📃](#license-)
+- [Contact 💬](#contact-)
 
 # Overview 🐟
 
