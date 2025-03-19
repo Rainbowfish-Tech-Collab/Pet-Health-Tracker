@@ -64,7 +64,7 @@ The Rainbow Fish is a children's book by Marcus Pfister that promotes generosity
 4. Create a `.env` file in the `backend` directory and populate it with the variables from `example.env`.
 
 ### Running the Database
-1. Make sure you have Docker v27.5.1 installed.
+1. Make sure you have Docker at least v27 installed (tested on v27.5.1)
 2. Navigate into the `backend` directory.
 3. Start the database by running:
 ```
