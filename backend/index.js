@@ -2,7 +2,8 @@ import express from 'express';
 import 'dotenv/config';
 import usersRouter from './routes/users.js';
 import petsRouter from './routes/pets.js';
-
+import symptomsRouter from './routes/symptoms.js';
+import statsRouter from './routes/stats.js';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -12,7 +13,8 @@ app.use(express.urlencoded({ extended: true })); // for parsing form data
 // Routers
 app.use('/users', usersRouter);
 app.use('/pets', petsRouter);
-
+app.use('/symptoms', symptomsRouter);
+app.use('/stats', statsRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to the database")
