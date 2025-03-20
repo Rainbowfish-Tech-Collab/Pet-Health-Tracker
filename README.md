@@ -76,13 +76,19 @@ docker exec -it <container_name> psql -U <username> -d postgres
 ```
 (Replace `<container_name>` with the name of your running PostgreSQL container and `<username>` with your database username.)
 
-5. Verify the database by running:
+5. Verify the database exists by running:
 ```
-/d
+psql
+\l
 ```
-You should see a database named `postgres`.
+You should see a database named `postgres`. Check that no tables currently exist:
+```
+\c postgres
+\d
+```
+This should return `Did not find any relations.`
 
-6. When you're done, stop and remove the containers with:
+6. When you're done using the database, stop and remove the containers with:
 ```
 docker compose down
 ```
