@@ -72,25 +72,24 @@ docker compose up -d
 ```
 4. Connect to the PostgreSQL database:
 ```
-docker exec -it <container_name> psql -U <username> -d postgres
+docker exec -it postgres_container psql -U <POSTGRES_USER> -d postgres
 ```
-(Replace `<container_name>` with the name of your running PostgreSQL container and `<username>` with your database username.)
+(Replace `<POSTGRES_USER>` with your database username. This value is defined in your `.env` file.)
 
 5. Verify the database exists by running:
 ```
-psql
 \l
 ```
-You should see a database named `postgres`. Check that no tables currently exist:
+You should see a database named whatever you set `<POSTGRES_DB>` to in your `.env` file. Check that your tables were created:
 ```
-\c postgres
+\c pet_health_tracker_db
 \d
 ```
-This should return `Did not find any relations.`
+This should return a list of tables, which should match the `init.sql` file.
 
 6. When you're done using the database, stop and remove the containers with:
 ```
-docker compose down
+docker compose down -v
 ```
 
 ## Configuration
