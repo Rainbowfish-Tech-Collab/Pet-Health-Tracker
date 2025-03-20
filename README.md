@@ -88,6 +88,18 @@ You should see a database named `postgres`. Check that no tables currently exist
 ```
 This should return `Did not find any relations.`
 
+5. Verify the database exists by running:
+```
+psql
+\l
+```
+You should see a database named `postgres`. Check that no tables currently exist:
+```
+\c postgres
+\d
+```
+This should return `Did not find any relations.`
+
 6. When you're done using the database, stop and remove the containers with:
 ```
 docker compose down
