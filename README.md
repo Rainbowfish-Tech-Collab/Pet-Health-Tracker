@@ -43,17 +43,67 @@ The Rainbow Fish is a children's book by Marcus Pfister that promotes generosity
 
 # Tech Stack 💻
 
-TBD
+- PostgreSQL
+- Express
+- React
+- Node
 
 # Getting Started 🚀
 
 ## Requirements
 
-TBD
+- Node.js v20.18.0
+- PostgreSQL v15.8
+- Docker v27.5.1
 
 ## Installation
 
-TBD
+1. Clone the repository.
+2. Pull latest changes from the `main` branch into your local environment.
+3. Run `npm install` to install dependencies.
+4. Create a `.env` file in the `backend` directory and populate it with the variables from `example.env`.
+
+### Running the Database
+1. Make sure you have Docker at least v27 installed (tested on v27.5.1)
+2. Navigate into the `backend` directory.
+3. Start the database by running:
+```
+docker compose up -d
+```
+4. Connect to the PostgreSQL database:
+```
+docker exec -it <container_name> psql -U <username> -d postgres
+```
+(Replace `<container_name>` with the name of your running PostgreSQL container and `<username>` with your database username.)
+
+5. Verify the database exists by running:
+```
+psql
+\l
+```
+You should see a database named `postgres`. Check that no tables currently exist:
+```
+\c postgres
+\d
+```
+This should return `Did not find any relations.`
+
+5. Verify the database exists by running:
+```
+psql
+\l
+```
+You should see a database named `postgres`. Check that no tables currently exist:
+```
+\c postgres
+\d
+```
+This should return `Did not find any relations.`
+
+6. When you're done using the database, stop and remove the containers with:
+```
+docker compose down
+```
 
 ## Configuration
 
