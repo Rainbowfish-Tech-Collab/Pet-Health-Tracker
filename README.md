@@ -52,9 +52,9 @@ The Rainbow Fish is a children's book by Marcus Pfister that promotes generosity
 
 ## Requirements
 
-- Node.js v20.18.0
-- PostgreSQL v15.8
-- Docker v27.5.1
+- Node.js v22+
+- PostgreSQL v15+
+- Docker
 
 ## Installation
 
@@ -72,17 +72,17 @@ docker compose up -d
 ```
 4. Connect to the PostgreSQL database:
 ```
-docker exec -it postgres_container psql -U <POSTGRES_USER> -d postgres
+docker exec -it postgres_container psql -U <POSTGRES_USER> -d <POSTGRES_DB>
 ```
-(Replace `<POSTGRES_USER>` with your database username. This value is defined in your `.env` file.)
+(Replace `<POSTGRES_USER>` and `<POSTGRES_DB>` with the values you set them to in your .env file.)
 
 5. Verify the database exists by running:
 ```
 \l
 ```
-You should see a database named whatever you set `<POSTGRES_DB>` to in your `.env` file. Check that your tables were created:
+You should see a database named whatever you set `<POSTGRES_DB>` to in your `.env` file. Check that its tables were created:
 ```
-\c pet_health_tracker_db
+\c <POSTGRES_DB>
 \d
 ```
 This should return a list of tables, which should match the `init.sql` file.
