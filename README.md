@@ -52,9 +52,9 @@ The Rainbow Fish is a children's book by Marcus Pfister that promotes generosity
 
 ## Requirements
 
-- Node.js v20.18.0
-- PostgreSQL v15.8
-- Docker v27.5.1
+- Node.js v22+
+- PostgreSQL v15+
+- Docker
 
 ## Installation
 
@@ -72,25 +72,24 @@ docker compose up -d
 ```
 4. Connect to the PostgreSQL database:
 ```
-docker exec -it <container_name> psql -U <username> -d postgres
+docker exec -it postgres_container psql -U <POSTGRES_USER> -d <POSTGRES_DB>
 ```
-(Replace `<container_name>` with the name of your running PostgreSQL container and `<username>` with your database username.)
+(Replace `<POSTGRES_USER>` and `<POSTGRES_DB>` with the values you set them to in your .env file.)
 
 5. Verify the database exists by running:
 ```
-psql
 \l
 ```
-You should see a database named `postgres`. Check that no tables currently exist:
+You should see a database named whatever you set `<POSTGRES_DB>` to in your `.env` file. Check that its tables were created:
 ```
-\c postgres
+\c <POSTGRES_DB>
 \d
 ```
-This should return `Did not find any relations.`
+This should return a list of tables, which should match the `init.sql` file.
 
 6. When you're done using the database, stop and remove the containers with:
 ```
-docker compose down
+docker compose down -v
 ```
 
 ## Configuration
