@@ -2,7 +2,7 @@ CREATE TABLE "user"(
     "id" bigserial NOT NULL,
     "email" TEXT NOT NULL,
     "username" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
+    "password_hashed" TEXT NOT NULL,
     "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
     "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL,
