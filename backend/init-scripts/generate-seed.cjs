@@ -3,16 +3,19 @@ const path = require('path');
 const { faker } = require('@faker-js/faker');
 
 const generateUsers = (count) => {
-  let sql = 'INSERT INTO "user" (email, username, password_hashed, profile_picture) VALUES\n';
+  let sql = 'INSERT INTO "user" (id, email, username, password_hashed, date_created, date_updated, profile_picture) VALUES\n';
   const values = [];
 
   for (let i = 0; i < count; i++) {
+    const id = i;
     const email = faker.internet.email();
     const username = faker.internet.username();
-    const password = faker.internet.password();
+    const passwordHashed = faker.internet.password();
+    const dateCreated = '2025-03-24 14:30:00';
+    const dateUpdated = '2025-03-24 14:30:00';
     const profilePicture = faker.image.url();
   
-    values.push(`('${email}', '${username}', '${password}', '${profilePicture}')`)
+    values.push(`('${id}', '${email}', '${username}','${passwordHashed}', '${dateCreated}', '${dateUpdated}', '${profilePicture}')`)
   }
 
   sql+= values.join(',\n') + ';';
