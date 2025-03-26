@@ -244,3 +244,15 @@ ALTER TABLE
     "weight_stat" ADD CONSTRAINT "weight_stat_weight_id_foreign" FOREIGN KEY("weight_id") REFERENCES "weight"("id");
 ALTER TABLE
     "glucose_stat" ADD CONSTRAINT "glucose_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id");
+
+----------------------------------------------------------------------------------------------------------------
+--------------------------------------------- POPULATE ENUM TABLES ---------------------------------------------
+----------------------------------------------------------------------------------------------------------------
+
+INSERT INTO "pet_sex" (sex)
+VALUES
+    ('Male'),
+    ('Female'),
+    ('Other'),
+    ('Unknown');
+    
