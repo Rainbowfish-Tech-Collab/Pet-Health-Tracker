@@ -94,7 +94,7 @@ CREATE TABLE "weight_stat"(
 ALTER TABLE
     "weight_stat" ADD PRIMARY KEY("id");
 CREATE TABLE "weight"(
-    "id" INTEGER NOT NULL,
+    "id" SERIAL NOT NULL,
     "unit" TEXT NOT NULL
 );
 ALTER TABLE
@@ -111,7 +111,7 @@ CREATE TABLE "glucose_stat"(
 ALTER TABLE
     "glucose_stat" ADD PRIMARY KEY("id");
 CREATE TABLE "glucose"(
-    "id" INTEGER NOT NULL,
+    "id" SERIAL NOT NULL,
     "unit" TEXT NOT NULL
 );
 ALTER TABLE
@@ -255,4 +255,224 @@ VALUES
     ('Female'),
     ('Other'),
     ('Unknown');
-    
+
+INSERT INTO "pet_species" (species)
+VALUES
+    ('Dog'),
+    ('Cat'),
+    ('Bird'),
+    ('Small Animals'),
+    ('Reptile'),
+    ('Horse'),
+    ('Fish'),
+    ('Livestock'),
+    ('Other');
+
+INSERT INTO "pet_breed" (pet_species_id, pet_breed)
+VALUES
+(1, 'Cairn Terrier'),
+(1, 'Border Terrier'),
+(1, 'Siberian Husky'),
+(1, 'Welsh Springer Spaniel'),
+(1, 'English Cocker Spaniel'),
+(1, 'Cocker Spaniel'),
+(1, 'Lhasa Apso'),
+(1, 'English Springer Spaniel'),
+(1, 'Shetland Sheepdog'),
+(1, 'West Highland White Terrier'),
+(1, 'Brittany'),
+(1, 'German Shorthaired Pointer'),
+(1, 'Pointer'),
+(1, 'Tibetan Spaniel'),
+(1, 'Labrador Retriever'),
+(1, 'Bichon Frise'),
+(1, 'Irish Setter'),
+(1, 'Samoyed'),
+(1, 'Shih Tzu'),
+(1, 'Golden Retriever'),
+(1, 'Chesapeake Bay Retriever'),
+(1, 'Papillon'),
+(1, 'Gordon Setter'),
+(1, 'English Setter'),
+(1, 'Pug'),
+(1, 'Affenpinscher'),
+(1, 'Miniature Schnauzer'),
+(1, 'Beagle'),
+(1, 'Border Collie'),
+(1, 'Australian Terrier'),
+(1, 'Whippet'),
+(1, 'Boston Terrier'),
+(1, 'Briard'),
+(1, 'Bedlington Terrier'),
+(1, 'Cavalier King Charles Spaniel'),
+(1, 'Dalmatian'),
+(1, 'Flat-Coated Retriever'),
+(1, 'Belgian Tervuren'),
+(1, 'Basset Hound'),
+(1, 'Poodle'),
+(1, 'Staffordshire Bull Terrier'),
+(1, 'Bouvier des Flandres'),
+(1, 'Pembroke Welsh Corgi'),
+(1, 'Clumber Spaniel'),
+(1, 'Pomeranian'),
+(1, 'Australian Shepherd'),
+(1, 'Pharaoh Hound'),
+(1, 'Dandie Dinmont Terrier'),
+(1, 'Greyhound'),
+(1, 'Saluki'),
+(1, 'Australian Cattle Dog'),
+(1, 'Tibetan Terrier'),
+(1, 'Norfolk Terrier'),
+(1, 'Dachshund'),
+(1, 'Chihuahua'),
+(1, 'Doberman Pinscher'),
+(1, 'English Toy Spaniel'),
+(1, 'Newfoundland'),
+(1, 'Basenji'),
+(1, 'Afghan Hound'),
+(1, 'Old English Sheepdog'),
+(1, 'French Bulldog'),
+(1, 'Bernese Mountain Dog'),
+(1, 'Boxer'),
+(1, 'Brussels Griffon'),
+(1, 'Maltese'),
+(1, 'Giant Schnauzer'),
+(1, 'Rottweiler'),
+(1, 'Yorkshire Terrier'),
+(1, 'Irish Wolfhound'),
+(1, 'Scottish Terrier'),
+(1, 'Bullmastiff'),
+(1, 'German Shepherd'),
+(1, 'Mastiff'),
+(1, 'Great Dane'),
+(1, 'Kerry Blue Terrier'),
+(1, 'Italian Greyhound'),
+(1, 'Pekingese'),
+(1, 'Rhodesian Ridgeback'),
+(1, 'Bull Terrier'),
+(1, 'Saint Bernard'),
+(1, 'Borzoi'),
+(1, 'Alaskan Malamute'),
+(1, 'Bloodhound'),
+(1, 'Chow Chow'),
+(1, 'Akita'),
+(1, 'Bulldog'),
+(1, 'Other');
+
+INSERT INTO "pet_breed" (pet_species_id, pet_breed)
+VALUES
+(2, 'Abyssinian'),
+(2, 'Chinchilla'),
+(2, 'LaPerm'),
+(2, 'Siamese'),
+(2, 'American Bobtail'),
+(2, 'Cornish Rex'),
+(2, 'Maine Coon'),
+(2, 'Siberian'),
+(2, 'American Curl'),
+(2, 'Cymric'),
+(2, 'Manx'),
+(2, 'Silver'),
+(2, 'American Shorthair'),
+(2, 'Devon Rex'),
+(2, 'Munchkin'),
+(2, 'Singapura'),
+(2, 'American Wirehair'),
+(2, 'Dilute Calico'),
+(2, 'Nebelung'),
+(2, 'Snowshoe'),
+(2, 'Applehead Siamese'),
+(2, 'Dilute Tortoiseshell'),
+(2, 'Norwegian Forest Cat'),
+(2, 'Somali'),
+(2, 'Balinese'),
+(2, 'Domestic Long Hair'),
+(2, 'Ocicat'),
+(2, 'Sphynx - Hairless Cat'),
+(2, 'Bengal'),
+(2, 'Domestic Medium Hair'),
+(2, 'Oriental Long Hair'),
+(2, 'Tabby'),
+(2, 'Birman'),
+(2, 'Domestic Short Hair'),
+(2, 'Oriental Short Hair'),
+(2, 'Tiger'),
+(2, 'Bombay'),
+(2, 'Egyptian Mau'),
+(2, 'Oriental Tabby'),
+(2, 'Tonkinese'),
+(2, 'British Shorthair'),
+(2, 'Exotic Shorthair'),
+(2, 'Persian'),
+(2, 'Torbie'),
+(2, 'Burmese'),
+(2, 'Extra-Toes Cat - Hemingway Polydactyl'),
+(2, 'Pixiebob'),
+(2, 'Tortoiseshell'),
+(2, 'Burmilla'),
+(2, 'Havana'),
+(2, 'Ragamuffin'),
+(2, 'Turkish Ango'),
+(2, 'Calico'),
+(2, 'Himalayan'),
+(2, 'Ragdoll'),
+(2, 'Turkish Van'),
+(2, 'Canadian Hairless'),
+(2, 'Japanese Bobtail'),
+(2, 'Russian Blue'),
+(2, 'Tuxedo'),
+(2, 'Chartreux'),
+(2, 'Javanese'),
+(2, 'Scottish Fold'),
+(2, 'York Chocolate'),
+(2, 'Chausie'),
+(2, 'Korat'),
+(2, 'Selkirk Rex'),
+(2, 'Other');
+
+INSERT INTO "symptom_type" ("name")
+VALUES
+    ('Coughing'),
+    ('Sneezing'),
+    ('Vomiting'),
+    ('Fainting'),
+    ('Seizures'),
+    ('Lethargy'),
+    ('Other');
+
+INSERT INTO "weight" (unit)
+VALUES
+  ('lb'),
+  ('kg'),
+  ('oz'),
+  ('g'),
+  ('other');
+
+INSERT INTO "glucose" (unit)
+VALUES
+  ('mg/dL'),
+  ('mmol/L'),
+  ('other');
+
+INSERT INTO "function" ("name")
+VALUES
+  ('Defecation'),
+  ('Urination');
+
+INSERT INTO "dosage" (unit)
+VALUES
+  ('mg'),
+  ('mL'),
+  ('tablet'),
+  ('capsule'),
+  ('tbsp'),
+  ('tsp'),
+  ('other');
+
+INSERT INTO "activity_type" ("name")
+VALUES
+  ('Sleeping'),
+  ('Exercise'),
+  ('Eating'),
+  ('Drinking'),
+  ('Other'); 
