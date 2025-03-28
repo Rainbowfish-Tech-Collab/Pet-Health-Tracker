@@ -5,6 +5,14 @@ import petsRouter from './routes/pets.js';
 import symptomsRouter from './routes/symptoms.js';
 import statsRouter from './routes/stats.js';
 import petSexRouter from './routes/petSex.js';
+import petSpeciesRouter from './routes/petSpecies.js';
+import petBreedsRouter from './routes/petBreeds.js';
+import glucoseRouter from './routes/glucose.js';
+import weightsRouter from './routes/weights.js';
+import functionsRouter from './routes/functions.js';
+import dosagesRouter from './routes/dosages.js';
+import activitiesRouter from './routes/activities.js';
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -15,8 +23,18 @@ app.use(express.urlencoded({ extended: true })); // for parsing form data
 app.use('/users', usersRouter);
 app.use('/pets', petsRouter);
 app.use('/petSex', petSexRouter);
+app.use('/petSpecies', petSpeciesRouter);
+app.use('/petBreeds', petBreedsRouter);
+
+app.use('/activities', activitiesRouter);
+
 app.use('/symptoms', symptomsRouter);
 app.use('/stats', statsRouter);
+app.use('/glucose', glucoseRouter);
+app.use('/weights', weightsRouter);
+app.use('/functions', functionsRouter);
+app.use('/dosages', dosagesRouter);
+
 
 app.get("/", (req, res) => {
   res.send("Welcome to the database")
