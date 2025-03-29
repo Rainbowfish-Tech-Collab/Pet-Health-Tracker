@@ -24,6 +24,7 @@ CREATE TABLE "pet"(
     "id" bigserial NOT NULL,
     "pet_breed_id" INTEGER NOT NULL,
     "sex_id" INTEGER NOT NULL,
+    "name" TEXT NOT NULL,
     "birthday" DATE NULL,
     "description" TEXT NOT NULL,
     "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
