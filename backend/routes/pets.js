@@ -2,14 +2,13 @@ import express from 'express';
 import pool from '../config/database.js';
 const router = express.Router();
 
-// POST a new pet
-
+// POST add a new pet
 router.post("/", async (req, res, next) => {
   try {
-    const { pet_breed_id, sex_id, birthday, description, profile_picture } = req.body;
+    const { pet_breed_id, sex_id, name, birthday, description, date_created, date_updated, profile_picture } = req.body;
     const result = await pool.query(
-      "INSERT INTO pets (pet_breed_id, sex_id, birthday, description, profile_picture) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [pet_breed_id, sex_id, birthday, description, profile_picture]
+      "INSERT INTO pet (pet_breed_id, sex_id, name, birthday, description, date_created, date_updated, profile_picture) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+      [pet_breed_id, sex_id, name, birthday, description, date_created, date_updated, profile_picture]
     );
     res.json(result.rows[0]);
   } catch (err) {
@@ -18,11 +17,10 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-
 // GET all pets
 router.get("/", async (req, res, next) => {
   try {
-    const result = await pool.query("SELECT * FROM pets");
+    const result = await pool.query("SELECT * FROM pet");
     res.json(result.rows);
   } catch (err) {
     console.error(err);
@@ -34,7 +32,7 @@ router.get("/", async (req, res, next) => {
 router.get("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
-    const result = await pool.query("SELECT * FROM pets WHERE id = $1", [id]);
+    const result = await pool.query("SELECT * FROM pet WHERE id = $1", [id]);
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
@@ -42,7 +40,7 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-
+// PATCH update a pet by id
 router.patch("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -55,7 +53,7 @@ router.patch("/:id", async (req, res, next) => {
 
     const result = await pool.query(
       `
-        UPDATE pets SET ${fields.map((field, index) => `${field} = $${index + 1}`).join(", ")} 
+        UPDATE pet SET ${fields.map((field, index) => `${field} = $${index + 1}`).join(", ")} 
         WHERE id = $${fields.length + 1} 
         RETURNING *
       `, [...values, id]

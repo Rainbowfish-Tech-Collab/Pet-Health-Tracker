@@ -24,6 +24,8 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
       - "5050:80"
-
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
 volumes:
   db_data:
+  pgadmin_data:

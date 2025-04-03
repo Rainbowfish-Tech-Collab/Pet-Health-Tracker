@@ -2,6 +2,7 @@ import express from 'express';
 import pool from '../config/database.js';
 const router = express.Router();
 
+// GET all pet breeds
 router.get('/', async (req, res, next) => {
   try {
     const result = await pool.query("SELECT * FROM pet_breed");
@@ -12,6 +13,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
+// GET pet breeds by species name or ID
 router.get('/:speciesOrId', async (req, res, next) => {
   try {
     const { speciesOrId } = req.params;
