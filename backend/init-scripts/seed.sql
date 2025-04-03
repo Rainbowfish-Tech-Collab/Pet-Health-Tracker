@@ -1,63 +1,77 @@
 INSERT INTO "user" (email, username, password_hashed, profile_picture) VALUES
-('Lilliana_Kling@yahoo.com', 'Scot56','tvZBZF5QcO2bOnb', 'https://loremflickr.com/1309/547?lock=2440555419256329'),
-('Oran_OKeefe@yahoo.com', 'Aileen75','sVJNidxGY9pVtvk', 'https://loremflickr.com/1930/1451?lock=5130149132209379'),
-('Jo_Wyman@hotmail.com', 'Austyn2','ui07w757ZgXzjhR', 'https://loremflickr.com/3829/2451?lock=2582409443510544'),
-('Lurline.Balistreri62@gmail.com', 'Reanna50','PfnFHMISRRgNqZI', 'https://loremflickr.com/2654/3703?lock=5090313401872614'),
-('Ashlynn_Hane46@gmail.com', 'Guy_Bogisich1','CoRlFs7MUQndt0Q', 'https://loremflickr.com/2613/1120?lock=7632073790586738'),
-('Winifred73@hotmail.com', 'Bradford_Prohaska','U1NBeavqgAMecqY', 'https://loremflickr.com/357/3004?lock=5371661975903719');
+('George_Nicolas@yahoo.com', 'Ova52','miTPpMp1tpK8uFC', 'https://picsum.photos/seed/shnRI0Gp/2282/1311'),
+('Mozelle12@hotmail.com', 'Olga_Metz60','yZYmo_s8Hm9M61O', 'https://picsum.photos/seed/UAadC/1425/2785'),
+('Golda.Oberbrunner94@gmail.com', 'Deron31','pQjTwgFlziCFuCT', 'https://picsum.photos/seed/lAGNMwJ/1667/2017'),
+('Jeanie_Emmerich25@hotmail.com', 'Skye.Hackett','OeTxXOhXKuxFwoc', 'https://loremflickr.com/1742/2744?lock=4546749548612898'),
+('Darius_Ziemann@gmail.com', 'Art54','5Lc_Yot6eNhq8HC', 'https://loremflickr.com/734/3268?lock=5323473281878450'),
+('Loy41@hotmail.com', 'Maximillian_Boehm','q0esk5CkACFFuFs', 'https://loremflickr.com/1893/1531?lock=3843407080844371');
 INSERT INTO "pet" (pet_breed_id, sex_id, "name", birthday, "description", profile_picture) VALUES
-('49', '2', 'Kobe', '2020-03-24','This is my pet.', 'https://picsum.photos/seed/WDHVxi/3135/1124'),
-('73', '1', 'Coco', '2020-03-24','This is my pet.', 'https://loremflickr.com/956/1625?lock=1877321952288312'),
-('47', '1', 'Murphey', '2020-03-24','This is my pet.', 'https://loremflickr.com/2647/2298?lock=2577055392251207'),
-('38', '1', 'Joey', '2020-03-24','This is my pet.', 'https://loremflickr.com/1934/1904?lock=4788298641167715'),
-('98', '4', 'Mia', '2020-03-24','This is my pet.', 'https://loremflickr.com/1857/2566?lock=3112362144666549'),
-('70', '1', 'Archie', '2020-03-24','This is my pet.', 'https://picsum.photos/seed/FBt76BUF/1464/3841');
+('29', '3', 'Finn', '2020-03-24','This is my pet.', 'https://picsum.photos/seed/hWk1qfUpu/1074/2847'),
+('26', '2', 'Bailey', '2020-03-24','This is my pet.', 'https://picsum.photos/seed/f5guiwF6b/3745/2189'),
+('78', '4', 'Bruno', '2020-03-24','This is my pet.', 'https://loremflickr.com/1312/1928?lock=3302959628615073'),
+('10', '1', 'Molly', '2020-03-24','This is my pet.', 'https://picsum.photos/seed/GySbAmBwb9/872/2256'),
+('46', '4', 'Joey', '2020-03-24','This is my pet.', 'https://loremflickr.com/3917/3485?lock=7075374453510812'),
+('41', '1', 'Murphey', '2020-03-24','This is my pet.', 'https://loremflickr.com/524/998?lock=6462568711273737');
 INSERT INTO symptom (pet_id, symptom_type_id, symptom_description, symptom_date) VALUES
-('6', '2', 'This is the symptom description.', '2025-12-12 19:08:00'),
-('2', '2', 'This is the symptom description.', '2025-04-04 04:33:43'),
-('5', '1', 'This is the symptom description.', '2025-12-03 04:10:57'),
-('6', '1', 'This is the symptom description.', '2025-11-16 14:20:33'),
-('5', '1', 'This is the symptom description.', '2025-09-18 15:39:06'),
-('6', '1', 'This is the symptom description.', '2025-12-04 16:07:33');
+('6', '7', 'This is the symptom description.', '2025-06-04 05:05:13'),
+('3', '4', 'This is the symptom description.', '2025-07-28 21:55:03'),
+('2', '2', 'This is the symptom description.', '2025-04-27 02:10:14'),
+('3', '4', 'This is the symptom description.', '2025-05-05 20:33:36'),
+('5', '5', 'This is the symptom description.', '2025-05-25 07:13:00'),
+('3', '7', 'This is the symptom description.', '2025-05-07 10:29:45');
 INSERT INTO stat (pet_id, "description", stat_date) VALUES
-('5', 'This is the stat description', '2025-04-17 12:14:59'),
-('6', 'This is the stat description', '2025-05-08 12:08:07'),
-('4', 'This is the stat description', '2025-11-21 16:57:51'),
-('2', 'This is the stat description', '2025-08-13 22:51:38'),
-('4', 'This is the stat description', '2025-08-04 17:10:44'),
-('2', 'This is the stat description', '2025-11-28 11:08:22');
+('3', 'This is the stat description', '2025-05-20 23:47:05'),
+('6', 'This is the stat description', '2025-11-30 16:54:30'),
+('3', 'This is the stat description', '2025-09-08 12:37:05'),
+('2', 'This is the stat description', '2025-04-14 20:17:47'),
+('2', 'This is the stat description', '2025-08-03 01:05:35'),
+('5', 'This is the stat description', '2025-10-19 03:38:12');
 INSERT INTO weight_stat (stat_id, weight_id, "weight") VALUES
-('6', '3', '35'),
-('5', '1', '34'),
-('2', '4', '32'),
-('4', '2', '33'),
-('3', '3', '32'),
-('5', '5', '35');
+('3', '3', '34'),
+('5', '3', '35'),
+('1', '4', '32'),
+('2', '5', '31'),
+('1', '4', '34'),
+('2', '1', '33');
 INSERT INTO glucose_stat (stat_id, glucose_id, glucose_level) VALUES
-('2', '1', '25'),
-('4', '1', '25'),
-('5', '1', '26'),
-('6', '2', '45'),
-('5', '3', '15'),
-('5', '3', '67');
+('3', '1', '101'),
+('5', '2', '25'),
+('5', '1', '30'),
+('4', '3', '19'),
+('3', '3', '108'),
+('6', '3', '28');
 INSERT INTO heart_rate_stat (stat_id, beats_per_minute) VALUES
-('6', '145'),
-('3', '44'),
-('2', '59'),
-('2', '142'),
-('6', '201'),
-('5', '86');
-INSERT INTO respiratory_rate_stat (stat_id, beats_per_minute) VALUES
-('6', '15'),
-('4', '11'),
-('6', '23'),
-('3', '21'),
-('4', '14'),
-('5', '30');
+('5', '53'),
+('3', '131'),
+('1', '155'),
+('4', '122'),
+('4', '185'),
+('4', '95');
+INSERT INTO respiratory_rate_stat (stat_id, breaths_per_minute) VALUES
+('4', '12'),
+('6', '13'),
+('3', '13'),
+('5', '17'),
+('5', '16'),
+('4', '30');
 INSERT INTO other_stat (stat_id, note) VALUES
 ('1', 'This is the other symptom description.'),
 ('4', 'This is the other symptom description.'),
 ('5', 'This is the other symptom description.'),
-('6', 'This is the other symptom description.'),
-('2', 'This is the other symptom description.'),
-('2', 'This is the other symptom description.');
+('1', 'This is the other symptom description.'),
+('1', 'This is the other symptom description.'),
+('4', 'This is the other symptom description.');
+INSERT INTO bodily_function (pet_id, function_id, note, bodily_function_date) VALUES
+('4','2', 'This is the bodily function description.', '2025-07-21 08:35:41'),
+('2','1', 'This is the bodily function description.', '2025-06-04 17:42:34'),
+('6','1', 'This is the bodily function description.', '2025-08-22 21:30:37'),
+('2','1', 'This is the bodily function description.', '2025-06-14 12:29:22'),
+('4','1', 'This is the bodily function description.', '2025-07-23 22:03:22'),
+('4','2', 'This is the bodily function description.', '2025-08-08 07:16:11');
+INSERT INTO medication (pet_id, dosage_id, dosage, note, medication_date) VALUES
+('2', '2', '7.7', 'This is the bodily function description.', '2025-05-22 04:34:58'),
+('2', '1', '4.0', 'This is the bodily function description.', '2025-05-29 09:44:15'),
+('4', '2', '3.6', 'This is the bodily function description.', '2025-12-13 18:25:48'),
+('2', '1', '4.2', 'This is the bodily function description.', '2025-06-05 17:26:37'),
+('6', '2', '7.7', 'This is the bodily function description.', '2025-07-05 15:37:24'),
+('3', '2', '4.6', 'This is the bodily function description.', '2025-11-03 05:46:12');

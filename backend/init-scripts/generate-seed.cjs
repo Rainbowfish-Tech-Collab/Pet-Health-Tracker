@@ -133,7 +133,7 @@ const generateHeartRateStats = (count) => {
 
 // Generates SQL INSERT statements for the respiratory_rate_stat table
 const generateRespiratoryRateStats = (count) => {
-  let sql = 'INSERT INTO respiratory_rate_stat (stat_id, beats_per_minute) VALUES\n';
+  let sql = 'INSERT INTO respiratory_rate_stat (stat_id, breaths_per_minute) VALUES\n';
   const values = [];
 
   for (let i = 0; i < count; i++) {
@@ -155,7 +155,7 @@ const generateOtherStats = (count) => {
 
   for (let i = 0; i < count; i++) {
     const statId = Math.ceil(Math.random()*6);
-    const note = "This is the other symptom description."
+    const note = "This is the other symptom description.";
 
     values.push(`('${statId}', '${note}')`)
   }
@@ -166,8 +166,43 @@ const generateOtherStats = (count) => {
 };
 
 // Generates SQL INSERT statements for the bodily_function table
+const generateBodilyFunctions = (count) => {
+  let sql = 'INSERT INTO bodily_function (pet_id, function_id, note, bodily_function_date) VALUES\n';
+  const values = [];
+
+  for (let i = 0; i < count; i++) {
+    const petId = Math.ceil(Math.random()*6);
+    const functionId = Math.ceil(Math.random()*2);
+    const note = "This is the bodily function description.";
+    const bodilyFunctionDate = faker.date.between({ from: '2025-04-01', to: '2025-12-31' }).toISOString().slice(0, 19).replace('T', ' ');
+
+    values.push(`('${petId}','${functionId}', '${note}', '${bodilyFunctionDate}')`)
+  }
+
+  sql+= values.join(',\n') + ';';
+
+  return sql;
+};
 
 // Generates SQL INSERT statements for the medication table
+const generateMedications = (count) => {
+  let sql = 'INSERT INTO medication (pet_id, dosage_id, dosage, note, medication_date) VALUES\n';
+  const values = [];
+
+  for (let i = 0; i < count; i++) {
+    const petId = Math.ceil(Math.random()*6);
+    const dosageId = Math.ceil(Math.random()*2);
+    const dosage = (Math.random() * 19 + 1).toFixed(1); // add one decimal place
+    const note = "This is the bodily function description.";
+    const medicationDate = faker.date.between({ from: '2025-04-01', to: '2025-12-31' }).toISOString().slice(0, 19).replace('T', ' ');
+
+    values.push(`('${petId}', '${dosageId}', '${dosage}', '${note}', '${medicationDate}')`)
+  }
+
+  sql+= values.join(',\n') + ';';
+
+  return sql;
+};
 
 // Generates SQL INSERT statements for the activity table
 
@@ -186,7 +221,9 @@ fs.writeFileSync(
     generateGlucoseStats(6), 
     generateHeartRateStats(6),
     generateRespiratoryRateStats(6),
-    generateOtherStats(6)
+    generateOtherStats(6),
+    generateBodilyFunctions(6),
+    generateMedications(6)
   ].join('\n'),
   'utf8'
 );
