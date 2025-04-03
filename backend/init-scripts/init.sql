@@ -26,7 +26,7 @@ CREATE TABLE "pet"(
     "sex_id" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
     "birthday" DATE NULL,
-    "description" TEXT NOT NULL,
+    "description" TEXT NULL,
     "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
     "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL,
@@ -48,7 +48,7 @@ CREATE TABLE "pet_species"(
 ALTER TABLE
     "pet_species" ADD PRIMARY KEY("id");
 CREATE TABLE "pet_sex"(
-    "id" smallserial NOT NULL,
+    "id" SMALLSERIAL NOT NULL,
     "sex" TEXT NOT NULL
 );
 ALTER TABLE
@@ -60,8 +60,8 @@ CREATE TABLE "symptom"(
     "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
     "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL,
-    "symptom_other" TEXT NOT NULL,
-    "symptom_description" TEXT NOT NULL,
+    "symptom_other" TEXT NULL,
+    "symptom_description" TEXT NULL,
     "symptom_date" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
 );
 ALTER TABLE
