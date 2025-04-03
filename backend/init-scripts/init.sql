@@ -75,7 +75,7 @@ ALTER TABLE
 CREATE TABLE "stat"(
     "id" bigserial NOT NULL,
     "pet_id" BIGINT NOT NULL,
-    "description" TEXT NOT NULL,
+    "description" TEXT NULL,
     "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL,

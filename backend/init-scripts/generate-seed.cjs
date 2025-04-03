@@ -44,15 +44,15 @@ const generatePets = (count) => {
 
 // Generates SQL INSERT statements for the symptom table
 const generateSymptoms = (count) => {
-  let sql = 'INSERT INTO symptom (pet_id, symptom_type_id, symptom_date) VALUES\n';
+  let sql = 'INSERT INTO symptom (pet_id, symptom_type_id, symptom_description, symptom_date) VALUES\n';
   const values = [];
 
   for (let i = 0; i < count; i++) {
     const petId = Math.ceil(Math.random()*6);
     const symptomTypeId = Math.ceil(Math.random()*7);
     const symptomDate = faker.date.between({ from: '2025-04-01', to: '2025-12-31' }).toISOString().slice(0, 19).replace('T', ' ');
-  
-    values.push(`('${petId}', '${symptomTypeId}', '${symptomDate}')`)
+    const symptomDescription = "This is the symptom description.";
+    values.push(`('${petId}', '${symptomTypeId}', '${symptomDescription}', '${symptomDate}')`)
   }
 
   sql+= values.join(',\n') + ';';
@@ -61,6 +61,22 @@ const generateSymptoms = (count) => {
 };
 
 // Generates SQL INSERT statements for the stat table (description should be nullable)
+const generateStats = (count) => {
+  let sql = 'INSERT INTO stat (pet_id, "description", stat_date) VALUES\n';
+  const values = [];
+
+  for (let i = 0; i < count; i++) {
+    const petId = Math.ceil(Math.random()*6);
+    const description = "This is the stat description";
+    const symptomDate = faker.date.between({ from: '2025-04-01', to: '2025-12-31' }).toISOString().slice(0, 19).replace('T', ' ');
+  
+    values.push(`('${petId}', '${description}', '${symptomDate}')`)
+  }
+
+  sql+= values.join(',\n') + ';';
+
+  return sql;
+};
 
 // Generates SQL INSERT statements for the weight_stat table
 
@@ -84,7 +100,7 @@ const seedFilePath = path.join(__dirname, 'seed.sql');
 // Write the seed data to seed.sql
 fs.writeFileSync(
   seedFilePath,
-  [generateUsers(6), generatePets(6), generateSymptoms(6)].join('\n'),
+  [generateUsers(6), generatePets(6), generateSymptoms(6), generateStats(6)].join('\n'),
   'utf8'
 );
 
