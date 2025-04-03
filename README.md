@@ -99,10 +99,12 @@ docker compose down -v
 
 ### Server Setup
 1. Make sure you have an `DATABASE_URL` set in your `.env` file.  
+Please refer to the `.env.example` file for format and more information.  
 The format should be:  
 ```
 postgres://<POSTGRES_USER>:<POSTGRES_PASSWORD>@localhost:5432/<POSTGRES_DB>
-```
+```  
+
 
 2. To run your express server run: 
 
