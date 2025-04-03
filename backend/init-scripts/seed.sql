@@ -1,21 +1,21 @@
-INSERT INTO "user" (email, username, password_hashed, date_created, date_updated, profile_picture) VALUES
-('Georgiana58@hotmail.com', 'Constantin51','RDTTU3NTAmusvhb', '2025-03-24 14:30:00', '2025-03-24 14:30:00', 'https://picsum.photos/seed/OYQIPVW/1914/3983'),
-('Abraham.Brown33@yahoo.com', 'Isidro_Mayert','opB8e2toHYVStd8', '2025-03-24 14:30:00', '2025-03-24 14:30:00', 'https://loremflickr.com/2559/3426?lock=6079907452537209'),
-('Brooklyn43@hotmail.com', 'Opal_Ruecker','HbZtnnOlAsnD2Rd', '2025-03-24 14:30:00', '2025-03-24 14:30:00', 'https://picsum.photos/seed/xgPVmg7T/3644/2153'),
-('Rod.Sporer43@yahoo.com', 'Minerva_Lueilwitz11','xqatgfoDcnUNZLI', '2025-03-24 14:30:00', '2025-03-24 14:30:00', 'https://loremflickr.com/2541/1417?lock=2857104971549894'),
-('Edythe45@gmail.com', 'Hermina_Kuphal75','mnR8ePrLUE1Jd3f', '2025-03-24 14:30:00', '2025-03-24 14:30:00', 'https://loremflickr.com/1865/2744?lock=7184957440447534'),
-('Naomi_Stokes96@yahoo.com', 'Favian.Harvey68','afJE0UaVhzsyoPr', '2025-03-24 14:30:00', '2025-03-24 14:30:00', 'https://picsum.photos/seed/JmsYkI/162/800');
-INSERT INTO "pet" (pet_breed_id, sex_id, "name", birthday, "description", date_created, date_updated, profile_picture) VALUES
-('77', '3', 'Mia', '2020-03-24','This is my pet.', '2025-03-24 14:30:00', '2025-03-24 14:30:00', 'https://loremflickr.com/2843/731?lock=318810809681399'),
-('100', '2', 'Nova', '2020-03-24','This is my pet.', '2025-03-24 14:30:00', '2025-03-24 14:30:00', 'https://loremflickr.com/3010/3335?lock=7544216044151275'),
-('42', '1', 'Ace', '2020-03-24','This is my pet.', '2025-03-24 14:30:00', '2025-03-24 14:30:00', 'https://picsum.photos/seed/Gaczc20jtv/3647/32'),
-('34', '2', 'Ginger', '2020-03-24','This is my pet.', '2025-03-24 14:30:00', '2025-03-24 14:30:00', 'https://picsum.photos/seed/9rxiTnzz/3299/3396'),
-('49', '4', 'Lucy', '2020-03-24','This is my pet.', '2025-03-24 14:30:00', '2025-03-24 14:30:00', 'https://picsum.photos/seed/dFHTx/75/3129'),
-('62', '2', 'Ollie', '2020-03-24','This is my pet.', '2025-03-24 14:30:00', '2025-03-24 14:30:00', 'https://loremflickr.com/1250/2976?lock=915776743544585');
-INSERT INTO symptom (pet_id, symptom_type_id, date_created, date_updated, symptom_date) VALUES
-('1', '7', '2025-03-24 14:30:00', '2025-03-24 14:30:00', '2025-04-22 00:42:52'),
-('2', '3', '2025-03-24 14:30:00', '2025-03-24 14:30:00', '2025-07-09 22:55:40'),
-('4', '5', '2025-03-24 14:30:00', '2025-03-24 14:30:00', '2025-09-23 21:42:22'),
-('2', '1', '2025-03-24 14:30:00', '2025-03-24 14:30:00', '2025-12-23 13:51:42'),
-('6', '3', '2025-03-24 14:30:00', '2025-03-24 14:30:00', '2025-04-10 17:59:55'),
-('4', '4', '2025-03-24 14:30:00', '2025-03-24 14:30:00', '2025-05-06 16:25:42');
+INSERT INTO "user" (email, username, password_hashed, profile_picture) VALUES
+('Laisha_Purdy@yahoo.com', 'Aric.Jerde','qwW5CqXGp9BEZD7', 'https://loremflickr.com/1882/1936?lock=5012911220455483'),
+('Ron_Keeling@hotmail.com', 'Lane.Reilly36','kZQ4awkYY4B2Xak', 'https://loremflickr.com/2430/2023?lock=3947915414940560'),
+('Devin.Treutel24@hotmail.com', 'Judd43','aERSdqBiFbcMbbi', 'https://loremflickr.com/1619/759?lock=8165808413884609'),
+('Felix.Lang19@gmail.com', 'Carlos58','p9eyouhg0oKfNfm', 'https://loremflickr.com/1222/2548?lock=5405279915019866'),
+('Antonia25@gmail.com', 'Nia.Pfannerstill75','7iHTBJ9MmfMJ_G3', 'https://picsum.photos/seed/ACMFcU/587/1517'),
+('Araceli11@yahoo.com', 'Jovan_Yundt34','zM9soZ7ykQNP23R', 'https://loremflickr.com/209/639?lock=712987870428639');
+INSERT INTO "pet" (pet_breed_id, sex_id, "name", birthday, "description", profile_picture) VALUES
+('35', '2', 'Ace', '2020-03-24','This is my pet.', 'https://loremflickr.com/131/496?lock=8655143628964714'),
+('20', '1', 'Cookie', '2020-03-24','This is my pet.', 'https://picsum.photos/seed/N90zjpZA/374/648'),
+('113', '1', 'Bentley', '2020-03-24','This is my pet.', 'https://loremflickr.com/2789/2571?lock=3942894018776665'),
+('105', '1', 'Jax', '2020-03-24','This is my pet.', 'https://loremflickr.com/972/3383?lock=8464455458170457'),
+('82', '4', 'Rosie', '2020-03-24','This is my pet.', 'https://loremflickr.com/2184/3073?lock=6385203330638669'),
+('88', '1', 'Lucy', '2020-03-24','This is my pet.', 'https://picsum.photos/seed/Qm4ApIURSh/3493/1645');
+INSERT INTO symptom (pet_id, symptom_type_id, symptom_date) VALUES
+('3', '5', '2025-08-21 18:19:40'),
+('2', '1', '2025-05-16 16:01:46'),
+('2', '3', '2025-07-03 07:22:55'),
+('3', '3', '2025-04-15 20:28:41'),
+('4', '1', '2025-10-30 09:03:29'),
+('5', '6', '2025-05-28 18:54:23');

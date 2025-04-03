@@ -4,18 +4,16 @@ const { faker } = require('@faker-js/faker');
 
 // Generates SQL INSERT statements for the "user" table
 const generateUsers = (count) => {
-  let sql = 'INSERT INTO "user" (email, username, password_hashed, date_created, date_updated, profile_picture) VALUES\n';
+  let sql = 'INSERT INTO "user" (email, username, password_hashed, profile_picture) VALUES\n';
   const values = [];
 
   for (let i = 0; i < count; i++) {
     const email = faker.internet.email(); // need to make an escapeString function in case faker passes in a value with ' in it (that would break the SQL)
     const username = faker.internet.username();
     const passwordHashed = faker.internet.password();
-    const dateCreated = '2025-03-24 14:30:00';
-    const dateUpdated = '2025-03-24 14:30:00';
     const profilePicture = faker.image.url();
   
-    values.push(`('${email}', '${username}','${passwordHashed}', '${dateCreated}', '${dateUpdated}', '${profilePicture}')`)
+    values.push(`('${email}', '${username}','${passwordHashed}', '${profilePicture}')`)
   }
 
   sql+= values.join(',\n') + ';';
@@ -25,7 +23,7 @@ const generateUsers = (count) => {
 
 // Generates SQL INSERT statements for the pet table
 const generatePets = (count) => {
-  let sql = 'INSERT INTO "pet" (pet_breed_id, sex_id, "name", birthday, "description", date_created, date_updated, profile_picture) VALUES\n';
+  let sql = 'INSERT INTO "pet" (pet_breed_id, sex_id, "name", birthday, "description", profile_picture) VALUES\n';
   const values = [];
 
   for (let i = 0; i < count; i++) {
@@ -34,11 +32,9 @@ const generatePets = (count) => {
     const name = faker.animal.petName();
     const birthday = '2020-03-24';
     const description = 'This is my pet.';
-    const dateCreated = '2025-03-24 14:30:00';
-    const dateUpdated = '2025-03-24 14:30:00';
     const profilePicture = faker.image.url();
   
-    values.push(`('${petBreedId}', '${sexId}', '${name}', '${birthday}','${description}', '${dateCreated}', '${dateUpdated}', '${profilePicture}')`)
+    values.push(`('${petBreedId}', '${sexId}', '${name}', '${birthday}','${description}', '${profilePicture}')`)
   }
 
   sql+= values.join(',\n') + ';';
@@ -48,17 +44,15 @@ const generatePets = (count) => {
 
 // Generates SQL INSERT statements for the symptom table
 const generateSymptoms = (count) => {
-  let sql = 'INSERT INTO symptom (pet_id, symptom_type_id, date_created, date_updated, symptom_date) VALUES\n';
+  let sql = 'INSERT INTO symptom (pet_id, symptom_type_id, symptom_date) VALUES\n';
   const values = [];
 
   for (let i = 0; i < count; i++) {
     const petId = Math.ceil(Math.random()*6);
     const symptomTypeId = Math.ceil(Math.random()*7);
-    const dateCreated = '2025-03-24 14:30:00';
-    const dateUpdated = '2025-03-24 14:30:00';
     const symptomDate = faker.date.between({ from: '2025-04-01', to: '2025-12-31' }).toISOString().slice(0, 19).replace('T', ' ');
   
-    values.push(`('${petId}', '${symptomTypeId}', '${dateCreated}', '${dateUpdated}', '${symptomDate}')`)
+    values.push(`('${petId}', '${symptomTypeId}', '${symptomDate}')`)
   }
 
   sql+= values.join(',\n') + ';';

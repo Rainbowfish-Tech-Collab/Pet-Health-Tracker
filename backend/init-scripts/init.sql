@@ -3,8 +3,8 @@ CREATE TABLE "user"(
     "email" TEXT NOT NULL,
     "username" TEXT NOT NULL,
     "password_hashed" TEXT NOT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL,
     "profile_picture" TEXT NULL
 );
@@ -27,8 +27,8 @@ CREATE TABLE "pet"(
     "name" TEXT NOT NULL,
     "birthday" DATE NULL,
     "description" TEXT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL,
     "profile_picture" TEXT NULL
 );
@@ -57,8 +57,8 @@ CREATE TABLE "symptom"(
     "id" bigserial NOT NULL,
     "pet_id" BIGINT NOT NULL,
     "symptom_type_id" INTEGER NOT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL,
     "symptom_other" TEXT NULL,
     "symptom_description" TEXT NULL,
@@ -76,8 +76,8 @@ CREATE TABLE "stat"(
     "id" bigserial NOT NULL,
     "pet_id" BIGINT NOT NULL,
     "description" TEXT NOT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL,
     "stat_date" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
 );
@@ -88,8 +88,8 @@ CREATE TABLE "weight_stat"(
     "stat_id" BIGINT NOT NULL,
     "weight_id" INTEGER NOT NULL,
     "weight" REAL NOT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL
 );
 ALTER TABLE
@@ -105,8 +105,8 @@ CREATE TABLE "glucose_stat"(
     "stat_id" BIGINT NOT NULL,
     "glucose_id" INTEGER NOT NULL,
     "glucose_level" REAL NOT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL
 );
 ALTER TABLE
@@ -121,8 +121,8 @@ CREATE TABLE "heart_rate_stat"(
     "id" bigserial NOT NULL,
     "stat_id" BIGINT NOT NULL,
     "beats_per_minute" INTEGER NOT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL
 );
 ALTER TABLE
@@ -131,8 +131,8 @@ CREATE TABLE "respiratory_rate_stat"(
     "id" bigserial NOT NULL,
     "stat_id" BIGINT NOT NULL,
     "breaths_per_minute" INTEGER NOT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL
 );
 ALTER TABLE
@@ -141,8 +141,8 @@ CREATE TABLE "other_stat"(
     "id" bigserial NOT NULL,
     "stat_id" BIGINT NOT NULL,
     "note" TEXT NOT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL
 );
 ALTER TABLE
@@ -152,8 +152,8 @@ CREATE TABLE "bodily_function"(
     "pet_id" BIGINT NOT NULL,
     "function_id" INTEGER NOT NULL,
     "note" TEXT NOT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL,
     "bodily_function_date" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
 );
@@ -171,8 +171,8 @@ CREATE TABLE "medication"(
     "dosage_id" INTEGER NOT NULL,
     "dosage" REAL NOT NULL,
     "note" TEXT NOT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL,
     "medication_date" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
 );
@@ -190,8 +190,8 @@ CREATE TABLE "activity"(
     "activity_type_id" INTEGER NOT NULL,
     "duration_in_hours" REAL NOT NULL,
     "note" TEXT NOT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL,
     "activity_date" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
 );
