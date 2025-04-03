@@ -49,6 +49,10 @@ The Rainbow Fish is a children's book by Marcus Pfister that promotes generosity
 - Node
 
 # Getting Started 🚀
+├── [Requirements](#requirements)  
+├── [Installation](#installation)  
+├── [Running the Database](#running-the-database)  
+└── [Setting Up Express Server](#server-setup)
 
 ## Requirements
 
@@ -60,8 +64,9 @@ The Rainbow Fish is a children's book by Marcus Pfister that promotes generosity
 
 1. Clone the repository.
 2. Pull latest changes from the `main` branch into your local environment.
-3. Run `npm install` to install dependencies.
-4. Create a `.env` file in the `backend` directory and populate it with the variables from `example.env`.
+3. Run `cd backend` to navigate into the `backend` directory.
+4. Run `npm install` to install dependencies.
+5. Create a `.env` file in the `backend` directory and populate it with the variables from `example.env`.
 
 ### Running the Database
 1. Make sure you have Docker at least v27 installed (tested on v27.5.1)
@@ -90,6 +95,23 @@ This should return a list of tables, which should match the `init.sql` file.
 6. When you're done using the database, stop and remove the containers with:
 ```
 docker compose down -v
+```
+
+### Server Setup
+1. Make sure you have an `DATABASE_URL` set in your `.env` file.  
+The format should be:  
+```
+postgres://<POSTGRES_USER>:<POSTGRES_PASSWORD>@localhost:5432/<POSTGRES_DB>
+```
+
+2. To run your express server run: 
+
+```
+npm run dev
+```
+3. You can then access the server at 
+```
+http://localhost:3000
 ```
 
 ## Configuration
