@@ -79,14 +79,91 @@ const generateStats = (count) => {
 };
 
 // Generates SQL INSERT statements for the weight_stat table
+const generateWeightStats = (count) => {
+  let sql = 'INSERT INTO weight_stat (stat_id, weight_id, "weight") VALUES\n';
+  const values = [];
+
+  for (let i = 0; i < count; i++) {
+    const statId = Math.ceil(Math.random()*6);
+    const weightId = Math.ceil(Math.random()*5);
+    const weight = 30 + Math.ceil(Math.random()*5);
+
+    values.push(`('${statId}', '${weightId}', '${weight}')`)
+  }
+
+  sql+= values.join(',\n') + ';';
+
+  return sql;
+};
 
 // Generates SQL INSERT statements for the glucose_stat table
+const generateGlucoseStats = (count) => {
+  let sql = 'INSERT INTO glucose_stat (stat_id, glucose_id, glucose_level) VALUES\n';
+  const values = [];
+
+  for (let i = 0; i < count; i++) {
+    const statId = Math.ceil(Math.random()*6); // can the stat_id in weight_stat and glucose_stat tables both be equal to 1? 
+    const glucoseID = Math.ceil(Math.random()*3);
+    const glucoseLevel = 6 + Math.ceil(Math.random()*131);
+
+    values.push(`('${statId}', '${glucoseID}', '${glucoseLevel}')`)
+  }
+
+  sql+= values.join(',\n') + ';';
+
+  return sql;
+};
 
 // Generates SQL INSERT statements for the heart_rate_stat table
+const generateHeartRateStats = (count) => {
+  let sql = 'INSERT INTO heart_rate_stat (stat_id, beats_per_minute) VALUES\n';
+  const values = [];
+
+  for (let i = 0; i < count; i++) {
+    const statId = Math.ceil(Math.random()*6);
+    const beatsPerMinute = 40 + Math.ceil(Math.random()*180);
+
+    values.push(`('${statId}', '${beatsPerMinute}')`)
+  }
+
+  sql+= values.join(',\n') + ';';
+
+  return sql;
+};
 
 // Generates SQL INSERT statements for the respiratory_rate_stat table
+const generateRespiratoryRateStats = (count) => {
+  let sql = 'INSERT INTO respiratory_rate_stat (stat_id, beats_per_minute) VALUES\n';
+  const values = [];
+
+  for (let i = 0; i < count; i++) {
+    const statId = Math.ceil(Math.random()*6);
+    const breathsPerMinute = 10 + Math.ceil(Math.random()*20);
+
+    values.push(`('${statId}', '${breathsPerMinute}')`)
+  }
+
+  sql+= values.join(',\n') + ';';
+
+  return sql;
+};
 
 // Generates SQL INSERT statements for the other_stat table
+const generateOtherStats = (count) => {
+  let sql = 'INSERT INTO other_stat (stat_id, note) VALUES\n';
+  const values = [];
+
+  for (let i = 0; i < count; i++) {
+    const statId = Math.ceil(Math.random()*6);
+    const note = "This is the other symptom description."
+
+    values.push(`('${statId}', '${note}')`)
+  }
+
+  sql+= values.join(',\n') + ';';
+
+  return sql;
+};
 
 // Generates SQL INSERT statements for the bodily_function table
 
@@ -100,7 +177,17 @@ const seedFilePath = path.join(__dirname, 'seed.sql');
 // Write the seed data to seed.sql
 fs.writeFileSync(
   seedFilePath,
-  [generateUsers(6), generatePets(6), generateSymptoms(6), generateStats(6)].join('\n'),
+  [
+    generateUsers(6), 
+    generatePets(6), 
+    generateSymptoms(6), 
+    generateStats(6), 
+    generateWeightStats(6), 
+    generateGlucoseStats(6), 
+    generateHeartRateStats(6),
+    generateRespiratoryRateStats(6),
+    generateOtherStats(6)
+  ].join('\n'),
   'utf8'
 );
 
