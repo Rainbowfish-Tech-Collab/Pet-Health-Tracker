@@ -7,7 +7,7 @@ router.post("/", async (req, res, next) => {
   try {
     const { pet_breed_id, sex_id, name, birthday, description, date_created, date_updated, profile_picture } = req.body;
     const result = await pool.query(
-      "INSERT INTO pet (pet_breed_id, sex_id, name, birthday, description, date_created, date_updated, profile_picture) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+      "INSERT INTO pet (pet_breed_id, sex_id, name, birthday, description, date_created, date_updated, profile_picture) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
       [pet_breed_id, sex_id, name, birthday, description, date_created, date_updated, profile_picture]
     );
     res.json(result.rows[0]);
