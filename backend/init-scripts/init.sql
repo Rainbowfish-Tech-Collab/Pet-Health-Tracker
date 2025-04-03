@@ -189,7 +189,7 @@ CREATE TABLE "activity"(
     "pet_id" BIGINT NOT NULL,
     "activity_type_id" INTEGER NOT NULL,
     "duration_in_hours" REAL NOT NULL,
-    "note" TEXT NOT NULL,
+    "note" TEXT NULL,
     "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL,

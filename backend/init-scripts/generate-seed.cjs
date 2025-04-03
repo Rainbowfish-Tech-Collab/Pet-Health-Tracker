@@ -191,9 +191,9 @@ const generateMedications = (count) => {
 
   for (let i = 0; i < count; i++) {
     const petId = Math.ceil(Math.random()*6);
-    const dosageId = Math.ceil(Math.random()*2);
-    const dosage = (Math.random() * 19 + 1).toFixed(1); // add one decimal place
-    const note = "This is the bodily function description.";
+    const dosageId = Math.ceil(Math.random()*7);
+    const dosage = (Math.random() * 19 + 1).toFixed(1);
+    const note = "This is the medication description.";
     const medicationDate = faker.date.between({ from: '2025-04-01', to: '2025-12-31' }).toISOString().slice(0, 19).replace('T', ' ');
 
     values.push(`('${petId}', '${dosageId}', '${dosage}', '${note}', '${medicationDate}')`)
@@ -205,6 +205,24 @@ const generateMedications = (count) => {
 };
 
 // Generates SQL INSERT statements for the activity table
+const generateActivities = (count) => {
+  let sql = 'INSERT INTO activity (pet_id, activity_type_id, duration_in_hours, note, activity_date) VALUES\n';
+  const values = [];
+
+  for (let i = 0; i < count; i++) {
+    const petId = Math.ceil(Math.random()*6);
+    const activityTypeId = Math.ceil(Math.random()*5);
+    const durationInHours = (Math.random() * 3 + 1).toFixed(1);
+    const note = "This is the activity description.";
+    const activityDate = faker.date.between({ from: '2025-04-01', to: '2025-12-31' }).toISOString().slice(0, 19).replace('T', ' ');
+
+    values.push(`('${petId}', '${activityTypeId}', '${durationInHours}', '${note}', '${activityDate}')`)
+  }
+
+  sql+= values.join(',\n') + ';';
+
+  return sql;
+};
 
 // Define the seed.sql file path inside /backend/init-scripts/
 const seedFilePath = path.join(__dirname, 'seed.sql');
@@ -223,7 +241,8 @@ fs.writeFileSync(
     generateRespiratoryRateStats(6),
     generateOtherStats(6),
     generateBodilyFunctions(6),
-    generateMedications(6)
+    generateMedications(6),
+    generateActivities(6)
   ].join('\n'),
   'utf8'
 );
