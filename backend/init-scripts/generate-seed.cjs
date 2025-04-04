@@ -2,16 +2,21 @@ const fs = require('fs');
 const path = require('path');
 const { faker } = require('@faker-js/faker');
 
+// Handles apostrophes passed into user-generated strings (e.g. 'O'Reilly')
+const escapeString = (string) => {
+  return (string.replace("'", "''"));
+};
+
 // Generates SQL INSERT statements for the "user" table
 const generateUsers = (count) => {
   let sql = 'INSERT INTO "user" (email, username, password_hashed, profile_picture) VALUES\n';
   const values = [];
 
   for (let i = 0; i < count; i++) {
-    const email = faker.internet.email(); // need to make an escapeString function in case faker passes in a value with ' in it (that would break the SQL)
-    const username = faker.internet.username();
-    const passwordHashed = faker.internet.password();
-    const profilePicture = faker.image.url();
+    const email = escapeString(faker.internet.email());
+    const username = escapeString(faker.internet.username());
+    const passwordHashed = escapeString(faker.internet.password());
+    const profilePicture = escapeString(faker.image.url());
   
     values.push(`('${email}', '${username}','${passwordHashed}', '${profilePicture}')`)
   }
@@ -51,7 +56,7 @@ const generateSymptoms = (count) => {
     const petId = Math.ceil(Math.random()*6);
     const symptomTypeId = Math.ceil(Math.random()*7);
     const symptomDate = faker.date.between({ from: '2025-04-01', to: '2025-12-31' }).toISOString().slice(0, 19).replace('T', ' ');
-    const symptomDescription = "This is the symptom description.";
+    const symptomDescription = escapeString("This is the symptom description.");
     values.push(`('${petId}', '${symptomTypeId}', '${symptomDescription}', '${symptomDate}')`)
   }
 
@@ -67,7 +72,7 @@ const generateStats = (count) => {
 
   for (let i = 0; i < count; i++) {
     const petId = Math.ceil(Math.random()*6);
-    const description = "This is the stat description";
+    const description = escapeString("This is the stat description");
     const symptomDate = faker.date.between({ from: '2025-04-01', to: '2025-12-31' }).toISOString().slice(0, 19).replace('T', ' ');
   
     values.push(`('${petId}', '${description}', '${symptomDate}')`)
@@ -155,7 +160,7 @@ const generateOtherStats = (count) => {
 
   for (let i = 0; i < count; i++) {
     const statId = Math.ceil(Math.random()*6);
-    const note = "This is the other symptom description.";
+    const note = escapeString("This is the other symptom description.");
 
     values.push(`('${statId}', '${note}')`)
   }
@@ -173,7 +178,7 @@ const generateBodilyFunctions = (count) => {
   for (let i = 0; i < count; i++) {
     const petId = Math.ceil(Math.random()*6);
     const functionId = Math.ceil(Math.random()*2);
-    const note = "This is the bodily function description.";
+    const note = escapeString("This is the bodily function description.");
     const bodilyFunctionDate = faker.date.between({ from: '2025-04-01', to: '2025-12-31' }).toISOString().slice(0, 19).replace('T', ' ');
 
     values.push(`('${petId}','${functionId}', '${note}', '${bodilyFunctionDate}')`)
@@ -193,7 +198,7 @@ const generateMedications = (count) => {
     const petId = Math.ceil(Math.random()*6);
     const dosageId = Math.ceil(Math.random()*7);
     const dosage = (Math.random() * 19 + 1).toFixed(1);
-    const note = "This is the medication description.";
+    const note = escapeString("This is the medication description.");
     const medicationDate = faker.date.between({ from: '2025-04-01', to: '2025-12-31' }).toISOString().slice(0, 19).replace('T', ' ');
 
     values.push(`('${petId}', '${dosageId}', '${dosage}', '${note}', '${medicationDate}')`)
@@ -213,7 +218,7 @@ const generateActivities = (count) => {
     const petId = Math.ceil(Math.random()*6);
     const activityTypeId = Math.ceil(Math.random()*5);
     const durationInHours = (Math.random() * 3 + 1).toFixed(1);
-    const note = "This is the activity description.";
+    const note = escapeString("This is the activity description.");
     const activityDate = faker.date.between({ from: '2025-04-01', to: '2025-12-31' }).toISOString().slice(0, 19).replace('T', ' ');
 
     values.push(`('${petId}', '${activityTypeId}', '${durationInHours}', '${note}', '${activityDate}')`)
