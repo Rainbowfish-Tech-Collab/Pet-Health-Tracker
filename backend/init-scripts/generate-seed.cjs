@@ -89,7 +89,7 @@ const generateWeightStats = (count) => {
   const values = [];
 
   for (let i = 0; i < count; i++) {
-    const statId = Math.ceil(Math.random()*6);
+    const statId = Math.ceil(Math.random()*100);
     const weightId = Math.ceil(Math.random()*5);
     const weight = 30 + Math.ceil(Math.random()*5);
 
@@ -107,7 +107,7 @@ const generateGlucoseStats = (count) => {
   const values = [];
 
   for (let i = 0; i < count; i++) {
-    const statId = Math.ceil(Math.random()*6); // can the stat_id in weight_stat and glucose_stat tables both be equal to 1? 
+    const statId = Math.ceil(Math.random()*100); // can the stat_id in weight_stat and glucose_stat tables both be equal to 1? 
     const glucoseID = Math.ceil(Math.random()*3);
     const glucoseLevel = 6 + Math.ceil(Math.random()*131);
 
@@ -125,7 +125,7 @@ const generateHeartRateStats = (count) => {
   const values = [];
 
   for (let i = 0; i < count; i++) {
-    const statId = Math.ceil(Math.random()*6);
+    const statId = Math.ceil(Math.random()*100);
     const beatsPerMinute = 40 + Math.ceil(Math.random()*180);
 
     values.push(`('${statId}', '${beatsPerMinute}')`)
@@ -142,7 +142,7 @@ const generateRespiratoryRateStats = (count) => {
   const values = [];
 
   for (let i = 0; i < count; i++) {
-    const statId = Math.ceil(Math.random()*6);
+    const statId = Math.ceil(Math.random()*100);
     const breathsPerMinute = 10 + Math.ceil(Math.random()*20);
 
     values.push(`('${statId}', '${breathsPerMinute}')`)
@@ -159,7 +159,7 @@ const generateOtherStats = (count) => {
   const values = [];
 
   for (let i = 0; i < count; i++) {
-    const statId = Math.ceil(Math.random()*6);
+    const statId = Math.ceil(Math.random()*100);
     const note = escapeString("This is the other symptom description.");
 
     values.push(`('${statId}', '${note}')`)
@@ -238,16 +238,16 @@ fs.writeFileSync(
   [
     generateUsers(6), 
     generatePets(6), 
-    generateSymptoms(6), 
-    generateStats(6), 
-    generateWeightStats(6), 
-    generateGlucoseStats(6), 
-    generateHeartRateStats(6),
-    generateRespiratoryRateStats(6),
-    generateOtherStats(6),
-    generateBodilyFunctions(6),
-    generateMedications(6),
-    generateActivities(6)
+    generateSymptoms(100), 
+    generateStats(100), 
+    generateWeightStats(20), 
+    generateGlucoseStats(20), 
+    generateHeartRateStats(20),
+    generateRespiratoryRateStats(20),
+    generateOtherStats(20),
+    generateBodilyFunctions(20),
+    generateMedications(60),
+    generateActivities(60)
   ].join('\n'),
   'utf8'
 );

@@ -206,9 +206,9 @@ ALTER TABLE
 ALTER TABLE
     "respiratory_rate_stat" ADD CONSTRAINT "respiratory_rate_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id");
 ALTER TABLE
-    "medication" ADD CONSTRAINT "medication_id_foreign" FOREIGN KEY("id") REFERENCES "pet"("id");
+    "medication" ADD CONSTRAINT "medication_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id");
 ALTER TABLE
-    "bodily_function" ADD CONSTRAINT "bodily_function_id_foreign" FOREIGN KEY("id") REFERENCES "pet"("id");
+    "bodily_function" ADD CONSTRAINT "bodily_function_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id");
 ALTER TABLE
     "heart_rate_stat" ADD CONSTRAINT "heart_rate_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id");
 ALTER TABLE
@@ -216,7 +216,7 @@ ALTER TABLE
 ALTER TABLE
     "medication" ADD CONSTRAINT "medication_dosage_id_foreign" FOREIGN KEY("dosage_id") REFERENCES "dosage"("id");
 ALTER TABLE
-    "activity" ADD CONSTRAINT "activity_id_foreign" FOREIGN KEY("id") REFERENCES "pet"("id");
+    "activity" ADD CONSTRAINT "activity_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id");
 ALTER TABLE
     "other_stat" ADD CONSTRAINT "other_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id");
 ALTER TABLE
@@ -232,9 +232,9 @@ ALTER TABLE
 ALTER TABLE
     "pet" ADD CONSTRAINT "pet_pet_breed_id_foreign" FOREIGN KEY("pet_breed_id") REFERENCES "pet_breed"("id");
 ALTER TABLE
-    "stat" ADD CONSTRAINT "stat_id_foreign" FOREIGN KEY("id") REFERENCES "pet"("id");
+    "stat" ADD CONSTRAINT "stat_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id");
 ALTER TABLE
-    "symptom" ADD CONSTRAINT "symptom_id_foreign" FOREIGN KEY("id") REFERENCES "pet"("id");
+    "symptom" ADD CONSTRAINT "symptom_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id");
 ALTER TABLE
     "user_pet" ADD CONSTRAINT "user_pet_pet_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id");
 ALTER TABLE
