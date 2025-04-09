@@ -62,8 +62,16 @@ The Rainbow Fish is a children's book by Marcus Pfister that promotes generosity
 
 ## Installation
 
-1. Clone the repository.
+1. Clone the repository.  
+```
+git clone https://github.com/Rainbowfish-Tech-Collab/Pet-Health-Tracker.git
+```
+
 2. Pull latest changes from the `main` branch into your local environment.
+```
+git pull origin main
+```
+
 3. Run `cd backend` to navigate into the `backend` directory.
 4. Run `npm install` to install dependencies.
 5. Create a `.env` file in the `backend` directory and populate it with the variables from `example.env`.
@@ -81,16 +89,18 @@ docker exec -it postgres_container psql -U <POSTGRES_USER> -d <POSTGRES_DB>
 ```
 (Replace `<POSTGRES_USER>` and `<POSTGRES_DB>` with the values you set them to in your .env file.)
 
-5. Verify the database exists by running:
+5. Verify the database exists by running to view the list of databases:
 ```
 \l
 ```
-You should see a database named whatever you set `<POSTGRES_DB>` to in your `.env` file. Check that its tables were created:
+You should see a database named whatever you set `<POSTGRES_DB>` to in your `.env` file. Check that its tables were created then connect to that database:
 ```
 \c <POSTGRES_DB>
-\d
 ```
-This should return a list of tables, which should match the `init.sql` file.
+We can also view a list of tables in the database, which should match the `init.sql` file.
+```
+\d 
+```
 
 6. When you're done using the database, stop and remove the containers with:
 ```
@@ -106,12 +116,14 @@ postgres://<POSTGRES_USER>:<POSTGRES_PASSWORD>@localhost:5432/<POSTGRES_DB>
 ```  
 
 
-2. To run your express server run: 
+2. To run your express server run (ensure you're in the `backend` directory) : 
 
 ```
 npm run dev
 ```
+
 3. You can then access the server at 
+
 ```
 http://localhost:3000
 ```
