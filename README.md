@@ -62,7 +62,7 @@ The Rainbow Fish is a children's book by Marcus Pfister that promotes generosity
 
 ## Installation
 
-1. Clone the repository.  
+1. Clone the repository. There is now a remote connection between the repository and your local environment.
 ```
 git clone https://github.com/Rainbowfish-Tech-Collab/Pet-Health-Tracker.git
 ```
@@ -109,8 +109,8 @@ docker compose down -v
 
 ### Server Setup
 1. Make sure you have an `DATABASE_URL` set in your `.env` file.  
-Please refer to the `.env.example` file for format and more information.  
-The format should be:  
+    Please refer to the `.env.example` file for format and more information.  
+    The format should be:  
 ```
 postgres://<POSTGRES_USER>:<POSTGRES_PASSWORD>@localhost:5432/<POSTGRES_DB>
 ```  
