@@ -59,7 +59,7 @@ The Rainbow Fish is a children's book by Marcus Pfister that promotes generosity
 ## Installation
 
 1. Clone the repository.
-2. Pull latest changes from the `main` branch into your local environment.
+2. Pull latest changes from the `main` branch into your local environment. 
 3. Run `npm install` to install dependencies.
 4. Create a `.env` file in the `backend` directory and populate it with the variables from `example.env`.
 
