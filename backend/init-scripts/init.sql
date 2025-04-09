@@ -3,8 +3,8 @@ CREATE TABLE "user"(
     "email" TEXT NOT NULL,
     "username" TEXT NOT NULL,
     "password_hashed" TEXT NOT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL,
     "profile_picture" TEXT NULL
 );
@@ -26,7 +26,7 @@ CREATE TABLE "pet"(
     "sex_id" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
     "birthday" DATE NULL,
-    "description" TEXT NOT NULL,
+    "description" TEXT NULL,
     "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL,
@@ -48,7 +48,7 @@ CREATE TABLE "pet_species"(
 ALTER TABLE
     "pet_species" ADD PRIMARY KEY("id");
 CREATE TABLE "pet_sex"(
-    "id" smallserial NOT NULL,
+    "id" SMALLSERIAL NOT NULL,
     "sex" TEXT NOT NULL
 );
 ALTER TABLE
@@ -57,11 +57,11 @@ CREATE TABLE "symptom"(
     "id" bigserial NOT NULL,
     "pet_id" BIGINT NOT NULL,
     "symptom_type_id" INTEGER NOT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL,
-    "symptom_other" TEXT NOT NULL,
-    "symptom_description" TEXT NOT NULL,
+    "symptom_other" TEXT NULL,
+    "symptom_description" TEXT NULL,
     "symptom_date" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
 );
 ALTER TABLE
@@ -75,9 +75,9 @@ ALTER TABLE
 CREATE TABLE "stat"(
     "id" bigserial NOT NULL,
     "pet_id" BIGINT NOT NULL,
-    "description" TEXT NOT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "description" TEXT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL,
     "stat_date" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
 );
@@ -88,8 +88,8 @@ CREATE TABLE "weight_stat"(
     "stat_id" BIGINT NOT NULL,
     "weight_id" INTEGER NOT NULL,
     "weight" REAL NOT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL
 );
 ALTER TABLE
@@ -105,8 +105,8 @@ CREATE TABLE "glucose_stat"(
     "stat_id" BIGINT NOT NULL,
     "glucose_id" INTEGER NOT NULL,
     "glucose_level" REAL NOT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL
 );
 ALTER TABLE
@@ -121,8 +121,8 @@ CREATE TABLE "heart_rate_stat"(
     "id" bigserial NOT NULL,
     "stat_id" BIGINT NOT NULL,
     "beats_per_minute" INTEGER NOT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL
 );
 ALTER TABLE
@@ -131,8 +131,8 @@ CREATE TABLE "respiratory_rate_stat"(
     "id" bigserial NOT NULL,
     "stat_id" BIGINT NOT NULL,
     "breaths_per_minute" INTEGER NOT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL
 );
 ALTER TABLE
@@ -141,8 +141,8 @@ CREATE TABLE "other_stat"(
     "id" bigserial NOT NULL,
     "stat_id" BIGINT NOT NULL,
     "note" TEXT NOT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL
 );
 ALTER TABLE
@@ -151,9 +151,9 @@ CREATE TABLE "bodily_function"(
     "id" bigserial NOT NULL,
     "pet_id" BIGINT NOT NULL,
     "function_id" INTEGER NOT NULL,
-    "note" TEXT NOT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "note" TEXT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL,
     "bodily_function_date" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
 );
@@ -170,9 +170,9 @@ CREATE TABLE "medication"(
     "pet_id" BIGINT NOT NULL,
     "dosage_id" INTEGER NOT NULL,
     "dosage" REAL NOT NULL,
-    "note" TEXT NOT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "note" TEXT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL,
     "medication_date" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
 );
@@ -189,9 +189,9 @@ CREATE TABLE "activity"(
     "pet_id" BIGINT NOT NULL,
     "activity_type_id" INTEGER NOT NULL,
     "duration_in_hours" REAL NOT NULL,
-    "note" TEXT NOT NULL,
-    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "note" TEXT NULL,
+    "date_created" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    "date_updated" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     "date_archived" TIMESTAMP(0) WITHOUT TIME ZONE NULL,
     "activity_date" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
 );
@@ -206,9 +206,9 @@ ALTER TABLE
 ALTER TABLE
     "respiratory_rate_stat" ADD CONSTRAINT "respiratory_rate_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id");
 ALTER TABLE
-    "medication" ADD CONSTRAINT "medication_id_foreign" FOREIGN KEY("id") REFERENCES "pet"("id");
+    "medication" ADD CONSTRAINT "medication_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id");
 ALTER TABLE
-    "bodily_function" ADD CONSTRAINT "bodily_function_id_foreign" FOREIGN KEY("id") REFERENCES "pet"("id");
+    "bodily_function" ADD CONSTRAINT "bodily_function_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id");
 ALTER TABLE
     "heart_rate_stat" ADD CONSTRAINT "heart_rate_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id");
 ALTER TABLE
@@ -216,7 +216,7 @@ ALTER TABLE
 ALTER TABLE
     "medication" ADD CONSTRAINT "medication_dosage_id_foreign" FOREIGN KEY("dosage_id") REFERENCES "dosage"("id");
 ALTER TABLE
-    "activity" ADD CONSTRAINT "activity_id_foreign" FOREIGN KEY("id") REFERENCES "pet"("id");
+    "activity" ADD CONSTRAINT "activity_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id");
 ALTER TABLE
     "other_stat" ADD CONSTRAINT "other_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id");
 ALTER TABLE
@@ -232,9 +232,9 @@ ALTER TABLE
 ALTER TABLE
     "pet" ADD CONSTRAINT "pet_pet_breed_id_foreign" FOREIGN KEY("pet_breed_id") REFERENCES "pet_breed"("id");
 ALTER TABLE
-    "stat" ADD CONSTRAINT "stat_id_foreign" FOREIGN KEY("id") REFERENCES "pet"("id");
+    "stat" ADD CONSTRAINT "stat_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id");
 ALTER TABLE
-    "symptom" ADD CONSTRAINT "symptom_id_foreign" FOREIGN KEY("id") REFERENCES "pet"("id");
+    "symptom" ADD CONSTRAINT "symptom_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id");
 ALTER TABLE
     "user_pet" ADD CONSTRAINT "user_pet_pet_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id");
 ALTER TABLE
