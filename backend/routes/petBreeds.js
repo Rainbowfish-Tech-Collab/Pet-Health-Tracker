@@ -21,11 +21,14 @@ router.get('/:speciesOrId', async (req, res, next) => {
     if (!isNaN(speciesOrId)) speciesId = Number(speciesOrId);
     else {
       const speciesQuery = await pool.query(
-        'SELECT id FROM pet_species WHERE LOWER(species) = LOWER($1)',
+        'SELECT * FROM pet_species WHERE LOWER(species) = LOWER($1)',
         [speciesOrId]
       );
       if (speciesQuery.rows.length === 0) return res.status(404).json({ error: 'Species not found' });
       speciesId = speciesQuery.rows[0].id;
+      const speciesName = speciesQuery.rows[0].species;
+
+      if(speciesName !== speciesOrId) return res.redirect(`/petBreeds/${speciesName}`); //redirect to the correct case
     }
     const result = await pool.query("SELECT * FROM pet_breed WHERE pet_species_id = $1", [speciesId]);
     res.json(result.rows.map((row) => row.pet_breed));
