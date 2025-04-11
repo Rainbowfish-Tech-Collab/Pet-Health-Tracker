@@ -2,6 +2,8 @@ import express from 'express';
 import pool from '../config/database.js';
 const router = express.Router();
 
+// router: /pets
+
 // POST add a new pet
 router.post("/", async (req, res, next) => {
   try {
