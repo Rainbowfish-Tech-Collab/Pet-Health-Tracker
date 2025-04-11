@@ -63,7 +63,7 @@ router.get("/:petId/all/:activityTypeOrId", async (req, res, next) => {
 });
 
 
-// GET grab duration_in_hours vs activity_date by activity type for graphing x and y units for a specific pet
+// GET duration_in_hours vs activity_date by activity type for graphing x and y units for a specific pet
 router.get("/:petId/all/:activityTypeOrId/graph", async (req, res, next) => {
 	try {
     const { activityTypeOrId, petId } = req.params;

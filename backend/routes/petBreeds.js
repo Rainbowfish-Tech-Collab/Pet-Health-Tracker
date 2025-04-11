@@ -13,7 +13,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-// GET pet breeds by species name or ID
+// GET pet breeds by pet species name or pet species id
 router.get('/:speciesOrId', async (req, res, next) => {
   try {
     const { speciesOrId } = req.params;
