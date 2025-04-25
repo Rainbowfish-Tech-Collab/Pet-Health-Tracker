@@ -21,16 +21,16 @@ passport.deserializeUser(async (id, done) => {
 passport.use(
   new LocalStrategy(
     {
-      usernameField: 'email',
+      usernameField: 'username',
       passwordField: 'password',
     },
-    async (email, password, done) => {
+    async (username, password, done) => {
       try {
-        const result = await pool.query('SELECT * FROM "user" WHERE email = $1', [email]);
+        const result = await pool.query('SELECT * FROM "user" WHERE username = $1', [username]);
         const user = result.rows[0];
 
         if (!user) {
-          return done(null, false, { message: 'Incorrect email.' });
+          return done(null, false, { message: 'Incorrect username.' });
         }
 
         // Check if the user was created with Google OAuth
