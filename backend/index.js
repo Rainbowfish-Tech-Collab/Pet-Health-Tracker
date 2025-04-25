@@ -1,5 +1,7 @@
 import express from 'express';
 import 'dotenv/config';
+import session from 'express-session';
+import passport from './config/passport.js';
 import usersRouter from './routes/users.js';
 import petsRouter from './routes/pets.js';
 import symptomsRouter from './routes/symptoms.js';
@@ -12,14 +14,33 @@ import weightsRouter from './routes/weights.js';
 import functionsRouter from './routes/functions.js';
 import dosagesRouter from './routes/dosages.js';
 import activitiesRouter from './routes/activities.js';
+import authRouter from './routes/auth.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Session middleware
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
+  })
+);
+
+// Initialize Passport and restore authentication state from session
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(express.json()); // for parsing json data
 app.use(express.urlencoded({ extended: true })); // for parsing form data
 
 // Routers
+app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 app.use('/pets', petsRouter);
 app.use('/petSex', petSexRouter);
