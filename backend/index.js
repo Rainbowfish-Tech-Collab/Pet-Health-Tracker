@@ -15,6 +15,11 @@ import functionsRouter from './routes/functions.js';
 import dosagesRouter from './routes/dosages.js';
 import activitiesRouter from './routes/activities.js';
 import authRouter from './routes/auth.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -39,6 +44,9 @@ app.use(passport.session());
 app.use(express.json()); // for parsing json data
 app.use(express.urlencoded({ extended: true })); // for parsing form data
 
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Routers
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
@@ -56,6 +64,10 @@ app.use('/weights', weightsRouter);
 app.use('/functions', functionsRouter);
 app.use('/dosages', dosagesRouter);
 
+// Serve login page
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
 
 app.get("/", (req, res) => {
   res.send("Welcome to the database")
