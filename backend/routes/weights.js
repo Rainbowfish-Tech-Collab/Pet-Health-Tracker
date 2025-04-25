@@ -22,7 +22,7 @@ router.get("/:petId/all", async (req, res, next) => {
       SELECT weight.unit, weight, weight_stat.date_updated FROM weight_stat 
       JOIN stat ON weight_stat.stat_id = stat.id 
       JOIN weight ON weight.id = weight_stat.weight_id 
-      WHERE stat.pet_id = ($1)`,
+      WHERE weight_stat.date_archived IS NULL AND stat.pet_id = ($1)`,
 			[petId]
 		);
 		if (!result) return res.status(404).json({ error: "Pet not found" });
@@ -44,7 +44,7 @@ router.get("/:petId/all/:weightType/graph", async (req, res, next) => {
       FROM weight_stat 
       JOIN stat ON weight_stat.stat_id = stat.id 
       JOIN weight ON weight.id = weight_stat.weight_id 
-      WHERE weight.unit = ($1) AND stat.pet_id = ($2)`,
+      WHERE weight_stat.date_archived IS NULL AND weight.unit = ($1) AND stat.pet_id = ($2)`,
 			[weightType, petId]
 		);
 		if (!result) return res.status(404).json({ error: "Pet not found" });
