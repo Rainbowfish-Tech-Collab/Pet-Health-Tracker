@@ -2,6 +2,7 @@ import express from 'express';
 import 'dotenv/config';
 import session from 'express-session';
 import passport from './config/passport.js';
+import cors from 'cors';
 import usersRouter from './routes/users.js';
 import petsRouter from './routes/pets.js';
 import symptomsRouter from './routes/symptoms.js';
@@ -23,6 +24,12 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// CORS configuration
+app.use(cors({
+  origin: 'http://localhost:5173', // Your React app's URL
+  credentials: true
+}));
 
 // Session middleware
 app.use(

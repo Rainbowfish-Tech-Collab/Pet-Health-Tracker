@@ -9,6 +9,7 @@ const router = express.Router();
 router.post('/register', async (req, res, next) => {
   try {
     const { email, username, password } = req.body;
+    console.log('Registration attempt:', { email, username }); // Log registration attempt
 
     // Check if user already exists
     const existingUser = await pool.query(
@@ -17,6 +18,7 @@ router.post('/register', async (req, res, next) => {
     );
 
     if (existingUser.rows.length > 0) {
+      console.log('User already exists:', existingUser.rows[0]); // Log existing user
       return res.status(400).json({ message: 'Email or username already exists' });
     }
 
@@ -30,14 +32,18 @@ router.post('/register', async (req, res, next) => {
       [email, username, passwordHashed]
     );
 
+    console.log('New user created:', newUser.rows[0]); // Log new user
+
     // Log in the new user
     req.login(newUser.rows[0], (err) => {
       if (err) {
+        console.error('Login error after registration:', err); // Log login error
         return next(err);
       }
       res.json({ message: 'Registration successful', user: newUser.rows[0] });
     });
   } catch (error) {
+    console.error('Registration error:', error); // Log any errors
     next(error);
   }
 });
@@ -46,13 +52,16 @@ router.post('/register', async (req, res, next) => {
 router.post('/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) {
+      console.error('Login error:', err); // Log login error
       return next(err);
     }
     if (!user) {
+      console.log('Login failed:', info); // Log failed login
       return res.status(401).json({ message: info.message });
     }
     req.login(user, (err) => {
       if (err) {
+        console.error('Session error:', err); // Log session error
         return next(err);
       }
       res.json({ message: 'Login successful', user });
