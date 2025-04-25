@@ -10,11 +10,12 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('/auth/login', {
+      const response = await fetch('http://localhost:3000/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ username, password }),
       });
 
@@ -30,7 +31,7 @@ const Login = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = '/auth/google';
+    window.location.href = 'http://localhost:3000/auth/google';
   };
 
   return (
