@@ -1,3 +1,13 @@
+function Home() {
+    return (
+        <div>
+            <h1>Welcome to the Home Page</h1>
+        </div>
+    );
+}
+
+export default Home;
+
 //default is line graph
 //routes: GET /activities/activityId, GET /symptoms/symptomId, GET /istatId
 //Pet data log will show most recent entries, last 7 days. This will be displayed in a Pet Data Log table.
