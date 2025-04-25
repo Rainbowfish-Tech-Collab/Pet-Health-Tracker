@@ -1,7 +1,14 @@
+import Logo from '../assets/Logo.svg';
+import PetLogoName from '../assets/PetLogoName.svg';
+
 function Home() {
     return (
         <div>
             <h1>Welcome to the Home Page</h1>
+            <nav>
+            </nav>
+            <img src={Logo} alt="Logo" />
+            <img src={PetLogoName} alt="Pet Logo Name" />
         </div>
     );
 }
