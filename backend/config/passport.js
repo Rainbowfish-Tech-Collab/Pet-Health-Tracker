@@ -1,5 +1,7 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { Strategy as LocalStrategy } from 'passport-local';
+import bcrypt from 'bcrypt';
 import pool from './database.js';
 
 passport.serializeUser((user, done) => {
@@ -15,6 +17,41 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
+// Local Strategy
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: 'email',
+      passwordField: 'password',
+    },
+    async (email, password, done) => {
+      try {
+        const result = await pool.query('SELECT * FROM "user" WHERE email = $1', [email]);
+        const user = result.rows[0];
+
+        if (!user) {
+          return done(null, false, { message: 'Incorrect email.' });
+        }
+
+        // Check if the user was created with Google OAuth
+        if (user.password_hashed.startsWith('google-oauth-')) {
+          return done(null, false, { message: 'Please use Google login for this account.' });
+        }
+
+        const isValid = await bcrypt.compare(password, user.password_hashed);
+        if (!isValid) {
+          return done(null, false, { message: 'Incorrect password.' });
+        }
+
+        return done(null, user);
+      } catch (error) {
+        return done(error);
+      }
+    }
+  )
+);
+
+// Google Strategy
 passport.use(
   new GoogleStrategy(
     {
