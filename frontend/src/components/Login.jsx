@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -66,6 +66,10 @@ const Login = () => {
       <div>
         <p>Or</p>
         <button onClick={handleGoogleLogin}>Login with Google</button>
+      </div>
+
+      <div>
+        <p>Don't have an account? <Link to="/register">Register here</Link></p>
       </div>
     </div>
   );
