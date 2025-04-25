@@ -11,8 +11,8 @@
         <h2>Local Login</h2>
         <form id="loginForm">
             <div>
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
             </div>
             <div>
                 <label for="password">Password:</label>
@@ -31,8 +31,8 @@
                 <input type="email" id="regEmail" name="email" required>
             </div>
             <div>
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
+                <label for="regUsername">Username:</label>
+                <input type="text" id="regUsername" name="username" required>
             </div>
             <div>
                 <label for="regPassword">Password:</label>
@@ -52,7 +52,7 @@
         // Login Form Handler
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
+            const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
             try {
@@ -61,7 +61,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ email, password }),
+                    body: JSON.stringify({ username, password }),
                 });
 
                 const data = await response.json();
@@ -80,7 +80,7 @@
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('regEmail').value;
-            const username = document.getElementById('username').value;
+            const username = document.getElementById('regUsername').value;
             const password = document.getElementById('regPassword').value;
 
             try {
