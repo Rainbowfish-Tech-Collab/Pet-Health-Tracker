@@ -18,8 +18,8 @@ CREATE TABLE "user_pet"(
     "user_id" BIGINT NOT NULL,
     "pet_id" BIGINT NOT NULL
 );
-ALTER TABLE
-    "user_pet" ADD PRIMARY KEY("user_id");
+-- ALTER TABLE
+--     "user_pet" ADD PRIMARY KEY("user_id"); seems this was added automatically, since user_pet didnt have a primary key column
 CREATE TABLE "pet"(
     "id" bigserial NOT NULL,
     "pet_breed_id" INTEGER NOT NULL,

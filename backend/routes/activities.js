@@ -102,7 +102,7 @@ router.get("/:petId/all/:activityTypeOrId/graph", async (req, res, next) => {
 router.delete("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
-    const result = await pool.query("UPDATE activity SET date_archived = NOW() AND date_updated = NOW() WHERE id = $1", [id]);
+    await pool.query("UPDATE activity SET date_archived = NOW(), date_updated = NOW() WHERE id = $1", [id]);
     res.json({ message: `id ${id}, Activity log deleted` });
   } catch (err) {
     console.error(err);
