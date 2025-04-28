@@ -67,16 +67,17 @@ router.delete("/:id", async (req, res, next) => {
       WHERE id = $1
     `, [id]);
   
-    await pool.query(`
+    const result = await pool.query(`
       UPDATE stat 
       SET date_archived = NOW(), date_updated = NOW()
       WHERE id = (SELECT stat_id FROM weight_stat WHERE id = $1)
     `, [id]);
-  
+    console.log(result.rows)
     await pool.query("COMMIT");
 		res.json({ message: `id ${id}, stat log deleted` });
 	} catch (err) {
 		console.error(err);
+    await pool.query("ROLLBACK");
 		next(err);
 	}
 });

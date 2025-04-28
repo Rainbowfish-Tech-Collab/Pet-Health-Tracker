@@ -204,13 +204,13 @@ CREATE TABLE "activity_type"(
 ALTER TABLE
     "activity_type" ADD PRIMARY KEY("id");
 ALTER TABLE
-    "respiratory_rate_stat" ADD CONSTRAINT "respiratory_rate_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id");
+    "respiratory_rate_stat" ADD CONSTRAINT "respiratory_rate_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id") ON DELETE CASCADE;
 ALTER TABLE
     "medication" ADD CONSTRAINT "medication_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id");
 ALTER TABLE
     "bodily_function" ADD CONSTRAINT "bodily_function_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id");
 ALTER TABLE
-    "heart_rate_stat" ADD CONSTRAINT "heart_rate_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id");
+    "heart_rate_stat" ADD CONSTRAINT "heart_rate_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id") ON DELETE CASCADE;
 ALTER TABLE
     "activity" ADD CONSTRAINT "activity_activity_type_id_foreign" FOREIGN KEY("activity_type_id") REFERENCES "activity_type"("id");
 ALTER TABLE
@@ -218,7 +218,7 @@ ALTER TABLE
 ALTER TABLE
     "activity" ADD CONSTRAINT "activity_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id");
 ALTER TABLE
-    "other_stat" ADD CONSTRAINT "other_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id");
+    "other_stat" ADD CONSTRAINT "other_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id") ON DELETE CASCADE;
 ALTER TABLE
     "bodily_function" ADD CONSTRAINT "bodily_function_function_id_foreign" FOREIGN KEY("function_id") REFERENCES "function"("id");
 ALTER TABLE
@@ -240,11 +240,11 @@ ALTER TABLE
 ALTER TABLE
     "pet" ADD CONSTRAINT "pet_sex_id_foreign" FOREIGN KEY("sex_id") REFERENCES "pet_sex"("id");
 ALTER TABLE
-    "weight_stat" ADD CONSTRAINT "weight_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id");
+    "weight_stat" ADD CONSTRAINT "weight_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id") ON DELETE CASCADE;
 ALTER TABLE
     "weight_stat" ADD CONSTRAINT "weight_stat_weight_id_foreign" FOREIGN KEY("weight_id") REFERENCES "weight"("id");
 ALTER TABLE
-    "glucose_stat" ADD CONSTRAINT "glucose_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id");
+    "glucose_stat" ADD CONSTRAINT "glucose_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id") ON DELETE CASCADE;
 
 
 CREATE VIEW "active_activity" AS 
@@ -480,3 +480,25 @@ VALUES
   ('Eating'),
   ('Drinking'),
   ('Other'); 
+
+
+-- SELECT cron.schedule(
+--   'cleanup_archived_stats',                     
+--   '0 0 * * *',                                  -- cron expression: every day at 12:00 AM
+--   $$
+--   DELETE FROM stat
+--   WHERE date_archived IS NOT NULL
+--     AND date_archived < NOW() - INTERVAL '30 days';
+--   $$
+-- );
+
+SELECT cron.schedule(
+  'testing_cleanup_archived_stats',                     
+  '* * * * *',                                  -- cron expression: every minute
+  $$
+  DELETE FROM stat
+  WHERE date_archived IS NOT NULL
+    AND date_archived < NOW() - INTERVAL '1 minute';
+  $$
+);
+
