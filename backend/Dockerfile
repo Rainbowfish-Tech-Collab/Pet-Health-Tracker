@@ -1,5 +1,6 @@
-# Start from the official Postgres image managed by Docker Hub
+# Start from the official Postgres image
 FROM postgres:latest
 
-# Install pg_cron and any dependencies
+# Install pg_cron
 RUN apt-get update && apt-get install -y postgresql-17-cron
+

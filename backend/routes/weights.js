@@ -60,24 +60,30 @@ router.get("/:petId/all/:weightType/graph", async (req, res, next) => {
 router.delete("/:id", async (req, res, next) => {
 	try {
 		const { id } = req.params;
-    await pool.query("BEGIN");
-    await pool.query(`
+		await pool.query("BEGIN");
+		await pool.query(
+			`
       UPDATE weight_stat 
       SET date_archived = NOW(), date_updated = NOW()
       WHERE id = $1
-    `, [id]);
-  
-    const result = await pool.query(`
+    `,
+			[id]
+		);
+
+		const result = await pool.query(
+			`
       UPDATE stat 
       SET date_archived = NOW(), date_updated = NOW()
       WHERE id = (SELECT stat_id FROM weight_stat WHERE id = $1)
-    `, [id]);
-    console.log(result.rows)
-    await pool.query("COMMIT");
+    `,
+			[id]
+		);
+		console.log(result.rows);
+		await pool.query("COMMIT");
 		res.json({ message: `id ${id}, stat log deleted` });
 	} catch (err) {
 		console.error(err);
-    await pool.query("ROLLBACK");
+		await pool.query("ROLLBACK");
 		next(err);
 	}
 });
@@ -87,7 +93,8 @@ router.delete("/:id", async (req, res, next) => {
 router.get("/:petId/deleted", async (req, res, next) => {
 	try {
 		const { petId } = req.params;
-		const result = await pool.query(`
+		const result = await pool.query(
+			`
       SELECT stat.description, stat.stat_date, weight.unit, weight_stat.weight, weight_stat.date_archived FROM weight_stat
       JOIN stat ON weight_stat.stat_id = stat.id
       JOIN weight ON weight.id = weight_stat.weight_id
