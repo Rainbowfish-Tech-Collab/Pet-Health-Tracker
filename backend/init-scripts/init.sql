@@ -480,23 +480,23 @@ VALUES
   ('Other'); 
 
 
-SELECT cron.schedule(
-  'cleanup_archived_stats',                     
-  '0 0 * * *',                                  -- cron expression: every day at 12:00 AM
-  $$
-  DELETE FROM stat
-  WHERE date_archived IS NOT NULL
-    AND date_archived < NOW() - INTERVAL '30 days';
-  $$
-);
-
 -- SELECT cron.schedule(
---   'testing_cleanup_archived_stats',                     
---   '* * * * *',                                  -- cron expression: every minute
+--   'cleanup_archived_stats',                     
+--   '0 0 * * *',                                  -- cron expression: every day at 12:00 AM
 --   $$
 --   DELETE FROM stat
 --   WHERE date_archived IS NOT NULL
---     AND date_archived < NOW() - INTERVAL '1 minute';
+--     AND date_archived < NOW() - INTERVAL '30 days';
 --   $$
 -- );
+
+SELECT cron.schedule(
+  'testing_cleanup_archived_stats',                     
+  '* * * * *',                                  -- cron expression: every minute
+  $$
+  DELETE FROM stat
+  WHERE date_archived IS NOT NULL
+    AND date_archived < NOW() - INTERVAL '1 minute';
+  $$
+);
 
