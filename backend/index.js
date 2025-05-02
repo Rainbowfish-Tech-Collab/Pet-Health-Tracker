@@ -49,23 +49,6 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Session middleware
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || 'your-secret-key',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    },
-  })
-);
-
-// Initialize Passport and restore authentication state from session
-app.use(passport.initialize());
-app.use(passport.session());
-
 app.use(morgan('dev')); // for logging requests to the console
 app.use(express.json()); // for parsing json data
 app.use(express.urlencoded({ extended: true })); // for parsing form data
