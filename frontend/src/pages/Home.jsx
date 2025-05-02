@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Logo from '../assets/Logo.svg';
 import PetLogoName from '../assets/PetLogoName.svg';
 import { FaEdit, FaPlus, FaCog } from 'react-icons/fa';
@@ -51,6 +52,7 @@ const styles = {
 };
 
 function Home() {
+  const navigate = useNavigate();
   const [selectedPet, setSelectedPet] = useState('');
   const [graphType, setGraphType] = useState('Walking vs. Time');
 
@@ -94,13 +96,25 @@ function Home() {
 
       {/* Navigation Bar */}
       <div style={styles.navbar}>
-        <button style={styles.navButton} onClick={() => console.log('Edit')}>
+        <button 
+          style={styles.navButton} 
+          onClick={() => navigate('/pet-data-log')}
+          title="View Pet Data Log"
+        >
           <FaEdit />
         </button>
-        <button style={styles.navButton} onClick={() => console.log('Add')}>
+        <button 
+          style={styles.navButton} 
+          onClick={() => navigate('/add-entry')}
+          title="Add New Entry"
+        >
           <FaPlus />
         </button>
-        <button style={styles.navButton} onClick={() => console.log('Settings')}>
+        <button 
+          style={styles.navButton} 
+          onClick={() => navigate('/settings')}
+          title="Settings"
+        >
           <FaCog />
         </button>
       </div>
