@@ -1,6 +1,10 @@
 services:
   db:
-    image: postgres:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PGPASS: ${PGPASS}
     container_name: postgres_container
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -8,12 +12,17 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_HOST_AUTH_METHOD: scram-sha-256
       POSTGRES_INITDB_ARGS: --auth=scram-sha-256
+      HOME: /var/lib/postgresql
+      PGPASSFILE: /var/lib/postgresql/pg_cron/.pgpass
     ports:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./init-scripts:/docker-entrypoint-initdb.d
-
+    command: >
+      postgres 
+      -c shared_preload_libraries=pg_cron 
+      -c cron.database_name=${POSTGRES_DB}
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin_container

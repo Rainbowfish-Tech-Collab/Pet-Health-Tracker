@@ -462,3 +462,4 @@ INSERT INTO activity (pet_id, activity_type_id, duration_in_hours, note, activit
 ('4', '1', '2.7', 'This is the activity description.', '2025-10-16 11:18:17'),
 ('4', '4', '3.7', 'This is the activity description.', '2025-12-28 07:35:07'),
 ('4', '1', '2.7', 'This is the activity description.', '2025-07-21 10:58:07');
+

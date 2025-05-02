@@ -1,5 +1,6 @@
 import express from 'express';
 import 'dotenv/config';
+import morgan from 'morgan';
 import usersRouter from './routes/users.js';
 import petsRouter from './routes/pets.js';
 import symptomsRouter from './routes/symptoms.js';
@@ -16,6 +17,7 @@ import activitiesRouter from './routes/activities.js';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(morgan('dev')); // for logging requests to the console
 app.use(express.json()); // for parsing json data
 app.use(express.urlencoded({ extended: true })); // for parsing form data
 
