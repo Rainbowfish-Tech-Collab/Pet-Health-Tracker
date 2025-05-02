@@ -21,6 +21,7 @@ const Login = () => {
 
       const data = await response.json();
       if (response.ok) {
+        console.log('Login successful:', data);
         navigate('/');
       } else {
         setError(data.message || 'Login failed');
