@@ -83,8 +83,7 @@ function Home() {
           {/* Add more graph types as needed */}
         </select>
         <div>
-          {/* Graph component will go here */}
-          {/* We'll need to install a graphing library like recharts */}
+          {/* Graph component */}
         </div>
       </div>
 
