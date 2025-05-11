@@ -2,7 +2,9 @@ import express from "express";
 import pool from "../config/database.js";
 const router = express.Router();
 
-// router: /activities
+// router: /activities 
+
+// be aware only this route is using a pg view: `active_activity` (keeping it for possible optimization purposes in the future)
 
 // GET all activity types at / or /types
 router.get(/^\/(types)?$/, async (req, res, next) => {
@@ -43,12 +45,12 @@ router.get("/:petId/all/:activityTypeOrId", async (req, res, next) => {
 
     }
     else{
-      const nameResult = await pool.query(
-        `SELECT name FROM activity_type WHERE LOWER(name) = LOWER($1)`,
-        [activityTypeOrId]
-      )
-      const properName = nameResult.rows[0].name;
-      if(properName !== activityTypeOrId) return res.redirect(`/activities/${petId}/all/${properName}`); //redirect to the correct case
+      // const nameResult = await pool.query(
+      //   `SELECT name FROM activity_type WHERE LOWER(name) = LOWER($1)`,
+      //   [activityTypeOrId]
+      // )
+      // const properName = nameResult.rows[0].name;
+      // if(properName !== activityTypeOrId) return res.redirect(`/activities/${petId}/all/${properName}`); //redirect to the correct case
 
       result = await pool.query(
         "SELECT duration_in_hours, note, activity_date, name FROM active_activity JOIN activity_type ON active_activity.activity_type_id = activity_type.id WHERE LOWER(name) = LOWER($1) AND pet_id = $2",
@@ -103,7 +105,7 @@ router.delete("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
     await pool.query("UPDATE activity SET date_archived = NOW(), date_updated = NOW() WHERE id = $1", [id]);
-    res.json({ message: `id ${id}, Activity log deleted` });
+    res.json({ message: `id: ${id}, Activity log deleted` });
   } catch (err) {
     console.error(err);
     next(err);
@@ -123,6 +125,19 @@ router.get("/:petId/deleted", async (req, res, next) => {
   }
 });
 
-
-
+// // POST a new activity data entry for a specific pet at /:petId
+// router.post("/:petId", async (req, res, next) => {
+//   try {
+//     const { petId } = req.params;
+//     const { duration_in_hours, note, activity_date, activity_type_id } = req.body;
+//     const result = await pool.query(
+//       "INSERT INTO activity (duration_in_hours, note, activity_date, activity_type_id, pet_id) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+//       [duration_in_hours, note, activity_date, activity_type_id, petId]
+//     );
+//     res.json({ id: result.rows[0].id });
+//   } catch (err) {
+//     console.error(err);
+//     next(err);
+//   }
+// })
 export default router;

@@ -13,9 +13,9 @@ import petSpeciesRouter from './routes/petSpecies.js';
 import petBreedsRouter from './routes/petBreeds.js';
 import glucoseRouter from './routes/glucose.js';
 import weightsRouter from './routes/weights.js';
-import functionsRouter from './routes/functions.js';
 import dosagesRouter from './routes/dosages.js';
 import activitiesRouter from './routes/activities.js';
+import bodilyFunctionsRouter from './routes/bodilyFunctions.js';
 import authRouter from './routes/auth.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -70,7 +70,7 @@ app.use('/symptoms', symptomsRouter);
 app.use('/stats', statsRouter);
 app.use('/glucose', glucoseRouter);
 app.use('/weights', weightsRouter);
-app.use('/functions', functionsRouter);
+app.use('/bodilyFunctions', bodilyFunctionsRouter);
 app.use('/dosages', dosagesRouter);
 
 // Serve login page
