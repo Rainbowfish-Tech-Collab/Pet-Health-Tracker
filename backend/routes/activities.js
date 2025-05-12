@@ -125,19 +125,66 @@ router.get("/:petId/deleted", async (req, res, next) => {
   }
 });
 
-// // POST a new activity data entry for a specific pet at /:petId
-// router.post("/:petId", async (req, res, next) => {
-//   try {
-//     const { petId } = req.params;
-//     const { duration_in_hours, note, activity_date, activity_type_id } = req.body;
-//     const result = await pool.query(
-//       "INSERT INTO activity (duration_in_hours, note, activity_date, activity_type_id, pet_id) VALUES ($1, $2, $3, $4, $5) RETURNING id",
-//       [duration_in_hours, note, activity_date, activity_type_id, petId]
-//     );
-//     res.json({ id: result.rows[0].id });
-//   } catch (err) {
-//     console.error(err);
-//     next(err);
-//   }
-// })
+// POST a new activity data entry for a specific pet at /:petId
+router.post("/:petId", async (req, res, next) => {
+  try {
+    const { petId } = req.params;
+    const { activity_type_id, duration_in_hours, note, activity_date} = req.body;
+    const result = await pool.query(
+      "INSERT INTO activity (pet_id, activity_type_id, duration_in_hours, note, activity_date) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+      [petId, activity_type_id, duration_in_hours, note, activity_date]
+    );
+    res.json({ message: `id: ${result.rows[0].id}, Activity log created` });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+})
 export default router;
+
+// PATCH a activity data entry for a specific pet and id at /:petId/:id
+
+router.patch("/:petId/:id", async (req, res, next) => {
+	try {
+		const { petId, id } = req.params;
+		const immutables = ["id", "pet_id","date_created", "date_updated", "date_archived"];
+		let immutableErrors = "the following fields are immutable: ";
+		let immutableFields = [];
+		for (const key of Object.keys(req.body)) {
+			if (immutables.includes(key)) {
+				immutableFields.push(key);
+				delete req.body[key];
+			}
+		}
+		const fields = Object.keys(req.body);
+		const values = Object.values(req.body);
+
+		if (fields.length === 0) {
+			return res.status(400).json({ error: "No fields to update" });
+		}
+		const result = await pool.query(
+			`
+      UPDATE activity
+      SET ${fields
+				.map((field, index) => `${field} = $${index + 1}`)
+				.join(", ")}, date_updated = NOW()
+      WHERE pet_id = $${fields.length + 1} AND id = $${
+				fields.length + 2
+			} AND date_archived IS NULL 
+      RETURNING * 
+      `,
+			[...values, petId, id]
+		);
+		res.json(
+			immutableFields.length
+				? {
+						immutableErrors: immutableErrors + immutableFields.join(", "),
+						result: result.rows[0],
+				  }
+				: result.rows[0]
+		);
+	} catch (err) {
+		console.error(err);
+		next(err);
+	}
+});

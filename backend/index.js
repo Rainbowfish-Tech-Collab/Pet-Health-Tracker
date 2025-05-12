@@ -19,6 +19,7 @@ import bodilyFunctionsRouter from './routes/bodilyFunctions.js';
 import authRouter from './routes/auth.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import pool from './config/database.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -80,6 +81,23 @@ app.get('/login', (req, res) => {
 
 app.get("/", (req, res) => {
   res.send("Welcome to the database")
+});
+
+// GET all log related tables associated with the database
+app.get('/tables/logs', async(req, res, next) => {
+  try {
+    const result = await pool.query(`
+      SELECT DISTINCT table_name
+      FROM information_schema.columns
+      WHERE column_name IN ('pet_id', 'stat_id')
+        AND table_schema = 'public'
+        AND table_name NOT IN ('user_pet', 'active_activity');
+      `);
+    res.json(result.rows.map((row) => row.table_name));
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
 });
 
 //404 error handler

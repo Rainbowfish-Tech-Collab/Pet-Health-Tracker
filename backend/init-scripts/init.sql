@@ -487,6 +487,10 @@ SELECT cron.schedule(
   DELETE FROM stat
   WHERE date_archived IS NOT NULL
     AND date_archived < NOW() - INTERVAL '30 days';
+  
+  DELETE FROM bodily_function
+  WHERE date_archived IS NOT NULL
+    AND date_archived < NOW() - INTERVAL '30 days';
   $$
 );
 
@@ -495,6 +499,10 @@ SELECT cron.schedule(
 --   '* * * * *',                                  -- cron expression: every minute
 --   $$
 --   DELETE FROM stat
+--   WHERE date_archived IS NOT NULL
+--     AND date_archived < NOW() - INTERVAL '1 minute';
+
+--   DELETE FROM bodily_function
 --   WHERE date_archived IS NOT NULL
 --     AND date_archived < NOW() - INTERVAL '1 minute';
 --   $$

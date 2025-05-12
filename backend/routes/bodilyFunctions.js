@@ -163,7 +163,6 @@ router.patch("/:petId/:id", async (req, res, next) => {
 				delete req.body[key];
 			}
 		}
-		console.log(req.body);
 		const fields = Object.keys(req.body);
 		const values = Object.values(req.body);
 
