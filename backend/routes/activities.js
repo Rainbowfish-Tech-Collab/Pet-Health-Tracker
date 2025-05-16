@@ -1,5 +1,6 @@
 import express from "express";
 import pool from "../config/database.js";
+import { checkPetExists } from "./pets.js";
 const router = express.Router();
 
 // router: /activities 
@@ -9,7 +10,7 @@ const router = express.Router();
 // GET all activity types at / or /types
 router.get(/^\/(types)?$/, async (req, res, next) => {
 	try {
-		const result = await pool.query("SELECT * FROM activity_type");
+		const result = await pool.query("SELECT name FROM activity_type");
 		res.json(result.rows.map((row) => row.name));
 	} catch (err) {
 		console.error(err);
@@ -18,13 +19,14 @@ router.get(/^\/(types)?$/, async (req, res, next) => {
 });
 
 // GET all activity data logs for a specific pet
-router.get("/:petId/all", async (req, res, next) => {
+router.get("/:petId/all", checkPetExists, async (req, res, next) => {
 	try {
     const { petId } = req.params;
 		const result = await pool.query(
-			"SELECT duration_in_hours, note, activity_date, name FROM active_activity JOIN activity_type ON active_activity.activity_type_id = activity_type.id WHERE pet_id = $1",
+			"SELECT active_activity.id, name, note, duration_in_hours, activity_date, date_updated FROM active_activity JOIN activity_type ON active_activity.activity_type_id = activity_type.id WHERE pet_id = $1",
       [petId]
 		);
+    if(result.rows.length === 0) return res.json({ message: "No logs found" });
 		res.json(result.rows);
 	} catch (err) {
 		console.error(err);
@@ -33,30 +35,21 @@ router.get("/:petId/all", async (req, res, next) => {
 });
 
 // GET all activity data logs by activity type or activity type id for a specific pet
-router.get("/:petId/all/:activityTypeOrId", async (req, res, next) => {
+router.get("/:petId/all/:activityTypeOrId", checkPetExists, async (req, res, next) => {
 	try {
     const { activityTypeOrId, petId } = req.params;
-    let result; 
-    if (!isNaN(activityTypeOrId)) {
-      result = await pool.query(
-        "SELECT duration_in_hours, note, activity_date, name FROM active_activity JOIN activity_type ON active_activity.activity_type_id = activity_type.id WHERE activity_type_id = $1 AND pet_id = $2",
-        [activityTypeOrId, petId]
-      );
-
-    }
-    else{
-      // const nameResult = await pool.query(
-      //   `SELECT name FROM activity_type WHERE LOWER(name) = LOWER($1)`,
-      //   [activityTypeOrId]
-      // )
-      // const properName = nameResult.rows[0].name;
-      // if(properName !== activityTypeOrId) return res.redirect(`/activities/${petId}/all/${properName}`); //redirect to the correct case
-
-      result = await pool.query(
-        "SELECT duration_in_hours, note, activity_date, name FROM active_activity JOIN activity_type ON active_activity.activity_type_id = activity_type.id WHERE LOWER(name) = LOWER($1) AND pet_id = $2",
-        [activityTypeOrId, petId]
-      );
-    }
+    const isId = !isNaN(activityTypeOrId);
+    const filterColumn = isId ? "activity_type_id" : "LOWER(name)";
+    const filterValue = isId ? activityTypeOrId : activityTypeOrId.toLowerCase();
+    const result = await pool.query(
+      `
+      SELECT active_activity.id, name, note, duration_in_hours, activity_date, date_updated FROM active_activity 
+      JOIN activity_type ON active_activity.activity_type_id = activity_type.id 
+      WHERE ${filterColumn} = $1 AND pet_id = $2 AND date_archived IS NULL
+      `,
+      [filterValue, petId]
+    );
+    if(result.rows.length === 0) return res.json({ message: "No logs found" });
 		res.json(result.rows);
 	} catch (err) {
 		console.error(err);
@@ -66,30 +59,21 @@ router.get("/:petId/all/:activityTypeOrId", async (req, res, next) => {
 
 
 // GET duration_in_hours vs activity_date by activity type for graphing x and y units for a specific pet
-router.get("/:petId/all/:activityTypeOrId/graph", async (req, res, next) => {
+router.get("/:petId/all/:activityTypeOrId/graph", checkPetExists, async (req, res, next) => {
 	try {
     const { activityTypeOrId, petId } = req.params;
-    let result; 
-    if (!isNaN(activityTypeOrId)) {
-      result = await pool.query(
-        "SELECT duration_in_hours, activity_date FROM active_activity JOIN activity_type ON active_activity.activity_type_id = activity_type.id WHERE activity_type_id = $1 AND pet_id = $2",
-        [activityTypeOrId, petId]
-      );
-
-    }
-    else{
-      const nameResult = await pool.query(
-        `SELECT name FROM activity_type WHERE LOWER(name) = LOWER($1)`,
-        [activityTypeOrId]
-      )
-      const properName = nameResult.rows[0].name;
-      if(properName !== activityTypeOrId) return res.redirect(`/activities/${petId}/all/${properName}`); //redirect to the correct case
-
-      result = await pool.query(
-        "SELECT duration_in_hours, activity_date FROM active_activity JOIN activity_type ON active_activity.activity_type_id = activity_type.id WHERE LOWER(name) = LOWER($1) AND pet_id = $2",
-        [activityTypeOrId, petId]
-      );
-    }
+    const isId = !isNaN(activityTypeOrId);
+    const filterColumn = isId ? "activity_type_id" : "LOWER(name)";
+    const filterValue = isId ? activityTypeOrId : activityTypeOrId.toLowerCase();
+    const result = await pool.query(
+      `
+      SELECT duration_in_hours, activity_date FROM active_activity 
+      JOIN activity_type ON active_activity.activity_type_id = activity_type.id 
+      WHERE ${filterColumn} = $1 AND pet_id = $2 AND date_archived IS NULL
+      `,
+      [filterValue, petId]
+    );
+    if(result.rows.length === 0) return res.json({ error: "No logs found" });
 		res.json(result.rows);
 	} catch (err) {
 		console.error(err);
@@ -104,7 +88,8 @@ router.get("/:petId/all/:activityTypeOrId/graph", async (req, res, next) => {
 router.delete("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
-    await pool.query("UPDATE activity SET date_archived = NOW(), date_updated = NOW() WHERE id = $1", [id]);
+    const result = await pool.query("UPDATE activity SET date_archived = NOW(), date_updated = NOW() WHERE id = $1 AND date_archived IS NULL RETURNING id", [id]);
+    if(result.rows.length === 0) throw Object.assign(new Error("log not found"), { status: 404 });
     res.json({ message: `id: ${id}, Activity log deleted` });
   } catch (err) {
     console.error(err);
@@ -114,10 +99,11 @@ router.delete("/:id", async (req, res, next) => {
 
 // GET all deleted activity data logs (users who want to recover their data logs)
 // Only date_created, pet_id, date_updated and activity_type_id seems useless to show to the user and frontend
-router.get("/:petId/deleted", async (req, res, next) => {
+router.get("/:petId/deleted", checkPetExists, async (req, res, next) => {
   try {
     const { petId } = req.params;
     const result = await pool.query("SELECT activity.id, duration_in_hours, note, date_archived, activity_date, name FROM activity JOIN activity_type ON activity.activity_type_id = activity_type.id WHERE date_archived IS NOT NULL AND pet_id = $1", [petId]);
+    if(result.rows.length === 0) return res.json({ message: "No logs found" });
     res.json(result.rows);
   } catch (err) {
     console.error(err);
@@ -126,7 +112,7 @@ router.get("/:petId/deleted", async (req, res, next) => {
 });
 
 // POST a new activity data entry for a specific pet at /:petId
-router.post("/:petId", async (req, res, next) => {
+router.post("/:petId", checkPetExists, async (req, res, next) => {
   try {
     const { petId } = req.params;
     const { activity_type_id, duration_in_hours, note, activity_date} = req.body;
@@ -134,6 +120,7 @@ router.post("/:petId", async (req, res, next) => {
       "INSERT INTO activity (pet_id, activity_type_id, duration_in_hours, note, activity_date) VALUES ($1, $2, $3, $4, $5) RETURNING id",
       [petId, activity_type_id, duration_in_hours, note, activity_date]
     );
+    //error will be thrown by not null constraints
     res.json({ message: `id: ${result.rows[0].id}, Activity log created` });
   } catch (err) {
     console.error(err);
@@ -144,7 +131,7 @@ export default router;
 
 // PATCH a activity data entry for a specific pet and id at /:petId/:id
 
-router.patch("/:petId/:id", async (req, res, next) => {
+router.patch("/:petId/:id", checkPetExists, async (req, res, next) => {
 	try {
 		const { petId, id } = req.params;
 		const immutables = ["id", "pet_id","date_created", "date_updated", "date_archived"];
@@ -159,9 +146,7 @@ router.patch("/:petId/:id", async (req, res, next) => {
 		const fields = Object.keys(req.body);
 		const values = Object.values(req.body);
 
-		if (fields.length === 0) {
-			return res.status(400).json({ error: "No fields to update" });
-		}
+		if (fields.length === 0) throw Object.assign(new Error("No fields to update"), { status: 400 });
 		const result = await pool.query(
 			`
       UPDATE activity
@@ -175,6 +160,8 @@ router.patch("/:petId/:id", async (req, res, next) => {
       `,
 			[...values, petId, id]
 		);
+
+    if(result.rows.length === 0) throw Object.assign(new Error("log not found"), { status: 404 });
 		res.json(
 			immutableFields.length
 				? {
