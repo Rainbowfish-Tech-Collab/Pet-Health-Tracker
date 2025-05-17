@@ -35,6 +35,7 @@ router.get("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
     const result = await pool.query("SELECT * FROM pet WHERE id = $1", [id]);
+    if(!result.rows[0]) return res.status(404).json({ error: "Pet not found" });
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
@@ -67,4 +68,27 @@ router.patch("/:id", async (req, res, next) => {
     next(err);
   }
 })
+
+// middleware to check if pet exists
+export const checkPetExists = async (req, res, next) => {
+  try{
+    const { petId } = req.params;
+    const result = await pool.query('SELECT 1 FROM pet WHERE id = $1', [petId]);
+    if (!result.rows[0]) {
+      throw Object.assign(new Error(`Pet Id: ${petId} not found`), { status: 404 });
+    }
+    next();
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+// helper function for our other route handlers to check if a pet exists; scrapped for now
+// async function findPetById(id) {
+//   const result = await pool.query('SELECT * FROM pet WHERE id = $1', [id]);
+//   return result.rows[0] || null; 
+//   //recall result.rows will give an empty array if nothing is found,and accessing an index of an empty array will throw undefined
+// }
+
 export default router;
