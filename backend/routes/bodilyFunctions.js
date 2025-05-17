@@ -100,11 +100,11 @@ router.delete("/:id", async (req, res, next) => {
 	try {
 		const { id } = req.params;
 		const result = await pool.query(
-			"UPDATE bodily_function SET date_archived = NOW(), date_updated = NOW() WHERE id = $1 AND date_archived IS NULL RETURNING id",
+			"UPDATE bodily_function SET date_archived = NOW(), date_updated = NOW() WHERE id = $1 AND date_archived IS NULL RETURNING id, pet_id",
 			[id]
 		);
     if(result.rows.length === 0) throw Object.assign(new Error("log not found"), { status: 404 });
-		res.json({ message: `id: ${id}, Bodily Function log deleted` });
+		res.json({ message: `id: ${id}, Bodily Function log deleted for petId: ${result.rows[0].pet_id}` });
 	} catch (err) {
 		console.error(err);
 		next(err);

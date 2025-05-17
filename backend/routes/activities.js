@@ -10,8 +10,8 @@ const router = express.Router();
 // GET all activity types at / or /types
 router.get(/^\/(types)?$/, async (req, res, next) => {
 	try {
-		const result = await pool.query("SELECT name FROM activity_type");
-		res.json(result.rows.map((row) => row.name));
+		const result = await pool.query("SELECT id, name FROM activity_type");
+		res.json(result.rows);
 	} catch (err) {
 		console.error(err);
 		next(err);
@@ -88,9 +88,9 @@ router.get("/:petId/all/:activityTypeOrId/graph", checkPetExists, async (req, re
 router.delete("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
-    const result = await pool.query("UPDATE activity SET date_archived = NOW(), date_updated = NOW() WHERE id = $1 AND date_archived IS NULL RETURNING id", [id]);
+    const result = await pool.query("UPDATE activity SET date_archived = NOW(), date_updated = NOW() WHERE id = $1 AND date_archived IS NULL RETURNING id, pet_id", [id]);
     if(result.rows.length === 0) throw Object.assign(new Error("log not found"), { status: 404 });
-    res.json({ message: `id: ${id}, Activity log deleted` });
+    res.json({ message: `id: ${id}, Activity log deleted for petId: ${result.rows[0].pet_id}` });
   } catch (err) {
     console.error(err);
     next(err);
