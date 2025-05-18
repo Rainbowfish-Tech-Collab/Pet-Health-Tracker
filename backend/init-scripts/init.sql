@@ -244,9 +244,6 @@ ALTER TABLE
 ALTER TABLE
     "glucose_stat" ADD CONSTRAINT "glucose_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id") ON DELETE CASCADE;
 
-
-CREATE VIEW "active_activity" AS 
-SELECT * FROM "activity" WHERE "date_archived" IS NULL;
 ----------------------------------------------------------------------------------------------------------------
 --------------------------------------------- POPULATE ENUM TABLES ---------------------------------------------
 ----------------------------------------------------------------------------------------------------------------

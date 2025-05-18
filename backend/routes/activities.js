@@ -1,29 +1,19 @@
 import express from "express";
 import pool from "../config/database.js";
-import { checkPetExists } from "./pets.js";
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
-// router: /activities 
+// router: /pets/:petId/activities 
 
-// be aware only this route is using a pg view: `active_activity` (keeping it for possible optimization purposes in the future)
-
-// GET all activity types at / or /types
-router.get(/^\/(types)?$/, async (req, res, next) => {
-	try {
-		const result = await pool.query("SELECT id, name FROM activity_type");
-		res.json(result.rows);
-	} catch (err) {
-		console.error(err);
-		next(err);
-	}
-});
-
-// GET all activity data logs for a specific pet
-router.get("/:petId/all", checkPetExists, async (req, res, next) => {
+// GET all activity data logs for a specific pet 
+// -- /pets/:petId/activities/all
+router.get("/all", async (req, res, next) => {
 	try {
     const { petId } = req.params;
 		const result = await pool.query(
-			"SELECT active_activity.id, name, note, duration_in_hours, activity_date, date_updated FROM active_activity JOIN activity_type ON active_activity.activity_type_id = activity_type.id WHERE pet_id = $1",
+			`SELECT activity.id, name, note, duration_in_hours, activity_date, date_created, date_updated 
+      FROM activity 
+      JOIN activity_type ON activity.activity_type_id = activity_type.id 
+      WHERE pet_id = $1 AND date_archived IS NULL`,
       [petId]
 		);
     if(result.rows.length === 0) return res.json({ message: "No logs found" });
@@ -34,56 +24,79 @@ router.get("/:petId/all", checkPetExists, async (req, res, next) => {
 	}
 });
 
-// GET all activity data logs by activity type or activity type id for a specific pet
-router.get("/:petId/all/:activityTypeOrId", checkPetExists, async (req, res, next) => {
-	try {
-    const { activityTypeOrId, petId } = req.params;
-    const isId = !isNaN(activityTypeOrId);
-    const filterColumn = isId ? "activity_type_id" : "LOWER(name)";
-    const filterValue = isId ? activityTypeOrId : activityTypeOrId.toLowerCase();
-    const result = await pool.query(
-      `
-      SELECT active_activity.id, name, note, duration_in_hours, activity_date, date_updated FROM active_activity 
-      JOIN activity_type ON active_activity.activity_type_id = activity_type.id 
-      WHERE ${filterColumn} = $1 AND pet_id = $2 AND date_archived IS NULL
-      `,
-      [filterValue, petId]
-    );
-    if(result.rows.length === 0) return res.json({ message: "No logs found" });
-		res.json(result.rows);
-	} catch (err) {
-		console.error(err);
-		next(err);
-	}
-});
+// GET all activity data logs for a specific pet (when no query parameters are given)
+// -- /pets/:petId/activities/
 
+// GET all activity data logs by activity type or activity type id for a specific pet 
+// -- /pets/:petId/activities/?type={activityTypeOrId}
 
 // GET duration_in_hours vs activity_date by activity type for graphing x and y units for a specific pet
-router.get("/:petId/all/:activityTypeOrId/graph", checkPetExists, async (req, res, next) => {
-	try {
-    const { activityTypeOrId, petId } = req.params;
-    const isId = !isNaN(activityTypeOrId);
-    const filterColumn = isId ? "activity_type_id" : "LOWER(name)";
-    const filterValue = isId ? activityTypeOrId : activityTypeOrId.toLowerCase();
-    const result = await pool.query(
-      `
-      SELECT duration_in_hours, activity_date FROM active_activity 
-      JOIN activity_type ON active_activity.activity_type_id = activity_type.id 
-      WHERE ${filterColumn} = $1 AND pet_id = $2 AND date_archived IS NULL
-      `,
-      [filterValue, petId]
-    );
-    if(result.rows.length === 0) return res.json({ error: "No logs found" });
-		res.json(result.rows);
-	} catch (err) {
-		console.error(err);
-		next(err);
-	}
+// -- /pets/:petId/activities/?graph={boolean} ; default is false
+
+// GET all activity data logs and whether to include archived logs for a specific pet
+// -- /pets/:petId/activities/?archived={boolean} ; default is false
+
+// GET activity data logs sorted by column and direction for a specific pet
+// -- /pets/:petId/activities/?sort={column}&direction={asc|desc}
+router.get("/", async (req, res, next) => {
+  try{
+    const {petId} = req.params;
+    const {type, graph, archived, sort, direction} = req.query;
+
+    /* -------------------- IF GRAPH IS PROVIDED AND TRUE ------------------- */
+    const columns = graph?.toLowerCase() == "true" 
+    ? "duration_in_hours, activity_date"
+    : "activity.id, name, note, duration_in_hours, activity_date, date_created, date_updated";
+
+    let baseQuery = 
+    `
+    SELECT ${columns} FROM activity 
+    JOIN activity_type ON activity.activity_type_id = activity_type.id 
+    WHERE pet_id = $1
+    `;
+
+    const values = [petId];
+
+    /* ------------------------ IF A TYPE IS PROVIDED ----------------------- */
+    if(type){ 
+      const isId = !isNaN(type);
+      const col = isId ? "activity_type_id" : "LOWER(name)";
+      const val = isId ? type : type.toLowerCase();
+
+      const {rows} = await pool.query(`SELECT name FROM activity_type JOIN activity ON activity_type.id = activity.activity_type_id WHERE ${col} = $1`, [val]);
+      if(!rows[0]) throw Object.assign(new Error("type not found"), { status: 404 });
+      
+      
+      baseQuery += ` AND ${col} = $${values.length + 1}`;
+      values.push(val);
+    }
+
+
+    /* ------------------ IF ARCHIVED IS PROVIDED AND TRUE ------------------ */
+    baseQuery += archived?.toLowerCase() == "true" ? "" : " AND date_archived IS NULL";
+
+    /* ----------------- IF SORT AND DIRECTION ARE PROVIDED ----------------- */
+    
+    if((sort && !direction) || (!sort && direction)) throw Object.assign(new Error("Both 'sort' and 'direction' query parameters must be provided together."), { status: 400 });
+    if (sort && direction) {
+      const dir = direction?.toLowerCase();
+      if (!["asc", "desc"].includes(dir)) throw Object.assign(new Error("Invalid direction. Use 'asc' or 'desc'."), { status: 400 });
+      if (!columns.includes(sort)) throw Object.assign(new Error(`Cannot sort by '${sort}'. It is not a valid column.`), { status: 400 });
+      baseQuery += ` ORDER BY ${sort} ${dir}`;
+    }
+    
+    console.log(baseQuery);
+    const result = await pool.query(baseQuery, values);
+    if(result.rows.length === 0) return res.json({ message: "No logs found" });
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
 });
 
 // DELETE activity data log by id; since data logs is a soft delete then a hard delete after a certain time (30 days), we will follow through with a delete route and it makes the most sense with the user action. 
-
-// we always update the table not the view 
+// -- /pets/:petId/activities/:id
 
 router.delete("/:id", async (req, res, next) => {
   try {
@@ -97,12 +110,12 @@ router.delete("/:id", async (req, res, next) => {
   }
 });
 
-// GET all deleted activity data logs (users who want to recover their data logs)
-// Only date_created, pet_id, date_updated and activity_type_id seems useless to show to the user and frontend
-router.get("/:petId/deleted", checkPetExists, async (req, res, next) => {
+// GET all deleted activity data logs for a specific pet
+// -- /pets/:petId/activities/deleted
+router.get("/deleted", async (req, res, next) => {
   try {
     const { petId } = req.params;
-    const result = await pool.query("SELECT activity.id, duration_in_hours, note, date_archived, activity_date, name FROM activity JOIN activity_type ON activity.activity_type_id = activity_type.id WHERE date_archived IS NOT NULL AND pet_id = $1", [petId]);
+    const result = await pool.query("SELECT activity.id, activity_type_id, name, duration_in_hours, note, activity_date, date_archived FROM activity JOIN activity_type ON activity.activity_type_id = activity_type.id WHERE date_archived IS NOT NULL AND pet_id = $1", [petId]);
     if(result.rows.length === 0) return res.json({ message: "No logs found" });
     res.json(result.rows);
   } catch (err) {
@@ -111,8 +124,9 @@ router.get("/:petId/deleted", checkPetExists, async (req, res, next) => {
   }
 });
 
-// POST a new activity data entry for a specific pet at /:petId
-router.post("/:petId", checkPetExists, async (req, res, next) => {
+// POST a new activity data entry for a specific pet 
+// -- /pets/:petId/activities/
+router.post("/", async (req, res, next) => {
   try {
     const { petId } = req.params;
     const { activity_type_id, duration_in_hours, note, activity_date} = req.body;
@@ -127,11 +141,10 @@ router.post("/:petId", checkPetExists, async (req, res, next) => {
     next(err);
   }
 })
-export default router;
 
-// PATCH a activity data entry for a specific pet and id at /:petId/:id
-
-router.patch("/:petId/:id", checkPetExists, async (req, res, next) => {
+// PATCH a activity data entry for a specific pet and id
+// -- /pets/:petId/activities/:id
+router.patch("/:id", async (req, res, next) => {
 	try {
 		const { petId, id } = req.params;
 		const immutables = ["id", "pet_id","date_created", "date_updated", "date_archived"];
@@ -175,3 +188,5 @@ router.patch("/:petId/:id", checkPetExists, async (req, res, next) => {
 		next(err);
 	}
 });
+
+export default router;
