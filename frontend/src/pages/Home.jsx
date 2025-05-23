@@ -94,7 +94,7 @@ function Home() {
       {/* Pet Data Log Section */}
       <div style={styles.dataLog}>
         <h3>Pet Data Log</h3>
-        {/* We'll add the data log table here */}
+        {/* data log table here */}
       </div>
 
       {/* Navigation Bar */}
