@@ -32,7 +32,7 @@ router.post("/", async (req, res, next) => {
 router.get("/", async (req, res, next) => {
 	try {
 		const { petId } = req.params;
-		const [weights, glucose ] = await Promise.all([
+		const [weights, glucose, heartRate, respiratoryRate, other ] = await Promise.all([
 			pool.query(
 				`
         SELECT weight_stat.stat_id, stat.description, 'Weight' AS subcategory, weight_stat.id AS weight_stat_id, weight_stat.weight_id, weight.unit, weight, stat.stat_date, stat.date_created, stat.date_updated FROM weight_stat 
@@ -48,9 +48,30 @@ router.get("/", async (req, res, next) => {
         JOIN glucose ON glucose.id = glucose_stat.glucose_id 
         WHERE glucose_stat.date_archived IS NULL AND stat.pet_id = $1`,
 				[petId]
-			)
+			),
+      pool.query(
+        `
+        SELECT heart_rate_stat.stat_id, stat.description, 'Heart Rate' AS subcategory, heart_rate_stat.id AS heart_rate_stat_id, heart_rate_stat.beats_per_minute, stat.stat_date, stat.date_created, stat.date_updated FROM heart_rate_stat 
+        JOIN stat ON heart_rate_stat.stat_id = stat.id 
+        WHERE heart_rate_stat.date_archived IS NULL AND stat.pet_id = $1`,
+        [petId]
+      ),
+      pool.query(
+        `
+        SELECT respiratory_rate_stat.stat_id, stat.description, 'Respiratory Rate' AS subcategory, respiratory_rate_stat.id AS respiratory_rate_stat_id, respiratory_rate_stat.breaths_per_minute, stat.stat_date, stat.date_created, stat.date_updated FROM respiratory_rate_stat 
+        JOIN stat ON respiratory_rate_stat.stat_id = stat.id 
+        WHERE respiratory_rate_stat.date_archived IS NULL AND stat.pet_id = $1`,
+        [petId]
+      ),
+      pool.query(
+        `
+        SELECT other_stat.stat_id, stat.description, 'Other' AS subcategory, other_stat.id AS other_stat_id, other_stat.note, stat.stat_date, stat.date_created, stat.date_updated FROM other_stat 
+        JOIN stat ON other_stat.stat_id = stat.id 
+        WHERE other_stat.date_archived IS NULL AND stat.pet_id = $1`,
+        [petId]
+      )
 		]);
-		const result = [...weights.rows, ...glucose.rows];
+		const result = [...weights.rows, ...glucose.rows, ...heartRate.rows, ...respiratoryRate.rows, ...other.rows];
 		res.json(result);
 	} catch (err) {
 		console.error(err);

@@ -13,7 +13,7 @@ router.get('/enum', async(req, res, next) => {
       weights,
       glucose,
       dosages,
-      // medications,
+      medications,
       activities,
       bodilyFunctions
     ] = await Promise.all([
@@ -23,9 +23,10 @@ router.get('/enum', async(req, res, next) => {
       pool.query("SELECT id, unit FROM weight"),
       pool.query("SELECT id, unit FROM glucose"),
       pool.query("SELECT id, unit FROM dosage"),
-      // pool.query("SELECT id, name FROM medication_type"),
+      pool.query("SELECT id, name FROM medication_type"),
       pool.query("SELECT id, name FROM activity_type"),
-      pool.query("SELECT id, name FROM function")
+      pool.query("SELECT id, name FROM function"),
+      pool.query("SELECT id, name FROM symptom_type")
     ]);
 
     res.json({
@@ -35,7 +36,7 @@ router.get('/enum', async(req, res, next) => {
       weights: weights.rows,
       glucose: glucose.rows,
       dosages: dosages.rows,
-      // medications: medications.rows,
+      medications: medications.rows,
       activities: activities.rows,
       bodilyFunctions: bodilyFunctions.rows
     });
@@ -119,15 +120,15 @@ router.get('/dosages', async (req, res, next) => {
 
 // GET all medication types
 // -- /db/medications
-// router.get('/medications', async (req, res, next) => {
-//   try {
-//     const result = await pool.query("SELECT id, name FROM medication_type");
-//     res.json(result.rows);
-//   } catch (err) {
-//     console.error(err);
-//     next(err);
-//   }
-// });
+router.get('/medications', async (req, res, next) => {
+  try {
+    const result = await pool.query("SELECT id, name FROM medication_type");
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+});
 
 // GET all activity types 
 // -- /db/activities
@@ -151,6 +152,18 @@ router.get("/bodilyFunctions", async (req, res, next) => {
 		console.error(err);
 		next(err);
 	}
+});
+
+// GET all symptom types
+// -- /db/symptoms
+router.get('/symptoms', async (req, res, next) => {
+  try {
+    const result = await pool.query("SELECT id, name FROM symptom_type");
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
 });
 
 // GET all log related tables associated with the database
