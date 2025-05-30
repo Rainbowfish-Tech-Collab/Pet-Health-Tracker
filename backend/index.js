@@ -5,17 +5,17 @@ import session from 'express-session';
 import passport from './config/passport.js';
 import cors from 'cors';
 import usersRouter from './routes/users.js';
-import petsRouter from './routes/pets.js';
-import symptomsRouter from './routes/symptoms.js';
+import petsRouter, { checkPetExists } from './routes/pets.js';
+
 import statsRouter from './routes/stats.js';
-import petSexRouter from './routes/petSex.js';
-import petSpeciesRouter from './routes/petSpecies.js';
-import petBreedsRouter from './routes/petBreeds.js';
 import glucoseRouter from './routes/glucose.js';
 import weightsRouter from './routes/weights.js';
-import functionsRouter from './routes/functions.js';
-import dosagesRouter from './routes/dosages.js';
+
 import activitiesRouter from './routes/activities.js';
+import bodilyFunctionsRouter from './routes/bodilyFunctions.js';
+import symptomsRouter from './routes/symptoms.js';
+
+import dbRouter from './routes/db.js';
 import authRouter from './routes/auth.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -59,19 +59,24 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Routers
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
-app.use('/pets', petsRouter);
-app.use('/petSex', petSexRouter);
-app.use('/petSpecies', petSpeciesRouter);
-app.use('/petBreeds', petBreedsRouter);
 
-app.use('/activities', activitiesRouter);
+//enum tables & database routes
+app.use('/db', dbRouter);
+
+// Top Level Mount Path for pets
+app.use('/pets', petsRouter);
+// Middleware to check if pet exists
+app.use('/pets/:petId', checkPetExists);
+// Mount sub-routers; petId params will be passed
+app.use('/pets/:petId/activities', activitiesRouter);
+app.use('/pets/:petId/bodilyFunctions', bodilyFunctionsRouter);
+
+app.use('/pets/:petId/weights', weightsRouter);
+app.use('/pets/:petId/glucose', glucoseRouter);
 
 app.use('/symptoms', symptomsRouter);
 app.use('/stats', statsRouter);
-app.use('/glucose', glucoseRouter);
-app.use('/weights', weightsRouter);
-app.use('/functions', functionsRouter);
-app.use('/dosages', dosagesRouter);
+app.use('/bodilyFunctions', bodilyFunctionsRouter);
 
 // Serve login page
 app.get('/login', (req, res) => {

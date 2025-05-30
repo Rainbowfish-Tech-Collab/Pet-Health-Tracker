@@ -92,7 +92,7 @@ PGPASS="localhost:5432:<POSTGRES_DB>:<POSTGRES_USER>:<POSTGRES_PASSWORD>"
 
 3. .pgpass file will be located in `pg_cron` directory. Its in charge of handling any scheduled jobs on the database.
 
-### Running the Database
+## Running the Database
 
 1. Make sure you have Docker at least v27 installed (tested on v27.5.1)
 2. Navigate into the `backend` directory.
@@ -134,7 +134,7 @@ We can also view a list of tables in the database, which should match the `init.
 docker compose down -v
 ```
 
-### Server Setup
+## Server Setup
 
 1. Make sure you have an `DATABASE_URL` set in your `.env` file.  
    Please refer to the `.env.example` file for format and more information.  
