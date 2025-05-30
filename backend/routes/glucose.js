@@ -9,6 +9,12 @@ const router = express.Router({ mergeParams: true });
 router.get('/all', async (req, res, next) => {
   try {
     const { petId } = req.params;
+    const { stat_id, glucose_id, glucose_level } = req.body;
+
+    const statCheck = await pool.query("UPDATE stat SET date_updated = NOW() WHERE id = $1 RETURNING pet_id", [stat_id]);
+
+    if(statCheck.rows[0].pet_id !== petId) throw Object.assign(new Error(`cannot add to a stat not found, the stat_id record you gave is connected to petId ${statCheck.rows[0].pet_id}`), { status: 404 });
+
     const result = await pool.query(
       `
       SELECT glucose_stat.id, glucose_stat.glucose_id, glucose.unit, glucose_level, stat.description, stat.stat_date, stat.date_created, stat.date_updated FROM glucose_stat 

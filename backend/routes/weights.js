@@ -4,26 +4,33 @@ const router = express.Router({ mergeParams: true });
 
 // router: /weights
 
-// GET all weight logs for a specific pet 
-// -- /pets/:petId/all
-router.get("/all", async (req, res, next) => {
-	try {
-		const { petId } = req.params;
-		const result = await pool.query(
-			`
-      SELECT weight_stat.id, weight_stat.weight_id, weight.unit, weight, stat.description, stat.stat_date, stat.date_created, stat.date_updated FROM weight_stat 
-      JOIN stat ON weight_stat.stat_id = stat.id 
-      JOIN weight ON weight.id = weight_stat.weight_id 
-      WHERE weight_stat.date_archived IS NULL AND stat.pet_id = $1`,
-			[petId]
-		);
-		if (result.rows.length === 0) return res.json({ message: "No logs found" });
-		res.json(result.rows);
-	} catch (err) {
-		console.error(err);
-		next(err);
-	}
-});
+// POST a new weight data log for a specific pet (and stat id)
+// -- /pets/:petId/weights
+// we also need to update stats date_updated field.
+router.post("/", async (req, res, next) => {
+  try{
+    const { petId } = req.params;
+    const { stat_id, weight_id, weight } = req.body;
+
+    const statCheck = await pool.query("UPDATE stat SET date_updated = NOW() WHERE id = $1 RETURNING pet_id", [stat_id]);
+    
+    if(statCheck.rows[0].pet_id !== petId) throw Object.assign(new Error(`cannot add to a stat not found, the stat_id record you gave is connected to petId ${statCheck.rows[0].pet_id}`), { status: 404 });
+
+    const result = await pool.query(
+      `
+      INSERT INTO weight_stat (stat_id, weight_id, weight)
+        VALUES ($1, $2, $3)
+        RETURNING id
+      `,
+      [stat_id, weight_id, weight]
+    );
+    res.json({ message: `id ${result.rows[0].id}, weight log added for statId ${stat_id} on petId ${statCheck.rows[0].pet_id}` });
+  }
+  catch(err){
+    console.error(err);
+    next(err);
+  }
+})
 
 // GET all weight data logs for a specific pet (when no query parameters are given)
 // -- /pets/:petId/weights
