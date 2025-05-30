@@ -17,7 +17,7 @@ router.post("/", async (req, res, next) => {
 
     const statCheck = await pool.query("UPDATE stat SET date_updated = NOW() WHERE id = $1 RETURNING pet_id", [stat_id]);
 
-    if(statCheck.rows[0].petId !== petId) throw Object.assign(new Error(`cannot add to a stat not found, the stat_id record you gave is connected to petId ${statCheck.rows[0].pet_id}`), { status: 404 });
+    if(statCheck.rows[0].pet_id !== petId) throw Object.assign(new Error(`cannot add to a stat not found, the stat_id record you gave is connected to petId ${statCheck.rows[0].pet_id}`), { status: 404 });
 
     const result = await pool.query(
       `
