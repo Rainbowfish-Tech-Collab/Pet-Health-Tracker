@@ -166,6 +166,7 @@ ALTER TABLE
 CREATE TABLE "medication"(
     "id" bigserial NOT NULL,
     "pet_id" BIGINT NOT NULL,
+    "medication_type_id" INTEGER NOT NULL,
     "dosage_id" INTEGER NOT NULL,
     "dosage" REAL NOT NULL,
     "note" TEXT NULL,
@@ -176,6 +177,12 @@ CREATE TABLE "medication"(
 );
 ALTER TABLE
     "medication" ADD PRIMARY KEY("id");
+CREATE TABLE "medication_type"(
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL
+);
+ALTER TABLE
+    "medication_type" ADD PRIMARY KEY("id");
 CREATE TABLE "dosage"(
     "id" SERIAL NOT NULL,
     "unit" TEXT NOT NULL
@@ -211,6 +218,8 @@ ALTER TABLE
     "heart_rate_stat" ADD CONSTRAINT "heart_rate_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id") ON DELETE CASCADE;
 ALTER TABLE
     "activity" ADD CONSTRAINT "activity_activity_type_id_foreign" FOREIGN KEY("activity_type_id") REFERENCES "activity_type"("id");
+ALTER TABLE
+    "medication" ADD CONSTRAINT "medication_medication_type_id_foreign" FOREIGN KEY("medication_type_id") REFERENCES "medication_type"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE
     "medication" ADD CONSTRAINT "medication_dosage_id_foreign" FOREIGN KEY("dosage_id") REFERENCES "dosage"("id");
 ALTER TABLE
@@ -458,6 +467,10 @@ VALUES
   ('Defecation'),
   ('Urination');
 
+INSERT INTO "medication_type" ("name")
+VALUES
+  ('Tylenol');
+
 INSERT INTO "dosage" (unit)
 VALUES
   ('mg'),
@@ -476,7 +489,6 @@ VALUES
   ('Drinking'),
   ('Other'); 
 
-
 SELECT cron.schedule(
   'cleanup_archived_stats',                     
   '0 0 * * *',                                  -- cron expression: every day at 12:00 AM
@@ -486,6 +498,10 @@ SELECT cron.schedule(
     AND date_archived < NOW() - INTERVAL '30 days';
   
   DELETE FROM bodily_function
+  WHERE date_archived IS NOT NULL
+    AND date_archived < NOW() - INTERVAL '30 days';
+
+  DELETE FROM activity
   WHERE date_archived IS NOT NULL
     AND date_archived < NOW() - INTERVAL '30 days';
   $$

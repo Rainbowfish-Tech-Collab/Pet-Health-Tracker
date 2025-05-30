@@ -7,13 +7,18 @@ import cors from 'cors';
 import usersRouter from './routes/users.js';
 import petsRouter, { checkPetExists } from './routes/pets.js';
 
-import statsRouter from './routes/stats.js';
-import glucoseRouter from './routes/glucose.js';
-import weightsRouter from './routes/weights.js';
+import { router as symptomsRouter, globalRouter as symptomsGlobalRouter} from './routes/symptoms.js';
+import { router as bodilyFunctionsRouter, globalRouter as bodilyFunctionsGlobalRouter} from './routes/bodilyFunctions.js';
+import { router as medicationsRouter, globalRouter as medicationsGlobalRouter} from './routes/medications.js';
+import { router as activitiesRouter, globalRouter as activitiesGlobalRouter} from './routes/activities.js';
 
-import activitiesRouter from './routes/activities.js';
-import bodilyFunctionsRouter from './routes/bodilyFunctions.js';
-import symptomsRouter from './routes/symptoms.js';
+import { router as statsRouter, globalRouter as statsGlobalRouter} from './routes/stats.js';
+import { router as weightsRouter, globalRouter as weightsGlobalRouter} from './routes/weights.js';
+import { router as glucoseRouter, globalRouter as glucoseGlobalRouter} from './routes/glucose.js';
+import { router as heartRatesRouter, globalRouter as heartRatesGlobalRouter} from './routes/heartRates.js';
+import { router as respiratoryRatesRouter, globalRouter as respiratoryRatesGlobalRouter} from './routes/respiratoryRates.js';
+import { router as otherRouter, globalRouter as otherGlobalRouter} from './routes/other.js';
+
 
 import dbRouter from './routes/db.js';
 import authRouter from './routes/auth.js';
@@ -68,15 +73,37 @@ app.use('/pets', petsRouter);
 // Middleware to check if pet exists
 app.use('/pets/:petId', checkPetExists);
 // Mount sub-routers; petId params will be passed
-app.use('/pets/:petId/activities', activitiesRouter);
+
+app.use('/pets/:petId/symptoms', symptomsRouter);
+app.use('/symptoms', symptomsGlobalRouter);
+
 app.use('/pets/:petId/bodilyFunctions', bodilyFunctionsRouter);
+app.use('/bodilyFunctions', bodilyFunctionsGlobalRouter);
+
+app.use('/pets/:petId/medications', medicationsRouter);
+app.use('/medications', medicationsGlobalRouter);
+
+app.use('/pets/:petId/activities', activitiesRouter);
+app.use('/activities', activitiesGlobalRouter);
+
+
+app.use('/pets/:petId/stats', statsRouter);
+app.use('/stats', statsGlobalRouter);
 
 app.use('/pets/:petId/weights', weightsRouter);
-app.use('/pets/:petId/glucose', glucoseRouter);
+app.use('/weights', weightsGlobalRouter);
 
-app.use('/symptoms', symptomsRouter);
-app.use('/stats', statsRouter);
-app.use('/bodilyFunctions', bodilyFunctionsRouter);
+app.use('/pets/:petId/glucose', glucoseRouter);
+app.use('/glucose', glucoseGlobalRouter);
+
+app.use('/pets/:petId/heartRates', heartRatesRouter);
+app.use('/heartRates', heartRatesGlobalRouter);
+
+app.use('/pets/:petId/respiratoryRates', respiratoryRatesRouter);
+app.use('/respiratoryRates', respiratoryRatesGlobalRouter);
+
+app.use('/pets/:petId/other', otherRouter);
+app.use('/other', otherGlobalRouter);
 
 // Serve login page
 app.get('/login', (req, res) => {
