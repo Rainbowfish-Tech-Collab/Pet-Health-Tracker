@@ -51,10 +51,10 @@ The Rainbow Fish is a children's book by Marcus Pfister that promotes generosity
 
 # Getting Started 🚀
 
-├── [Requirements](#requirements)  
-├── [Installation](#installation)  
-├── [Setting Up Scheduler](#pg-cron-setup)  
-├── [Running the Database](#running-the-database)  
+├── [Requirements](#requirements)
+├── [Installation](#installation)
+├── [Setting Up Scheduler](#pg-cron-setup)
+├── [Running the Database](#running-the-database)
 └── [Setting Up Express Server](#server-setup)
 
 ## Requirements
@@ -136,8 +136,8 @@ docker compose down -v
 
 ## Server Setup
 
-1. Make sure you have an `DATABASE_URL` set in your `.env` file.  
-   Please refer to the `.env.example` file for format and more information.  
+1. Make sure you have an `DATABASE_URL` set in your `.env` file.
+   Please refer to the `.env.example` file for format and more information.
    The format should be:
 
 ```
@@ -155,6 +155,9 @@ npm run dev
 ```
 http://localhost:3000
 ```
+
+## Google OAuth Configuration
+To set up the Google OAuth API, please send an email to yehken@gmail.com to request access to this [file](https://docs.google.com/document/d/1eqIk1xB-PwZAiz9MkNH53DnSKWUpgepnye4GCg-7QaY/edit?usp=drive_link). Use the subject line "Pet Tracker Google OAuth".
 
 ## Configuration
 
