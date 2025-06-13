@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import logo from '../assets/fetched-logo.png';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -36,44 +37,49 @@ const Login = () => {
   };
 
   return (
-    <div>
-      <h1>Login</h1>
-
-      {error && <div>{error}</div>}
-
-      <form onSubmit={handleLogin}>
-        <div>
-          <label>Username:</label>
+    <div className="min-h-screen flex items-center justify-center bg-[#222]">
+      <div className="bg-[#fcfaec] rounded-2xl shadow-lg p-6 sm:p-10 w-[350px] flex flex-col items-center border-8 border-[#222]">
+        <div className="w-full flex flex-col items-center mb-6">
+          <div className="bg-[#d6e8cb] rounded-2xl w-full flex flex-col items-center py-6 mb-6">
+            <img
+              src={logo}
+              alt="Fetched logo"
+              className="w-48 h-32 object-contain rounded-2xl shadow"
+            />
+          </div>
+        </div>
+        <form onSubmit={handleLogin} className="w-full flex flex-col gap-4 mb-2">
           <input
             type="text"
+            placeholder="email"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
+            className="w-full border border-[#444] rounded px-3 py-2 bg-transparent text-lg focus:outline-none focus:border-[#355233]"
           />
-        </div>
-
-        <div>
-          <label>Password:</label>
           <input
             type="password"
+            placeholder="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            className="w-full border border-[#444] rounded px-3 py-2 bg-transparent text-lg focus:outline-none focus:border-[#355233]"
           />
+          <div className="text-left">
+            <a href="#" className="text-[#6b6b6b] text-sm underline hover:text-[#355233]">Forgot Username or Password?</a>
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-[#355233] text-white text-2xl font-semibold rounded py-2 mt-2 hover:bg-[#22351d] transition-colors"
+          >
+            Log in
+          </button>
+        </form>
+        <div className="w-full text-center mt-2">
+          <span className="text-[#888] text-base">Need an account?{' '}
+            <Link to="/register" className="underline text-[#444] hover:text-[#355233]">Sign up</Link>
+          </span>
         </div>
-
-        <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-          Login
-        </button>
-      </form>
-
-      <div>
-        <p>Or</p>
-        <button onClick={handleGoogleLogin}>Login with Google</button>
-      </div>
-
-      <div>
-        <p>Don't have an account? <Link to="/register">Register here</Link></p>
       </div>
     </div>
   );
