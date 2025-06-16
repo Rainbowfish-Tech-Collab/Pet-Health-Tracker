@@ -158,7 +158,19 @@ router.get("/bodilyFunctions", async (req, res, next) => {
 // -- /db/symptoms
 router.get('/symptoms', async (req, res, next) => {
   try {
-    const result = await pool.query("SELECT id, name FROM symptom_type");
+    const result = await pool.query("SELECT id, name, pet_id FROM symptom_type");
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+});
+
+// GET all medication types
+// -- /db/medications
+router.get('/medications', async (req, res, next) => {
+  try {
+    const result = await pool.query("SELECT id, name, pet_id FROM medication_type");
     res.json(result.rows);
   } catch (err) {
     console.error(err);

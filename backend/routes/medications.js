@@ -36,10 +36,10 @@ router.post("/types", async (req, res, next) => {
     const { petId } = req.params;
     const { name } = req.body;
     const result = await pool.query(
-      "INSERT INTO medication_type (name) VALUES ($1) RETURNING id",
-      [name]
+      "INSERT INTO medication_type (pet_id, name) VALUES ($1, $2) RETURNING id, pet_id",
+      [petId, name]
     );
-    res.json({ message: `id: ${result.rows[0].id}, Medication type created. Please attach this medication type to a medication log for petId: ${req.params.petId} to save it.`});
+    res.json({ message: `id: ${result.rows[0].id}, Medication type created for petId: ${result.rows[0].pet_id}.`});
   } catch (err) {
     console.error(err);
     next(err);
@@ -68,15 +68,16 @@ router.get("/", async (req, res, next) => {
     /* -------------------- IF GRAPH IS PROVIDED AND TRUE ------------------- */
     let columns = graph?.toLowerCase() == "true" 
     ? "dosage, name, medication_date"
-    : "medication.id, medication_type_id, name, dosage_id,dosage, note, medication_date, date_created, date_updated";
+    : "medication.id, medication_type_id, name, dosage_id, unit, dosage, note, medication_date, date_created, date_updated";
 
-    columns += archived?.toLowerCase() == "true" || archived?.toLowerCase() == "only" ? ", date_archived" : "";
+    columns += archived?.toLowerCase() == "true" || archived?.toLowerCase() == "only" ? ", medication.date_archived" : "";
 
     let baseQuery = 
     `
     SELECT ${columns} FROM medication 
     JOIN medication_type ON medication.medication_type_id = medication_type.id 
-    WHERE pet_id = $1
+    JOIN dosage ON medication.dosage_id = dosage.id
+    WHERE medication.pet_id = $1
     `;
 
     const values = [petId];
@@ -95,7 +96,7 @@ router.get("/", async (req, res, next) => {
     }
 
     /* ----------------------- IF ARCHIVED IS PROVIDED ---------------------- */
-    baseQuery += archived?.toLowerCase() == "true" ? "" : archived?.toLowerCase() == "only" ? " AND date_archived IS NOT NULL" : " AND date_archived IS NULL";
+    baseQuery += archived?.toLowerCase() == "true" ? "" : archived?.toLowerCase() == "only" ? " AND medication.date_archived IS NOT NULL" : " AND medication.date_archived IS NULL";
 
     /* ----------------------- IF SORT AND DIRECTION ARE PROVIDED ---------------------- */
     if((sort && !direction) || (!sort && direction)) throw Object.assign(new Error("Both 'sort' and 'direction' query parameters must be provided together."), { status: 400 });
@@ -127,11 +128,19 @@ router.get(/^\/(all|deleted|types)$/, async (req, res, next) => {
     const showTypes = req.path.endsWith("/types");
 
     if(showTypes){
+      // const result = await pool.query(`
+      //   SELECT DISTINCT medication_type.id, name 
+      //   FROM medication_type 
+      //   JOIN medication ON medication_type.id = medication.medication_type_id 
+      //   WHERE medication.pet_id = $1`, 
+      //   [petId]
+      // );
+
       const result = await pool.query(`
-        SELECT DISTINCT medication_type.id, name 
-        FROM medication_type 
-        JOIN medication ON medication_type.id = medication.medication_type_id 
-        WHERE pet_id = $1`, 
+        SELECT id, name 
+        FROM medication_type
+        WHERE pet_id = $1
+        `, 
         [petId]
       );
       if(result.rows.length === 0) return res.json({ message: "No medication types found" });
@@ -139,10 +148,11 @@ router.get(/^\/(all|deleted|types)$/, async (req, res, next) => {
     } else {
       const result = await pool.query(
         `
-        SELECT medication.id, medication_type_id, name, dosage_id, dosage, note, medication_date, date_created, date_updated ${showDeleted ? ", date_archived" : ""} 
+        SELECT medication.id, medication_type_id, name, dosage_id, unit, dosage, note, medication_date, date_created, date_updated ${showDeleted ? ", medication.date_archived" : ""} 
         FROM medication 
         JOIN medication_type ON medication.medication_type_id = medication_type.id 
-        WHERE ${showDeleted ? "date_archived IS NOT NULL" : "date_archived IS NULL"} AND pet_id = $1
+        JOIN dosage ON medication.dosage_id = dosage.id
+        WHERE ${showDeleted ? "medication.date_archived IS NOT NULL" : "medication.date_archived IS NULL"} AND medication.pet_id = $1
         `, [petId]
       );
       if(result.rows.length === 0) return res.json({ message: "No logs found" });
@@ -154,7 +164,29 @@ router.get(/^\/(all|deleted|types)$/, async (req, res, next) => {
   }
 })
 
-// PATCH a medication data entry for a specific pet and id. You cannot patch soft deleted logs from this endpoint
+// PATCH a medication type for a specific pet
+// -- /pets/:petId/medications/types/:id
+router.patch("/types/:id", async (req, res, next) => {
+  try {
+    const { petId, id } = req.params;
+    const { name } = req.body;
+    const result = await pool.query(
+      `
+      UPDATE medication_type SET name = $1
+      WHERE medication_type.id = $2 AND pet_id = $3 RETURNING pet_id
+      `, 
+      [name, id, petId]
+    );
+    if(result.rows.length === 0) return res.json({ message: "No log found" });
+    res.json({ message: `id: ${id}, medication type updated for petId: ${result.rows[0].pet_id}` });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+})
+
+
+// PATCH a medication data entry for a id. You cannot patch soft deleted logs from this endpoint
 // -- /medications/:id
 globalRouter.patch("/:id", async (req, res, next) => {
   try{
@@ -186,7 +218,7 @@ globalRouter.patch("/:id", async (req, res, next) => {
         .map((field, index) => `${field} = $${index + 1}`)
         .join(", ")}, date_updated = NOW()
       WHERE id = $${fields.length + 1} 
-      AND date_archived IS NULL 
+      AND medication.date_archived IS NULL 
       RETURNING *
       `, [...values, id]
     );
@@ -237,6 +269,26 @@ globalRouter.patch("/:id/restore", async (req, res, next) => {
     console.log(err);
     next(err);
   }
+})
+
+// DELETE medication type by a specific pet, only soft deleting.
+// -- /pets/:petId/medications/types/:id
+router.delete("/types/:id", async (req, res, next) => {
+  try{
+    const { petId } = req.params;
+    const { id } = req.params;
+    const result = await pool.query(`
+      UPDATE medication_type SET date_archived = NOW()
+      WHERE medication_type.id = $1 AND pet_id = $2 RETURNING pet_id`, 
+      [id, petId]
+    );
+    if(result.rows.length === 0) throw Object.assign(new Error("log not found"), { status: 404 });
+    res.json({ message: `id ${id}, medication type soft deleted for petId ${result.rows[0].pet_id}` });
+  } catch (err){
+    console.log(err);
+    next(err);
+  }
+  
 })
 
 // DELETE medication data log by id, either a soft or hard delete
