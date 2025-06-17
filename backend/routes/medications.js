@@ -85,11 +85,14 @@ router.get("/", async (req, res, next) => {
     /* ------------------------ IF A TYPE IS PROVIDED ----------------------- */
     if(type){ 
       const isId = !isNaN(type);
-      const col = isId ? "medication_type_id" : "LOWER(name)";
+      const col = isId ? "medication_type.id" : "LOWER(name)";
       const val = isId ? type : type.toLowerCase();
 
+      const typeCheck = await pool.query(`SELECT name FROM medication_type WHERE ${col} = $1`, [val]);
+      if(typeCheck.rows.length === 0) throw Object.assign(new Error("type not found"), { status: 404 });
+
       const {rows} = await pool.query(`SELECT name FROM medication_type JOIN medication ON medication_type.id = medication.medication_type_id WHERE ${col} = $1`, [val]);
-      if(rows.length === 0) throw Object.assign(new Error("type not found"), { status: 404 });
+      if(rows.length === 0) return res.json({ message: "No logs found" });
       
       baseQuery += ` AND ${col} = $${values.length + 1}`;
       values.push(val);
@@ -120,10 +123,11 @@ router.get("/", async (req, res, next) => {
 // GET all activity data logs for a specific pet 
 // GET all soft deleted activity data logs for a specific pet
 // GET all medication types for a specific pet
-// -- /pets/:petId/medications/(all|deleted|types)
+// -- /pets/:petId/medications/(all|deleted|types) w/ query parameter for archived types
 router.get(/^\/(all|deleted|types)$/, async (req, res, next) => {
   try {
     const { petId } = req.params;
+    const { archived } = req.query;
     const showDeleted = req.path.endsWith("/deleted");
     const showTypes = req.path.endsWith("/types");
 
@@ -139,7 +143,7 @@ router.get(/^\/(all|deleted|types)$/, async (req, res, next) => {
       const result = await pool.query(`
         SELECT id, name 
         FROM medication_type
-        WHERE pet_id = $1
+        WHERE pet_id = $1 ${archived?.toLowerCase() == "true" ? "" : archived?.toLowerCase() == "only" ? "AND date_archived IS NOT NULL" : "AND date_archived IS NULL"}
         `, 
         [petId]
       );
@@ -177,7 +181,7 @@ router.patch("/types/:id", async (req, res, next) => {
       `, 
       [name, id, petId]
     );
-    if(result.rows.length === 0) return res.json({ message: "No log found" });
+    if(result.rows.length === 0) throw Object.assign(new Error("log not found"), { status: 404 });
     res.json({ message: `id: ${id}, medication type updated for petId: ${result.rows[0].pet_id}` });
   } catch (err) {
     console.error(err);
@@ -311,23 +315,23 @@ globalRouter.delete("/:id/:deleteType(soft|hard)", async (req, res, next) => {
 // DELETE medication type by medication type id
 // -- /medications/types/:id
 
-globalRouter.delete("/types/:id", async (req, res, next) => {
-  try{
-    const { id } = req.params;
-    const result = await pool.query(`
-      DELETE FROM medication_type
-      USING medication
-      WHERE medication_type.id = medication.medication_type_id
-      AND medication_type.id = $1
-      RETURNING medication.pet_id`, 
-      [id]
-    );
-    if(result.rows.length === 0) throw Object.assign(new Error("log not found"), { status: 404 });
-    res.json({ message: `id ${id}, medication type deleted for petId ${result.rows[0].pet_id}` });
-  } catch (err){
-    console.log(err);
-    next(err);
-  }
-})
+// globalRouter.delete("/types/:id", async (req, res, next) => {
+//   try{
+//     const { id } = req.params;
+//     const result = await pool.query(`
+//       DELETE FROM medication_type
+//       USING medication
+//       WHERE medication_type.id = medication.medication_type_id
+//       AND medication_type.id = $1
+//       RETURNING medication.pet_id`, 
+//       [id]
+//     );
+//     if(result.rows.length === 0) throw Object.assign(new Error("log not found"), { status: 404 });
+//     res.json({ message: `id ${id}, medication type deleted for petId ${result.rows[0].pet_id}` });
+//   } catch (err){
+//     console.log(err);
+//     next(err);
+//   }
+// })
 
 export { router, globalRouter };

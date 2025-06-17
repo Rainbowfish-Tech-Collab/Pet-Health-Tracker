@@ -42,11 +42,31 @@ router.post("/", async (req, res, next) => {
   }
 });
 
+// POST a new symptom type for symptom_type for a specific pet 
+// normally this should go in the db endpoint, but since types are user entered, they should be locked under a pet. 
+// Most likely will need to implement some sort of cache to save this medication type list in the future. 
+// -- /pets/:petId/symptoms/types 
+
+router.post("/types", async (req, res, next) => {
+  try {
+    const { petId } = req.params;
+    const { name } = req.body;
+    const result = await pool.query(
+      "INSERT INTO symptom_type (pet_id, name) VALUES ($1, $2) RETURNING id, pet_id",
+      [petId, name]
+    );
+    res.json({ message: `id: ${result.rows[0].id}, Symptom type created for petId: ${result.rows[0].pet_id}.`});
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+});
+
 // GET all symptom data logs for a specific pet (when no query parameters are given)
 // -- /pets/:petId/symptoms
 
-// GET all symptom data logs by activity type or activity type id for a specific pet 
-// -- /pets/:petId/symptoms/?type={activityTypeOrId}
+// GET all symptom data logs by symptom type or symptom type id for a specific pet 
+// -- /pets/:petId/symptoms/?type={symptomTypeOrId}
 
 // GET frequency vs symptom_date by symptom type for graphing x and y units for a specific pet
 // -- /pets/:petId/symptoms/?graph={boolean} ; default is false
@@ -67,13 +87,13 @@ router.get("/", async (req, res, next) => {
     ? "name, symptom_date"
     : "symptom.id, symptom_type_id, name, symptom_other, symptom_description, symptom_date, date_created, date_updated";
 
-    columns += archived?.toLowerCase() == "true" || archived?.toLowerCase() == "only" ? ", date_archived" : "";
+    columns += archived?.toLowerCase() == "true" || archived?.toLowerCase() == "only" ? ", symptom.date_archived" : "";
 
     let baseQuery = 
     `
     SELECT ${columns} FROM symptom 
     JOIN symptom_type ON symptom.symptom_type_id = symptom_type.id 
-    WHERE pet_id = $1
+    WHERE symptom.pet_id = $1
     `;
 
     const values = [petId];
@@ -81,18 +101,21 @@ router.get("/", async (req, res, next) => {
     /* ------------------------ IF A TYPE IS PROVIDED ----------------------- */
     if(type){ 
       const isId = !isNaN(type);
-      const col = isId ? "symptom_type_id" : "LOWER(name)";
+      const col = isId ? "symptom_type.id" : "LOWER(name)";
       const val = isId ? type : type.toLowerCase();
 
-      const {rows} = await pool.query(`SELECT name FROM symptom_type JOIN symptom ON symptom_type.id = symptom.symptom_type_id WHERE ${col} = $1`, [val]);
-      if(!rows[0]) throw Object.assign(new Error("type not found"), { status: 404 });
+      const typeCheck = await pool.query(`SELECT name FROM symptom_type WHERE ${col} = $1`, [val]);
+      if(typeCheck.rows.length === 0) throw Object.assign(new Error("type not found"), { status: 404 });
+
+      const { rows } = await pool.query(`SELECT name FROM symptom_type JOIN symptom ON symptom_type.id = symptom.symptom_type_id WHERE ${col} = $1`, [val]);
+      if(rows.length === 0) return res.json({ message: "No logs found" });
       
       baseQuery += ` AND ${col} = $${values.length + 1}`;
       values.push(val);
     }
 
     /* ----------------------- IF ARCHIVED ID PROVIDED ---------------------- */
-    baseQuery += archived?.toLowerCase() == "true" ? "" : archived?.toLowerCase() == "only" ? " AND date_archived IS NOT NULL" : " AND date_archived IS NULL";
+    baseQuery += archived?.toLowerCase() == "true" ? "" : archived?.toLowerCase() == "only" ? " AND symptom.date_archived IS NOT NULL" : " AND symptom.date_archived IS NULL";
 
     /* ----------------------- IF SORT AND DIRECTION ARE PROVIDED ---------------------- */
     if((sort && !direction) || (!sort && direction)) throw Object.assign(new Error("Both 'sort' and 'direction' query parameters must be provided together."), { status: 400 });
@@ -114,21 +137,59 @@ router.get("/", async (req, res, next) => {
 
 // GET all symptom data logs for a specific pet 
 // GET all soft deleted symptom data logs for a specific pet
-// -- /pets/:petId/symptoms/(all|deleted)
-router.get(/^\/(all|deleted)$/, async (req, res, next) => {
+// GET all symptom types for a specific pet
+// -- /pets/:petId/symptoms/(all|deleted|types) w/ query parameter for archived types
+router.get(/^\/(all|deleted|types)$/, async (req, res, next) => {
   try {
     const { petId } = req.params;
+    const { archived } = req.query;
     const showDeleted = req.path.endsWith("/deleted");
+    const showTypes = req.path.endsWith("/types");
 
+    // types will show user inputted types first, then default symptom types at the very bottom. 
+    if(showTypes){
+      const result = await pool.query(`
+        SELECT id, name, pet_id, date_archived
+        FROM symptom_type
+        WHERE (pet_id = $1 OR pet_id IS NULL) ${archived?.toLowerCase() == "true" ? "" : archived?.toLowerCase() == "only" ? "AND date_archived IS NOT NULL" : "AND date_archived IS NULL"}
+        ORDER BY pet_id, id
+        `, 
+        [petId]
+      );
+      if(result.rows.length === 0) return res.json({ message: "No medication types found" });
+      res.json(result.rows);
+    }
+    else{
+      const result = await pool.query(
+        `
+        SELECT symptom.id, symptom_type_id, name, symptom_other, symptom_description, symptom_date, date_created, date_updated ${showDeleted ? ", symptom.date_archived" : ""} 
+        FROM symptom 
+        JOIN symptom_type ON symptom.symptom_type_id = symptom_type.id 
+        WHERE ${showDeleted ? "symptom.date_archived IS NOT NULL" : "symptom.date_archived IS NULL"} AND symptom.pet_id = $1
+      `, [petId]);
+      if(result.rows.length === 0) return res.json({ message: "No logs found" });
+      res.json(result.rows);
+    }
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+})
+
+// PATCH a symptom type for a specific pet
+// -- /pets/:petId/symptoms/types/:id
+router.patch("/types/:id", async (req, res, next) => {
+  try {
+    const { petId, id } = req.params;
+    const { name } = req.body;
+    console.log(id);
     const result = await pool.query(
-      `
-      SELECT symptom.id, symptom_type_id, name, symptom_other, symptom_description, symptom_date, date_created, date_updated ${showDeleted ? ", date_archived" : ""} 
-      FROM symptom 
-      JOIN symptom_type ON symptom.symptom_type_id = symptom_type.id 
-      WHERE ${showDeleted ? "date_archived IS NOT NULL" : "date_archived IS NULL"} AND pet_id = $1
-    `, [petId]);
-    if(result.rows.length === 0) return res.json({ message: "No logs found" });
-    res.json(result.rows);
+      "UPDATE symptom_type SET name = $1 WHERE id = $2 AND pet_id = $3 RETURNING id, pet_id",
+      [name, id, petId]
+    );
+
+    if(result.rows.length === 0) throw Object.assign(new Error("log not found"), { status: 404 });
+    res.json({ message: `id: ${result.rows[0].id}, Symptom type updated for petId: ${result.rows[0].pet_id}.`});
   } catch (err) {
     console.error(err);
     next(err);
@@ -198,6 +259,20 @@ globalRouter.patch("/:id/restore", async (req, res, next) => {
     next(err);
   }
 }) 
+
+// DELETE a symptom type by a specific pet (soft delete)
+// -- /pets/:petId/symptoms/types/:id
+router.delete("/types/:id", async (req, res, next) => {
+  try{
+    const { petId, id } = req.params;
+    const result = await pool.query("UPDATE symptom_type SET date_archived = NOW() WHERE id = $1 AND pet_id = $2 RETURNING id, pet_id", [id, petId]);
+    if(result.rows.length === 0) throw Object.assign(new Error("log not found"), { status: 404 });
+    res.json({ message: `id: ${id}, Symptom type soft deleted for petId: ${result.rows[0].pet_id}` });
+  } catch (err){
+    console.log(err);
+    next(err);
+  }
+})
 
 // DELETE symptom data log by id, either a soft or hard delete
 // -- /symptoms/:id/:deleteType(soft|hard)
