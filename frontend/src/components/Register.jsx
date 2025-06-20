@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import logo from '../assets/fetched-logo.svg';
 
 const Register = () => {
-  const [emailOrUsername, setEmailOrUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -23,7 +23,7 @@ const Register = () => {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ email: emailOrUsername, username: emailOrUsername, password }),
+        body: JSON.stringify({ email: email, username: email, password }),
       });
 
       const data = await response.json();
@@ -57,9 +57,9 @@ const Register = () => {
         <form onSubmit={handleRegister} className="w-full flex flex-col gap-4 mb-2">
           <input
             type="text"
-            placeholder="Email/Username"
-            value={emailOrUsername}
-            onChange={(e) => setEmailOrUsername(e.target.value)}
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
             className="w-full border border-[#444] rounded px-3 py-2 bg-transparent text-lg focus:outline-none focus:border-[#355233]"
           />
