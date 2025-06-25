@@ -7,6 +7,7 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [passwordWarning, setPasswordWarning] = useState('');
   const navigate = useNavigate();
 
   const validateEmail = (email) => {
@@ -14,11 +15,21 @@ const Register = () => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
+  const validatePassword = (password) => {
+    // At least 6 characters and at least one special character
+    return password.length >= 6 && /[!@#$%^&*()_+\[\]{}|;:',.<>/?`~\-]/.test(password);
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
+    setPasswordWarning('');
     if (!validateEmail(email)) {
       setError('Please enter a valid email address.');
+      return;
+    }
+    if (!validatePassword(password)) {
+      setPasswordWarning('Password must be at least 6 characters and include a special character.');
       return;
     }
     if (password !== confirmPassword) {
@@ -63,6 +74,7 @@ const Register = () => {
           </div>
         </div>
         {error && <div className="text-red-600 text-center mb-2 text-sm font-medium">{error}</div>}
+        {passwordWarning && <div className="text-yellow-600 text-center mb-2 text-sm font-medium">{passwordWarning}</div>}
         <form onSubmit={handleRegister} className="w-full flex flex-col gap-4 mb-2">
           <input
             type="email"
