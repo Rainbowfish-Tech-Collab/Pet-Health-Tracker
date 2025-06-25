@@ -9,9 +9,18 @@ const Register = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  const validateEmail = (email) => {
+    // Simple email regex
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
+    if (!validateEmail(email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -56,7 +65,7 @@ const Register = () => {
         {error && <div className="text-red-600 text-center mb-2 text-sm font-medium">{error}</div>}
         <form onSubmit={handleRegister} className="w-full flex flex-col gap-4 mb-2">
           <input
-            type="text"
+            type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
