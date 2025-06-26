@@ -3,13 +3,36 @@ import { useNavigate, Link } from 'react-router-dom';
 import logo from '../assets/fetched-logo.svg';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [passwordWarning, setPasswordWarning] = useState('');
+  const [emailWarning, setEmailWarning] = useState('');
   const navigate = useNavigate();
+
+  const validateEmail = (email) => {
+    // Simple email regex
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validatePassword = (password) => {
+    // At least 6 characters and at least one special character
+    return password.length >= 6 && /[!@#$%^&*()_+\[\]{}|;:',.<>/?`~\-]/.test(password);
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError('');
+    setPasswordWarning('');
+    setEmailWarning('');
+    if (!validateEmail(email)) {
+      setEmailWarning('Please enter a valid email address.');
+      return;
+    }
+    if (!validatePassword(password)) {
+      setPasswordWarning('Password must be at least 6 characters and include a special character.');
+      return;
+    }
     try {
       const response = await fetch('http://localhost:3000/auth/login', {
         method: 'POST',
@@ -17,7 +40,7 @@ const Login = () => {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username: email, password }),
       });
 
       const data = await response.json();
@@ -40,27 +63,29 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-[#222]">
       <div className="bg-[#fcfaec] rounded-2xl shadow-lg p-6 sm:p-10 w-[350px] flex flex-col items-center border-8 border-[#222]">
         <div className="w-full flex flex-col items-center mb-6">
-          {/* <div className="bg-[#d6e8cb] w-full flex flex-col items-center py-6 mb-6 rounded-2xl"> */}
-          <div>
+          <div className="bg-[#AAD1A1] w-full flex flex-col items-center py-6 mb-6 rounded-2xl">
             <img
               src={logo}
               alt="Fetched logo"
-              className="w-65 h-32 object-contain"
+              className="w-48 h-32 object-contain"
             />
           </div>
         </div>
+        {error && <div className="text-red-600 text-center mb-2 text-sm font-medium">{error}</div>}
+        {emailWarning && <div className="text-yellow-600 text-center mb-2 text-sm font-medium">{emailWarning}</div>}
+        {passwordWarning && <div className="text-yellow-600 text-center mb-2 text-sm font-medium">{passwordWarning}</div>}
         <form onSubmit={handleLogin} className="w-full flex flex-col gap-4 mb-2">
           <input
-            type="text"
-            placeholder="email"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
             className="w-full border border-[#444] rounded px-3 py-2 bg-transparent text-lg focus:outline-none focus:border-[#355233]"
           />
           <input
             type="password"
-            placeholder="password"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
