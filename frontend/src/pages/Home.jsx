@@ -1,12 +1,7 @@
-//default is line graph
-//routes: GET /activities/activityId, GET /symptoms/symptomId, GET /istatId
-//Pet data log will show most recent entries, last 7 days. This will be displayed in a Pet Data Log table.
-//Navbar at the bottom will have three buttons, left button to access pet data log. Middle button is to add specific data entry. Right button will be to access settings.
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../assets/Logo.svg';
-import PetLogoName from '../assets/PetLogoName.svg';
-import { FaEdit, FaPlus, FaCog } from 'react-icons/fa';
+import { FaEdit, FaPlus, FaCog, FaChevronDown, FaCheck, FaExclamationCircle } from 'react-icons/fa';
 
 // Styles
 const styles = {
@@ -16,44 +11,158 @@ const styles = {
     height: '100vh',
     padding: '1rem',
     gap: '1rem',
-    paddingBottom: '4rem', // Add space for fixed navbar
+    backgroundColor: '#FAF9F6',
+  },
+  mainContent: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: '20px',
+    padding: '1.25rem',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1.25rem',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
   },
   header: {
     display: 'flex',
     alignItems: 'center',
     gap: '1rem',
+    padding: '0.5rem',
+    borderBottom: '1px solid #E8E6E1',
+    marginBottom: '0.5rem',
+  },
+  logo: {
+    width: '32px',
+    height: '32px',
+    objectFit: 'contain',
+    padding: '4px',
+    backgroundColor: '#D1E9D7',
+    borderRadius: '12px',
+  },
+  petSelectorContainer: {
+    flex: 1,
+    position: 'relative',
   },
   petSelector: {
-    flex: 1,
-    padding: '0.5rem',
-    borderRadius: '4px',
-    border: '1px solid #ccc',
+    width: '100%',
+    padding: '0.75rem',
+    paddingRight: '2.5rem',
+    borderRadius: '12px',
+    border: '1px solid #E8E6E1',
+    backgroundColor: '#FFFFFF',
+    fontSize: '1rem',
+    color: '#2D3F2D',
+    appearance: 'none',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    '&:hover': {
+      borderColor: '#4A654A',
+    },
+    '&:focus': {
+      outline: 'none',
+      borderColor: '#4A654A',
+      boxShadow: '0 0 0 3px rgba(74,101,74,0.1)',
+    },
+  },
+  selectorIcon: {
+    position: 'absolute',
+    right: '1rem',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    color: '#4A654A',
+    pointerEvents: 'none',
+    fontSize: '0.875rem',
   },
   graphSection: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-    borderRadius: '8px',
-    padding: '1rem',
+    padding: '1.25rem',
+    backgroundColor: '#FFFFFF',
+    borderRadius: '16px',
+    border: '1px solid #E8E6E1',
+  },
+  graphTypeSelector: {
+    width: '100%',
+    padding: '0.75rem',
+    borderRadius: '12px',
+    border: '1px solid #E8E6E1',
+    backgroundColor: '#FFFFFF',
+    fontSize: '0.9rem',
+    marginBottom: '1rem',
+    color: '#2D3F2D',
+    transition: 'all 0.2s ease',
+    '&:hover': {
+      borderColor: '#4A654A',
+    },
+    '&:focus': {
+      outline: 'none',
+      borderColor: '#4A654A',
+      boxShadow: '0 0 0 3px rgba(74,101,74,0.1)',
+    },
   },
   dataLog: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-    borderRadius: '8px',
-    padding: '1rem',
     overflowY: 'auto',
+  },
+  dataLogTitle: {
+    fontSize: '1.125rem',
+    fontWeight: '600',
+    color: '#2D3F2D',
+    marginBottom: '1rem',
+    paddingBottom: '0.5rem',
+    borderBottom: '1px solid #E8E6E1',
+  },
+  logEntry: {
+    display: 'flex',
+    alignItems: 'center',
+    padding: '1rem',
+    borderBottom: '1px solid #E8E6E1',
+    gap: '1rem',
+    transition: 'background-color 0.2s ease',
+    '&:hover': {
+      backgroundColor: '#FAF9F6',
+    },
+  },
+  logDate: {
+    width: '90px',
+    fontSize: '0.875rem',
+    color: '#6B7D6B',
+    fontWeight: '500',
+  },
+  logType: {
+    flex: 1,
+    fontSize: '0.9375rem',
+    color: '#2D3F2D',
+    fontWeight: '500',
+  },
+  logValue: {
+    fontSize: '0.9375rem',
+    color: '#2D3F2D',
+    fontWeight: '600',
+    padding: '0.25rem 0.75rem',
+    backgroundColor: '#F3F7F3',
+    borderRadius: '8px',
+    minWidth: '60px',
+    textAlign: 'center',
+  },
+  logIcon: {
+    width: '28px',
+    height: '28px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: '50%',
   },
   navbar: {
     display: 'flex',
     justifyContent: 'space-around',
     alignItems: 'center',
-    padding: '0.75rem',
-    backgroundColor: '#ffffff',
-    borderTop: '1px solid #e0e0e0',
+    padding: '0.75rem 1.25rem',
+    backgroundColor: '#FFFFFF',
+    borderTop: '1px solid #E8E6E1',
     position: 'fixed',
     bottom: 0,
     left: 0,
     right: 0,
-    boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.05)',
+    boxShadow: '0 -2px 8px rgba(0,0,0,0.05)',
   },
   navButton: {
     display: 'flex',
@@ -63,10 +172,14 @@ const styles = {
     border: 'none',
     fontSize: '1.25rem',
     cursor: 'pointer',
-    color: '#666',
+    color: '#6B7D6B',
     padding: '0.5rem 1rem',
-    transition: 'color 0.2s ease',
-    gap: '0.25rem',
+    borderRadius: '8px',
+    transition: 'all 0.2s ease',
+    '&:hover': {
+      backgroundColor: '#F3F7F3',
+      color: '#2D4A2D',
+    },
   },
   navButtonLabel: {
     fontSize: '0.75rem',
@@ -74,54 +187,88 @@ const styles = {
     fontWeight: '500',
   },
   navButtonActive: {
-    color: '#007AFF',
+    color: '#2D4A2D',
+    backgroundColor: '#F3F7F3',
   },
 };
 
 function Home() {
   const navigate = useNavigate();
   const [selectedPet, setSelectedPet] = useState('');
-  const [graphType, setGraphType] = useState('Walking vs. Time');
+  const [pets, setPets] = useState([]);
   const [activeTab, setActiveTab] = useState('home');
+  const [recentLogs, setRecentLogs] = useState([
+    { date: '05/17/2025', type: 'Activity', value: '0.25 hr', icon: 'check' },
+    { date: '12/28/2025', type: 'Symptom', value: 'Fainting', icon: 'warning' },
+    { date: '05/17/2025', type: 'Activity', value: '0.25 hr', icon: 'check' },
+    { date: '12/28/2025', type: 'Symptom', value: 'Fainting', icon: 'warning' },
+  ]);
+
+  const getLogIcon = (icon) => {
+    switch (icon) {
+      case 'check':
+        return (
+          <div style={{ ...styles.logIcon, backgroundColor: '#E7F2E7' }}>
+            <FaCheck style={{ color: '#3D7A3D' }} />
+          </div>
+        );
+      case 'warning':
+        return (
+          <div style={{ ...styles.logIcon, backgroundColor: '#FFF3E6' }}>
+            <FaExclamationCircle style={{ color: '#CC7A00' }} />
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div style={styles.container}>
-      {/* Header Section */}
-      <div style={styles.header}>
-        <img src={Logo} alt="Logo" style={{ width: '40px', height: '40px' }} />
-        <select 
-          style={styles.petSelector}
-          value={selectedPet}
-          onChange={(e) => setSelectedPet(e.target.value)}
-        >
-          <option value="">Select Pet</option>
-          {/* We'll populate this with actual pet data later */}
-          <option value="pet1">Pet 1</option>
-        </select>
-      </div>
+      <div style={styles.mainContent}>
+        <div style={styles.header}>
+          <img src={Logo} alt="Pet Health Tracker" style={styles.logo} />
+          <div style={styles.petSelectorContainer}>
+            <select 
+              style={styles.petSelector}
+              value={selectedPet}
+              onChange={(e) => setSelectedPet(e.target.value)}
+            >
+              <option value="whiskers">Whiskers</option>
+            </select>
+            <FaChevronDown style={styles.selectorIcon} />
+          </div>
+        </div>
 
-      {/* Graph Section */}
-      <div style={styles.graphSection}>
-        <select
-          value={graphType}
-          onChange={(e) => setGraphType(e.target.value)}
-          style={styles.petSelector}
-        >
-          <option value="Walking vs. Time">Walking vs. Time</option>
-          {/* Add more graph types as needed */}
-        </select>
-        <div>
-          {/* Graph component */}
+        <div style={styles.graphSection}>
+          <select
+            style={styles.graphTypeSelector}
+            value="activity"
+            onChange={(e) => {}}
+          >
+            <option value="activity">Activity vs. Time</option>
+            <option value="weight">Weight vs. Time</option>
+          </select>
+          <div style={{ height: '200px', backgroundColor: '#F5F5F5', borderRadius: '8px' }}>
+            {/* Graph placeholder */}
+          </div>
+        </div>
+
+        <div style={styles.dataLog}>
+          <div style={styles.dataLogTitle}>Data Log</div>
+          {recentLogs.map((log, index) => (
+            <div key={index} style={styles.logEntry}>
+              <span style={styles.logDate}>{log.date}</span>
+              <span style={styles.logType}>{log.type}</span>
+              <span style={styles.logValue}>{log.value}</span>
+              <span style={styles.logIcon}>
+                {getLogIcon(log.icon)}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Pet Data Log Section */}
-      <div style={styles.dataLog}>
-        <h3>Pet Data Log</h3>
-        {/* data log table here */}
-      </div>
-
-      {/* Navigation Bar */}
       <div style={styles.navbar}>
         <button 
           style={{
@@ -132,7 +279,6 @@ function Home() {
             setActiveTab('log');
             navigate('/pet-data-log');
           }}
-          title="View Pet Data Log"
         >
           <FaEdit />
           <span style={styles.navButtonLabel}>Log</span>
@@ -146,7 +292,6 @@ function Home() {
             setActiveTab('add');
             navigate('/add-entry');
           }}
-          title="Add New Entry"
         >
           <FaPlus />
           <span style={styles.navButtonLabel}>Add</span>
@@ -160,7 +305,6 @@ function Home() {
             setActiveTab('settings');
             navigate('/settings');
           }}
-          title="Settings"
         >
           <FaCog />
           <span style={styles.navButtonLabel}>Settings</span>
