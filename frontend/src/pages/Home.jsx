@@ -16,6 +16,7 @@ const styles = {
     height: '100vh',
     padding: '1rem',
     gap: '1rem',
+    paddingBottom: '4rem', // Add space for fixed navbar
   },
   header: {
     display: 'flex',
@@ -44,14 +45,36 @@ const styles = {
   navbar: {
     display: 'flex',
     justifyContent: 'space-around',
-    padding: '1rem',
-    borderTop: '1px solid #eee',
+    alignItems: 'center',
+    padding: '0.75rem',
+    backgroundColor: '#ffffff',
+    borderTop: '1px solid #e0e0e0',
+    position: 'fixed',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.05)',
   },
   navButton: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
     background: 'none',
     border: 'none',
-    fontSize: '1.5rem',
+    fontSize: '1.25rem',
     cursor: 'pointer',
+    color: '#666',
+    padding: '0.5rem 1rem',
+    transition: 'color 0.2s ease',
+    gap: '0.25rem',
+  },
+  navButtonLabel: {
+    fontSize: '0.75rem',
+    marginTop: '0.25rem',
+    fontWeight: '500',
+  },
+  navButtonActive: {
+    color: '#007AFF',
   },
 };
 
@@ -59,6 +82,7 @@ function Home() {
   const navigate = useNavigate();
   const [selectedPet, setSelectedPet] = useState('');
   const [graphType, setGraphType] = useState('Walking vs. Time');
+  const [activeTab, setActiveTab] = useState('home');
 
   return (
     <div style={styles.container}>
@@ -100,25 +124,46 @@ function Home() {
       {/* Navigation Bar */}
       <div style={styles.navbar}>
         <button 
-          style={styles.navButton} 
-          onClick={() => navigate('/pet-data-log')}
+          style={{
+            ...styles.navButton,
+            ...(activeTab === 'log' ? styles.navButtonActive : {})
+          }}
+          onClick={() => {
+            setActiveTab('log');
+            navigate('/pet-data-log');
+          }}
           title="View Pet Data Log"
         >
           <FaEdit />
+          <span style={styles.navButtonLabel}>Log</span>
         </button>
         <button 
-          style={styles.navButton} 
-          onClick={() => navigate('/add-entry')}
+          style={{
+            ...styles.navButton,
+            ...(activeTab === 'add' ? styles.navButtonActive : {})
+          }}
+          onClick={() => {
+            setActiveTab('add');
+            navigate('/add-entry');
+          }}
           title="Add New Entry"
         >
           <FaPlus />
+          <span style={styles.navButtonLabel}>Add</span>
         </button>
         <button 
-          style={styles.navButton} 
-          onClick={() => navigate('/settings')}
+          style={{
+            ...styles.navButton,
+            ...(activeTab === 'settings' ? styles.navButtonActive : {})
+          }}
+          onClick={() => {
+            setActiveTab('settings');
+            navigate('/settings');
+          }}
           title="Settings"
         >
           <FaCog />
+          <span style={styles.navButtonLabel}>Settings</span>
         </button>
       </div>
     </div>
