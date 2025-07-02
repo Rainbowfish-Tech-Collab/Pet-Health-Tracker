@@ -41,7 +41,7 @@ function Home() {
           <img 
             src={Logo} 
             alt="Pet Health Tracker" 
-            className="w-8 h-8 object-contain p-1 bg-[#D1E9D7] rounded-xl"
+            className="w-24 h-20 object-contain p-3 bg-[#D1E9D7] rounded-xl"
           />
           <div className="flex-1 relative">
             <select 
