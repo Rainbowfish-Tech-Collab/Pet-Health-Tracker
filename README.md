@@ -51,11 +51,11 @@ The Rainbow Fish is a children's book by Marcus Pfister that promotes generosity
 
 # Getting Started 🚀
 
-├── [Requirements](#requirements)
-├── [Installation](#installation)
-├── [Setting Up Scheduler](#pg-cron-setup)
-├── [Running the Database](#running-the-database)
-└── [Setting Up Express Server](#server-setup)
+├── [Requirements](#requirements)  
+├── [Installation](#installation)  
+├── [Setting Up Scheduler](#pg-cron-setup)  
+├── [Running the Database](#running-the-database)  
+└── [Setting Up Express Server](#server-setup)  
 
 ## Requirements
 

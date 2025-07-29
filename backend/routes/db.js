@@ -2,6 +2,18 @@ import express from "express";
 import pool from "../config/database.js";
 const router = express.Router();
 
+// GET all users
+// -- /db/users
+router.get('/users', async (req, res, next) => {
+  try {
+    const result = await pool.query('SELECT * FROM "user"');
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+});
+
 // GET all enum table data with the database 
 // -- /db/enum
 router.get('/enum', async(req, res, next) => {
