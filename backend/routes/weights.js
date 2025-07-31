@@ -46,8 +46,31 @@ router.get("/", async (req, res, next) => {
     const { type, graph, archived, sort, direction} = req.query;
 
     /* -------------------- IF GRAPH IS PROVIDED AND TRUE ------------------- */
-    const columns = graph?.toLowerCase() == "true" 
-    ? "weight, stat_date"
+    if (graph?.toLowerCase() === "true") {
+      // Generate last 7 days of mock weight data
+      const mockData = [];
+      let baseWeight = 20 + Math.random() * 10; // Random base weight between 20-30 lbs
+      
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        // Small random fluctuation in weight (-0.5 to +0.5 lbs)
+        const weightChange = (Math.random() - 0.5);
+        baseWeight += weightChange;
+        
+        mockData.push({
+          weight: baseWeight.toFixed(1),
+          timestamp: date.toISOString(),
+          value: baseWeight.toFixed(1), // For frontend consistency
+          stat_date: date.toISOString().split('T')[0],
+          unit: 'lbs'
+        });
+      }
+      return res.json(mockData);
+    }
+
+    const columns = graph?.toLowerCase() === "true"
+      ? "weight, stat_date"
     : "weight_stat.id, weight_stat.weight_id, weight.unit, weight, stat.description, stat.stat_date, stat.date_created, stat.date_updated";
 
     let baseQuery = 

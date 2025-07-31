@@ -146,13 +146,13 @@ function Home() {
             endpoint = `/pets/${selectedPet}/activities?graph=true`;
             break;
           case 'symptoms':
-            endpoint = `/symptoms/${selectedPet}`;
+            endpoint = `/symptoms?petId=${selectedPet}&graph=true`;
             break;
           case 'bodily':
-            endpoint = `/bodilyFunctions/${selectedPet}`;
+            endpoint = `/bodilyFunctions?petId=${selectedPet}&graph=true`;
             break;
           case 'weight':
-            endpoint = `/istatId?petId=${selectedPet}&type=weight`;
+            endpoint = `/pets/${selectedPet}/weights?graph=true`;
             break;
           default:
             throw new Error('Invalid graph type');
