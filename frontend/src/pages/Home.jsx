@@ -1,13 +1,112 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../assets/Logo.svg';
-import { FaEdit, FaPlus, FaCog, FaChevronDown, FaCheck, FaExclamationCircle } from 'react-icons/fa';
+import { FaEdit, FaPlus, FaCog, FaChevronDown, FaCheck, FaExclamationCircle, FaTrash } from 'react-icons/fa';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+// Chart options generator based on graph type
+const getChartOptions = (graphType) => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false
+    },
+    title: {
+      display: false
+    },
+    tooltip: {
+      backgroundColor: '#2D4A2D',
+      titleColor: '#FFFFFF',
+      bodyColor: '#FFFFFF',
+      padding: 12,
+      displayColors: false,
+      callbacks: {
+        label: (context) => {
+          const value = context.parsed.y;
+          if (graphType === 'activity') {
+            return `${value} hours`;
+          } else if (graphType === 'weight') {
+            return `${value} lbs`;
+          }
+          return value;
+        }
+      }
+    }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      grid: {
+        color: '#E8E6E1',
+        drawBorder: false
+      },
+      ticks: {
+        color: '#6B7D6B',
+        padding: 8,
+        callback: (value) => {
+          if (graphType === 'activity') {
+            return `${value}h`;
+          } else if (graphType === 'weight') {
+            return `${value}lb`;
+          }
+          return value;
+        }
+      }
+    },
+    x: {
+      grid: {
+        display: false,
+        drawBorder: false
+      },
+      ticks: {
+        color: '#6B7D6B',
+        padding: 8,
+        maxRotation: 0
+      }
+    }
+  },
+  interaction: {
+    intersect: false,
+    mode: 'index'
+  },
+  elements: {
+    line: {
+      tension: 0.4
+    }
+  }
+});
 
 function Home() {
   const navigate = useNavigate();
   const [selectedPet, setSelectedPet] = useState('');
   const [pets, setPets] = useState([]);
   const [activeTab, setActiveTab] = useState('home');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [chartData, setChartData] = useState(null);
+  const [selectedGraphType, setSelectedGraphType] = useState('activity');
   const [recentLogs, setRecentLogs] = useState([
     { date: '05/17/2025', type: 'Activity', value: '0.25 hr', icon: 'check' },
     { date: '12/28/2025', type: 'Symptom', value: 'Fainting', icon: 'warning' },
@@ -34,6 +133,151 @@ function Home() {
     }
   };
 
+  // Fetch chart data when pet or graph type changes
+  useEffect(() => {
+    const fetchChartData = async () => {
+      if (!selectedPet) return;
+      setIsLoading(true);
+      try {
+        // Get the correct API endpoint based on graph type
+        let endpoint;
+        switch (selectedGraphType) {
+          case 'activity':
+            endpoint = `/pets/${selectedPet}/activities?graph=true`;
+            break;
+          case 'symptoms':
+            endpoint = `/symptoms/${selectedPet}`;
+            break;
+          case 'bodily':
+            endpoint = `/bodilyFunctions/${selectedPet}`;
+            break;
+          case 'weight':
+            endpoint = `/istatId?petId=${selectedPet}&type=weight`;
+            break;
+          default:
+            throw new Error('Invalid graph type');
+        }
+        
+        const response = await fetch(endpoint);
+        if (!response.ok) throw new Error(`Failed to fetch ${selectedGraphType} data`);
+        const data = await response.json();
+        
+        // Transform and sort data by date
+        const sortedData = [...data].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        
+        // Format dates and values
+        const labels = sortedData.map(item => {
+          const date = new Date(item.timestamp);
+          return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        });
+        
+        const values = sortedData.map(item => {
+          switch (selectedGraphType) {
+            case 'activity':
+              // Convert minutes to hours
+              return Number((item.value / 60).toFixed(2));
+            case 'weight':
+              return Number(item.value);
+            case 'symptoms':
+              // For symptoms, we'll show frequency
+              return 1; // Each occurrence counts as 1
+            case 'bodily':
+              // For bodily functions, we'll show frequency
+              return 1;
+            default:
+              return item.value;
+          }
+        });
+        
+        // For symptoms and bodily functions, aggregate by date
+        let aggregatedData = { labels, values };
+        if (selectedGraphType === 'symptoms' || selectedGraphType === 'bodily') {
+          const countByDate = labels.reduce((acc, date, index) => {
+            if (!acc[date]) {
+              acc[date] = 0;
+            }
+            acc[date] += values[index];
+            return acc;
+          }, {});
+          
+          // Convert back to arrays
+          const uniqueLabels = Object.keys(countByDate);
+          const aggregatedValues = uniqueLabels.map(date => countByDate[date]);
+          
+          aggregatedData = {
+            labels: uniqueLabels,
+            values: aggregatedValues
+          };
+        }
+        
+        const chartLabels = selectedGraphType === 'symptoms' || selectedGraphType === 'bodily' ? 
+          aggregatedData.labels : labels;
+        const chartValues = selectedGraphType === 'symptoms' || selectedGraphType === 'bodily' ? 
+          aggregatedData.values : values;
+
+        let chartLabel = '';
+        switch (selectedGraphType) {
+          case 'activity':
+            chartLabel = 'Walking Time (hours)';
+            break;
+          case 'weight':
+            chartLabel = 'Weight (lbs)';
+            break;
+          case 'symptoms':
+            chartLabel = 'Symptom Occurrences';
+            break;
+          case 'bodily':
+            chartLabel = 'Function Occurrences';
+            break;
+          default:
+            chartLabel = 'Value';
+        }
+
+        setChartData({
+          labels: chartLabels,
+          datasets: [
+            {
+              label: chartLabel,
+              data: chartValues,
+              borderColor: '#2D4A2D',
+              backgroundColor: selectedGraphType === 'symptoms' || selectedGraphType === 'bodily' ?
+                'rgba(45, 74, 45, 0.2)' : '#E7F2E7',
+              fill: true,
+              pointBackgroundColor: '#FFFFFF',
+              pointBorderColor: '#2D4A2D',
+              pointBorderWidth: 2,
+              pointRadius: selectedGraphType === 'symptoms' || selectedGraphType === 'bodily' ? 6 : 4,
+              pointHoverRadius: selectedGraphType === 'symptoms' || selectedGraphType === 'bodily' ? 8 : 6,
+              borderWidth: 2,
+              stepped: selectedGraphType === 'symptoms' || selectedGraphType === 'bodily'
+            }
+          ]
+        });
+      } catch (err) {
+        setError(`Could not load ${selectedGraphType} data`);
+        console.error(`Error fetching ${selectedGraphType} data:`, err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchChartData();
+  }, [selectedPet, selectedGraphType]);
+
+  // Fetch pets list
+  useEffect(() => {
+    const fetchPets = async () => {
+      try {
+        const response = await fetch('/pets');
+        if (!response.ok) throw new Error('Failed to fetch pets list');
+        const data = await response.json();
+        setPets(data);
+      } catch (err) {
+        console.error('Error fetching pets list:', err);
+      }
+    };
+    fetchPets();
+  }, []);
+
   return (
     <div className="flex flex-col h-screen p-4 gap-4 bg-[#FAF9F6]">
       <div className="flex-1 bg-white rounded-[20px] p-5 flex flex-col gap-5 shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
@@ -49,7 +293,9 @@ function Home() {
               onChange={(e) => setSelectedPet(e.target.value)}
               className="w-full py-3 px-4 pr-10 rounded-xl border border-[#E8E6E1] bg-white text-[#2D3F2D] text-base appearance-none cursor-pointer hover:border-[#4A654A] focus:outline-none focus:border-[#4A654A] focus:ring-2 focus:ring-[#4A654A]/10"
             >
-              <option value="whiskers">Whiskers</option>
+              {pets.map((pet, index) => (
+                <option key={index} value={pet.id}>{pet.name}</option>
+              ))}
             </select>
             <FaChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-[#4A654A] pointer-events-none text-sm" />
           </div>
@@ -57,15 +303,89 @@ function Home() {
 
         <div className="p-5 bg-white rounded-2xl border border-[#E8E6E1]">
           <select
-            className="w-full py-3 px-4 rounded-xl border border-[#E8E6E1] bg-white text-[#2D3F2D] text-[0.9rem] mb-4 hover:border-[#4A654A] focus:outline-none focus:border-[#4A654A] focus:ring-2 focus:ring-[#4A654A]/10"
-            value="activity"
-            onChange={(e) => {}}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              borderRadius: '8px',
+              border: '1px solid #E8E6E1',
+              backgroundColor: '#FFFFFF',
+              color: '#2D3F2D',
+              fontSize: '0.9rem',
+              marginBottom: '16px',
+              cursor: 'pointer',
+              appearance: 'none',
+              WebkitAppearance: 'none',
+            }}
+            value={selectedGraphType}
+            onChange={(e) => setSelectedGraphType(e.target.value)}
+            disabled={isLoading || !selectedPet}
           >
-            <option value="activity">Activity vs. Time</option>
+            <option value="activity">Walking vs. Time</option>
             <option value="weight">Weight vs. Time</option>
+            <option value="symptoms">Symptoms vs. Time</option>
+            <option value="bodily">Bodily Functions vs. Time</option>
           </select>
-          <div className="h-[200px] bg-[#F5F5F5] rounded-lg">
-            {/* Graph placeholder */}
+          <div style={{ 
+            height: '300px',
+            backgroundColor: '#FFFFFF',
+            borderRadius: '8px',
+            padding: '1rem',
+            position: 'relative'
+          }}>
+            {isLoading ? (
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                textAlign: 'center',
+                color: '#6B7D6B'
+              }}>
+                <div style={{
+                  width: '40px',
+                  height: '40px',
+                  border: '3px solid #E7F2E7',
+                  borderTop: '3px solid #2D4A2D',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite',
+                  margin: '0 auto 1rem'
+                }} />
+                Loading data...
+              </div>
+            ) : error ? (
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                textAlign: 'center',
+                color: '#CC7A00',
+                backgroundColor: '#FFF3E6',
+                padding: '1rem',
+                borderRadius: '8px',
+                width: '80%'
+              }}>
+                <FaExclamationCircle style={{ fontSize: '24px', marginBottom: '0.5rem' }} />
+                <div>{error}</div>
+              </div>
+            ) : !chartData?.datasets?.[0]?.data?.length ? (
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                textAlign: 'center',
+                color: '#6B7D6B'
+              }}>
+                No data available for this time period
+              </div>
+            ) : (
+              <Line 
+                options={getChartOptions(selectedGraphType)} 
+                data={chartData}
+                style={{ maxHeight: '100%' }}
+              />
+            )}
           </div>
         </div>
 
