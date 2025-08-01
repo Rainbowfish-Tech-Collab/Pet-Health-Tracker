@@ -140,8 +140,7 @@ function Home() {
       if (!selectedPet) return;
       setIsLoading(true);
       try {
-        // Get the correct API endpoint based on graph type
-        let endpoint;
+        let endpoint = '';
         switch (selectedGraphType) {
           case 'activity':
             endpoint = `/pets/${selectedPet}/activities?graph=true`;
@@ -150,7 +149,7 @@ function Home() {
             endpoint = `/symptoms?petId=${selectedPet}&graph=true`;
             break;
           case 'bodily':
-            endpoint = `/bodilyFunctions?petId=${selectedPet}&graph=true`;
+            endpoint = `/pets/${selectedPet}/bodilyFunctions?graph=true`;
             break;
           case 'weight':
             endpoint = `/pets/${selectedPet}/weights?graph=true`;
@@ -158,63 +157,33 @@ function Home() {
           default:
             throw new Error('Invalid graph type');
         }
-        
         const response = await fetch(endpoint);
         if (!response.ok) throw new Error(`Failed to fetch ${selectedGraphType} data`);
         const data = await response.json();
-        
+
         // Transform and sort data by date
         const sortedData = [...data].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-        
+
         // Format dates and values
         const labels = sortedData.map(item => {
           const date = new Date(item.timestamp);
           return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         });
-        
+
         const values = sortedData.map(item => {
           switch (selectedGraphType) {
             case 'activity':
-              // Convert minutes to hours
-              return Number((item.value / 60).toFixed(2));
+              // Use duration_in_hours or value
+              return Number(item.duration_in_hours ?? item.value ?? 0);
             case 'weight':
               return Number(item.value);
             case 'symptoms':
-              // For symptoms, we'll show frequency
-              return 1; // Each occurrence counts as 1
             case 'bodily':
-              // For bodily functions, we'll show frequency
-              return 1;
+              return Number(item.value ?? 1); // Each occurrence counts as 1
             default:
               return item.value;
           }
         });
-        
-        // For symptoms and bodily functions, aggregate by date
-        let aggregatedData = { labels, values };
-        if (selectedGraphType === 'symptoms' || selectedGraphType === 'bodily') {
-          const countByDate = labels.reduce((acc, date, index) => {
-            if (!acc[date]) {
-              acc[date] = 0;
-            }
-            acc[date] += values[index];
-            return acc;
-          }, {});
-          
-          // Convert back to arrays
-          const uniqueLabels = Object.keys(countByDate);
-          const aggregatedValues = uniqueLabels.map(date => countByDate[date]);
-          
-          aggregatedData = {
-            labels: uniqueLabels,
-            values: aggregatedValues
-          };
-        }
-        
-        const chartLabels = selectedGraphType === 'symptoms' || selectedGraphType === 'bodily' ? 
-          aggregatedData.labels : labels;
-        const chartValues = selectedGraphType === 'symptoms' || selectedGraphType === 'bodily' ? 
-          aggregatedData.values : values;
 
         let chartLabel = '';
         switch (selectedGraphType) {
@@ -233,13 +202,12 @@ function Home() {
           default:
             chartLabel = 'Value';
         }
-
         setChartData({
-          labels: chartLabels,
+          labels,
           datasets: [
             {
               label: chartLabel,
-              data: chartValues,
+              data: values,
               borderColor: '#2D4A2D',
               backgroundColor: selectedGraphType === 'symptoms' || selectedGraphType === 'bodily' ?
                 'rgba(45, 74, 45, 0.2)' : '#E7F2E7',
