@@ -100,6 +100,7 @@ const getChartOptions = (graphType) => ({
 
 function Home() {
   const navigate = useNavigate();
+  // The currently selected pet's ID. Set to empty string initially.
   const [selectedPet, setSelectedPet] = useState('');
   const [pets, setPets] = useState([]);
   const [activeTab, setActiveTab] = useState('home');
@@ -264,6 +265,7 @@ function Home() {
   }, [selectedPet, selectedGraphType]);
 
   // Fetch pets list
+  // Fetch pets list on mount
   useEffect(() => {
     const fetchPets = async () => {
       try {
@@ -277,6 +279,14 @@ function Home() {
     };
     fetchPets();
   }, []);
+
+  // When pets are loaded and no pet is selected, select the first pet by default
+  useEffect(() => {
+    if (pets.length > 0 && !selectedPet) {
+      setSelectedPet(pets[0].id);
+    }
+  }, [pets, selectedPet]);
+
 
   return (
     <div className="flex flex-col h-screen p-4 gap-4 bg-[#FAF9F6]">
