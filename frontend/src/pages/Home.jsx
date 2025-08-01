@@ -289,14 +289,16 @@ function Home() {
 
 
   return (
-    <div className="flex flex-col h-screen p-4 gap-4 bg-[#FAF9F6]">
+    <div className="flex flex-col h-screen p-3 gap-4" style={{ backgroundColor: '#FCF9ED' }}>
       <div className="flex-1 bg-white rounded-[20px] p-5 flex flex-col gap-5 shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
-        <div className="flex items-center gap-4 p-2 border-b border-[#E8E6E1] mb-2">
-          <img 
-            src={Logo} 
-            alt="Pet Health Tracker" 
-            className="w-24 h-20 object-contain p-3 bg-[#D1E9D7] rounded-xl"
-          />
+        <div className="flex items-center gap-4 p-2 border-b border-[#E8E6E1] mb-2 bg-transparent">
+          <div className="rounded-2xl p-2" style={{ backgroundColor: 'rgba(202,228,197,1)' }}>
+            <img 
+              src={Logo} 
+              alt="Pet Health Tracker" 
+              className="w-20 h-16 object-contain" 
+            />
+          </div>
           <div className="flex-1 relative">
             <select 
               value={selectedPet}
