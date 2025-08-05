@@ -111,29 +111,38 @@ function Home() {
   const [chartData, setChartData] = useState(null);
   const [selectedGraphType, setSelectedGraphType] = useState('activity');
   const [recentLogs, setRecentLogs] = useState([
-    { date: '05/17/2025', type: 'Activity', value: '0.25 hr', icon: 'check' },
-    { date: '12/28/2025', type: 'Symptom', value: 'Fainting', icon: 'warning' },
-    { date: '05/17/2025', type: 'Activity', value: '0.25 hr', icon: 'check' },
-    { date: '12/28/2025', type: 'Symptom', value: 'Fainting', icon: 'warning' },
+    { date: '05/17/2025', type: 'Activity', value: '0.25 hr' },
+    { date: '12/28/2025', type: 'Symptom', value: 'Fainting' },
+    { date: '05/17/2025', type: 'Activity', value: '1.25 hr' },
+    { date: '12/28/2025', type: 'Symptom', value: 'Sneezing' },
   ]);
 
-  const getLogIcon = (icon) => {
-    switch (icon) {
-      case 'check':
+  const concerningSymptoms = ['Fainting', 'Vomiting', 'Seizure', 'Collapse'];
+  const activityGoalHours = 1.0;
+
+  const getLogIcon = (log) => {
+    if (log.type === 'Symptom' && concerningSymptoms.includes(log.value)) {
+      // Show warning icon for concerning symptoms
+      return (
+        <div className="w-7 h-7 flex items-center justify-center rounded-full bg-[#FFF3E6]">
+          <FaExclamationCircle className="text-[#CC7A00]" />
+        </div>
+      );
+    }
+    if (log.type === 'Activity') {
+      // Parse hours from value string like "1.25 hr"
+      const match = log.value.match(/^([\d.]+)\s*hr$/);
+      if (match && parseFloat(match[1]) >= activityGoalHours) {
+        // Show checkmark if activity meets/exceeds goal
         return (
           <div className="w-7 h-7 flex items-center justify-center rounded-full bg-[#E7F2E7]">
             <FaCheck className="text-[#3D7A3D]" />
           </div>
         );
-      case 'warning':
-        return (
-          <div className="w-7 h-7 flex items-center justify-center rounded-full bg-[#FFF3E6]">
-            <FaExclamationCircle className="text-[#CC7A00]" />
-          </div>
-        );
-      default:
-        return null;
+      }
     }
+    // No icon for other cases
+    return null;
   };
 
   // Fetch chart data when pet or graph type changes
@@ -386,7 +395,7 @@ function Home() {
               <span className="text-[0.9375rem] text-[#2D3F2D] font-semibold px-3 py-1 bg-[#F3F7F3] rounded-lg min-w-[60px] text-center">
                 {log.value}
               </span>
-              {getLogIcon(log.icon)}
+              {getLogIcon(log)}
             </div>
           ))}
         </div>
