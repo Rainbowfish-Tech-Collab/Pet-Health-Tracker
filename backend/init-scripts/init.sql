@@ -66,7 +66,9 @@ ALTER TABLE
     "symptom" ADD PRIMARY KEY("id");
 CREATE TABLE "symptom_type"(
     "id" SERIAL NOT NULL,
-    "name" TEXT NOT NULL
+    "pet_id" BIGINT,
+    "name" TEXT NOT NULL,
+    "date_archived" TIMESTAMP(0) WITH TIME ZONE NULL
 );
 ALTER TABLE
     "symptom_type" ADD PRIMARY KEY("id");
@@ -166,6 +168,7 @@ ALTER TABLE
 CREATE TABLE "medication"(
     "id" bigserial NOT NULL,
     "pet_id" BIGINT NOT NULL,
+    "medication_type_id" INTEGER NOT NULL,
     "dosage_id" INTEGER NOT NULL,
     "dosage" REAL NOT NULL,
     "note" TEXT NULL,
@@ -176,6 +179,14 @@ CREATE TABLE "medication"(
 );
 ALTER TABLE
     "medication" ADD PRIMARY KEY("id");
+CREATE TABLE "medication_type"(
+    "id" SERIAL NOT NULL,
+    "pet_id" BIGINT NOT NULL,
+    "name" TEXT NOT NULL,
+    "date_archived" TIMESTAMP(0) WITH TIME ZONE NULL
+);
+ALTER TABLE
+    "medication_type" ADD PRIMARY KEY("id");
 CREATE TABLE "dosage"(
     "id" SERIAL NOT NULL,
     "unit" TEXT NOT NULL
@@ -203,10 +214,13 @@ ALTER TABLE
     "activity_type" ADD PRIMARY KEY("id");
 ALTER TABLE
     "respiratory_rate_stat" ADD CONSTRAINT "respiratory_rate_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id") ON DELETE CASCADE;
+ALTER TABLE "medication" 
+    ADD CONSTRAINT "medication_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id") ON DELETE CASCADE,
+    ADD CONSTRAINT "medication_medication_type_id_foreign" FOREIGN KEY("medication_type_id") REFERENCES "medication_type"("id") ON DELETE CASCADE;
 ALTER TABLE
-    "medication" ADD CONSTRAINT "medication_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id");
+    "medication_type" ADD CONSTRAINT "medication_type_pet_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id") ON DELETE CASCADE;
 ALTER TABLE
-    "bodily_function" ADD CONSTRAINT "bodily_function_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id");
+    "bodily_function" ADD CONSTRAINT "bodily_function_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id") ON DELETE CASCADE;
 ALTER TABLE
     "heart_rate_stat" ADD CONSTRAINT "heart_rate_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id") ON DELETE CASCADE;
 ALTER TABLE
@@ -214,7 +228,7 @@ ALTER TABLE
 ALTER TABLE
     "medication" ADD CONSTRAINT "medication_dosage_id_foreign" FOREIGN KEY("dosage_id") REFERENCES "dosage"("id");
 ALTER TABLE
-    "activity" ADD CONSTRAINT "activity_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id");
+    "activity" ADD CONSTRAINT "activity_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id") ON DELETE CASCADE;
 ALTER TABLE
     "other_stat" ADD CONSTRAINT "other_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id") ON DELETE CASCADE;
 ALTER TABLE
@@ -226,17 +240,19 @@ ALTER TABLE
 ALTER TABLE
     "symptom" ADD CONSTRAINT "symptom_symptom_type_id_foreign" FOREIGN KEY("symptom_type_id") REFERENCES "symptom_type"("id");
 ALTER TABLE
+    "symptom_type" ADD CONSTRAINT "symptom_type_pet_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id") ON DELETE CASCADE;
+ALTER TABLE
     "glucose_stat" ADD CONSTRAINT "glucose_stat_glucose_id_foreign" FOREIGN KEY("glucose_id") REFERENCES "glucose"("id");
 ALTER TABLE
     "pet" ADD CONSTRAINT "pet_pet_breed_id_foreign" FOREIGN KEY("pet_breed_id") REFERENCES "pet_breed"("id");
 ALTER TABLE
-    "stat" ADD CONSTRAINT "stat_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id");
+    "stat" ADD CONSTRAINT "stat_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id") ON DELETE CASCADE;
 ALTER TABLE
-    "symptom" ADD CONSTRAINT "symptom_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id");
+    "symptom" ADD CONSTRAINT "symptom_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id") ON DELETE CASCADE;
 ALTER TABLE
-    "user_pet" ADD CONSTRAINT "user_pet_pet_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id");
+    "user_pet" ADD CONSTRAINT "user_pet_pet_id_foreign" FOREIGN KEY("pet_id") REFERENCES "pet"("id") ON DELETE CASCADE;
 ALTER TABLE
-    "pet" ADD CONSTRAINT "pet_sex_id_foreign" FOREIGN KEY("sex_id") REFERENCES "pet_sex"("id");
+    "pet" ADD CONSTRAINT "pet_sex_id_foreign" FOREIGN KEY("sex_id") REFERENCES "pet_sex"("id") ON DELETE CASCADE;
 ALTER TABLE
     "weight_stat" ADD CONSTRAINT "weight_stat_stat_id_foreign" FOREIGN KEY("stat_id") REFERENCES "stat"("id") ON DELETE CASCADE;
 ALTER TABLE
@@ -429,15 +445,15 @@ VALUES
 (2, 'Selkirk Rex'),
 (2, 'Other');
 
-INSERT INTO "symptom_type" ("name")
+INSERT INTO "symptom_type" (pet_id, "name")
 VALUES
-    ('Coughing'),
-    ('Sneezing'),
-    ('Vomiting'),
-    ('Fainting'),
-    ('Seizures'),
-    ('Lethargy'),
-    ('Other');
+    (NULL, 'Coughing'),
+    (NULL, 'Sneezing'),
+    (NULL, 'Vomiting'),
+    (NULL, 'Fainting'),
+    (NULL, 'Seizures'),
+    (NULL, 'Lethargy'),
+    (NULL, 'Other');
 
 INSERT INTO "weight" (unit)
 VALUES
@@ -485,7 +501,19 @@ SELECT cron.schedule(
   WHERE date_archived IS NOT NULL
     AND date_archived < NOW() - INTERVAL '30 days';
   
+  DELETE FROM symptom
+  WHERE date_archived IS NOT NULL
+    AND date_archived < NOW() - INTERVAL '30 days';
+
   DELETE FROM bodily_function
+  WHERE date_archived IS NOT NULL
+    AND date_archived < NOW() - INTERVAL '30 days';
+
+  DELETE FROM medication
+  WHERE date_archived IS NOT NULL
+    AND date_archived < NOW() - INTERVAL '30 days';
+
+  DELETE FROM activity
   WHERE date_archived IS NOT NULL
     AND date_archived < NOW() - INTERVAL '30 days';
   $$
