@@ -5,6 +5,7 @@ import SpecificDataEntry from './pages/SpecificDataEntry';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ManagePetProfile from './pages/ManagePetProfile';
+import EditPetProfile from './pages/EditPetProfile';
 import './App.css';
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/manage-pets" element={<ManagePetProfile />} />
+        <Route path="/edit-pet/:id" element={<EditPetProfile />} />
         <Route path="/" element={<Home />} />
         <Route path="/pet-data-log" element={<Home />} /> {/* For now, reuse Home component */}
         <Route path="/add-entry" element={<SpecificDataEntry />} />
