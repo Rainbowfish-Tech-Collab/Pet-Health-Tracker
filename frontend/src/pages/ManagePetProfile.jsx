@@ -50,7 +50,8 @@ const ManagePetProfile = () => {
 
           {/* Add pet button */}
           <button
-            className="relative flex flex-col items-center focus:outline-none"
+            onClick={() => navigate('/edit-pet/new')}
+            className="relative flex flex-col items-center focus:outline-none cursor-pointer"
             aria-label="Add pet"
           >
             <div className="w-32 h-32 bg-[#AAD1A1] rounded-full flex items-center justify-center relative">

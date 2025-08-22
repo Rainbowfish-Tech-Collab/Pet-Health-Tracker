@@ -12,13 +12,14 @@ const EditPetProfile = () => {
     breed: "Domestic Shorthair",
     birthday: "04/23",
     sex: "F",
-    description: "about me - Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vehicula enim vitae justo volutpat, sit amet pellentesque elit rutrum."
+    description:
+      "about me - Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vehicula enim vitae justo volutpat, sit amet pellentesque elit rutrum.",
   });
 
   const handleInputChange = (field, value) => {
-    setPetData(prev => ({
+    setPetData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -83,7 +84,7 @@ const EditPetProfile = () => {
               <input
                 type="text"
                 value={petData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
+                onChange={(e) => handleInputChange("name", e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#355233] focus:border-transparent"
               />
             </div>
@@ -94,13 +95,22 @@ const EditPetProfile = () => {
                 species
               </label>
               <div className="relative">
-                <input
-                  type="text"
+                <select
                   value={petData.species}
-                  onChange={(e) => handleInputChange('species', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#355233] focus:border-transparent pr-10"
-                />
-                <FaChevronDown className="absolute right-3 top-3 text-[#355233]" />
+                  onChange={(e) => handleInputChange("species", e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#355233] focus:border-transparent appearance-none bg-[#fcfaec]"
+                >
+                  <option value="Dog">Dog</option>
+                  <option value="Cat">Cat</option>
+                  <option value="Bird">Bird</option>
+                  <option value="Small Animals">Small Animals</option>
+                  <option value="Reptile">Reptile</option>
+                  <option value="Horse">Horse</option>
+                  <option value="Fish">Fish</option>
+                  <option value="Livestock">Livestock</option>
+                  <option value="Other">Other</option>
+                </select>
+                <FaChevronDown className="absolute right-3 top-3 text-[#355233] pointer-events-none" />
               </div>
             </div>
 
@@ -112,7 +122,7 @@ const EditPetProfile = () => {
               <input
                 type="text"
                 value={petData.breed}
-                onChange={(e) => handleInputChange('breed', e.target.value)}
+                onChange={(e) => handleInputChange("breed", e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#355233] focus:border-transparent"
               />
             </div>
@@ -125,7 +135,7 @@ const EditPetProfile = () => {
               <input
                 type="text"
                 value={petData.birthday}
-                onChange={(e) => handleInputChange('birthday', e.target.value)}
+                onChange={(e) => handleInputChange("birthday", e.target.value)}
                 placeholder="MM/DD"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#355233] focus:border-transparent"
               />
@@ -137,13 +147,15 @@ const EditPetProfile = () => {
                 sex
               </label>
               <div className="relative">
-                <input
-                  type="text"
+                <select
                   value={petData.sex}
-                  onChange={(e) => handleInputChange('sex', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#355233] focus:border-transparent pr-10"
-                />
-                <FaChevronDown className="absolute right-3 top-3 text-[#355233]" />
+                  onChange={(e) => handleInputChange("sex", e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#355233] focus:border-transparent appearance-none bg-[#fcfaec]"
+                >
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+                <FaChevronDown className="absolute right-3 top-3 text-[#355233] pointer-events-none" />
               </div>
             </div>
 
@@ -154,7 +166,9 @@ const EditPetProfile = () => {
               </label>
               <textarea
                 value={petData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("description", e.target.value)
+                }
                 rows={4}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#355233] focus:border-transparent resize-none"
               />
