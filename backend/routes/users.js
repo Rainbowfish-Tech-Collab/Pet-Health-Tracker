@@ -1,6 +1,7 @@
 import express from 'express';
 import pool from '../config/database.js';
 import passport from '../config/passport.js';
+import bcrypt from 'bcrypt';
 
 //Global - mounted at /users
 const router = express.Router();
@@ -10,10 +11,8 @@ const router = express.Router();
 router.patch('/:id', passport.authenticate('session'), async (req, res, next) => {
   try{
     const { id } = req.params;
-    const fields = Object.keys(req.body);
-    const values = Object.values(req.body);
 
-    if (fields.length === 0) throw Object.assign(new Error("No fields to update"), { status: 400 });
+    if (req.body.length === 0) throw Object.assign(new Error("No fields to update"), { status: 400 });
 
     const immutables = ["id", "date_created", "date_updated", "date_archived"];
 
@@ -24,9 +23,18 @@ router.patch('/:id', passport.authenticate('session'), async (req, res, next) =>
         immutableFields.push(key);
         delete req.body[key];
       }
+      if(key === "password"){
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
+        req.body.password_hashed = hashedPassword;
+        delete req.body.password;
+      }
     }
 
     if (immutableFields.length > 0) throw Object.assign(new Error(immutableErrors + immutableFields.join(", ")), { status: 400 });
+
+    const fields = Object.keys(req.body);
+    const values = Object.values(req.body);
 
     const result = await pool.query(
       `UPDATE "user"

@@ -4,7 +4,7 @@ import Home from './pages/Home';
 import SpecificDataEntry from './pages/SpecificDataEntry';
 import Login from './components/Login';
 import Register from './components/Register';
-import AccountProfile from './components/AccountProfile';
+import AccountProfile from './pages/AccountProfile';
 import './App.css';
 
 function App() {
