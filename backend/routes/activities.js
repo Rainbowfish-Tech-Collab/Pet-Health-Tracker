@@ -45,7 +45,24 @@ router.get("/", async (req, res, next) => {
     const {petId} = req.params;
     const {type, graph, archived, sort, direction} = req.query;
 
-    /* -------------------- IF GRAPH IS PROVIDED AND TRUE ------------------- */
+    // Return mock data for graph view
+    if (graph?.toLowerCase() === "true") {
+      // Generate last 7 days of mock activity data
+      const mockData = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        mockData.push({
+          duration_in_hours: Math.random() * 2 + 0.5, // Random duration between 0.5 and 2.5 hours
+          activity_date: date.toISOString().split('T')[0],
+          timestamp: date.toISOString(), // Add timestamp for frontend processing
+          value: Math.random() * 2 + 0.5 // Add value field for frontend processing
+        });
+      }
+      return res.json(mockData);
+    }
+
+    /* -------------------- REGULAR DATA RETRIEVAL ------------------- */
     let columns = graph?.toLowerCase() == "true" 
     ? "duration_in_hours, activity_date"
     : "activity.id, activity_type_id, name, duration_in_hours, note, activity_date, date_created, date_updated";
