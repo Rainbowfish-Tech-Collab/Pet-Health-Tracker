@@ -60,11 +60,36 @@ router.get("/", async (req, res, next) => {
     const { type, stat, graph, archived, sort, direction} = req.query;
 
     /* -------------------- IF GRAPH IS PROVIDED AND TRUE ------------------- */
-    let columns = graph?.toLowerCase() == "true" 
-    ? "weight, stat_date"
-    : "weight_stat.id, weight_stat.weight_id, weight.unit, weight, stat.id AS stat_id, stat.description, stat.stat_date, weight_stat.date_created, weight_stat.date_updated";
+    if (graph?.toLowerCase() === "true") {
+      // Generate last 7 days of mock weight data
+      const mockData = [];
+      let baseWeight = 20 + Math.random() * 10; // Random base weight between 20-30 lbs
+      
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        // Small random fluctuation in weight (-0.5 to +0.5 lbs)
+        const weightChange = (Math.random() - 0.5);
+        baseWeight += weightChange;
+        
+        mockData.push({
+          weight: baseWeight.toFixed(1),
+          timestamp: date.toISOString(),
+          value: baseWeight.toFixed(1), // For frontend consistency
+          stat_date: date.toISOString().split('T')[0],
+          unit: 'lbs'
+        });
+      }
+      return res.json(mockData);
+    }
 
-    columns += archived?.toLowerCase() == "true" || archived?.toLowerCase() == "only" ? ", weight_stat.date_archived" : "";
+    let columns = graph?.toLowerCase() === "true"
+      ? "weight, stat_date"
+      : "weight_stat.id, weight_stat.weight_id, weight.unit, weight, stat.id AS stat_id, stat.description, stat.stat_date, weight_stat.date_created, weight_stat.date_updated";
+
+    if (archived?.toLowerCase() === "true" || archived?.toLowerCase() === "only") {
+      columns += ", weight_stat.date_archived";
+    }
 
     let baseQuery = 
     `
