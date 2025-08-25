@@ -55,7 +55,7 @@ const Account = () => {
 	function validatePassword(password, passwordCheck) {
 		const passwordRegex = /^(?=.*\d)(?=.*[@$!%*#?&]).{6,}$/;
 
-		if (password !== passwordCheck) {
+		if (passwordCheck && password !== passwordCheck) {
 			setError("Passwords do not match");
 			return false;
 		}
