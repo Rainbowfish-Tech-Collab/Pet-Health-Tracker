@@ -1,7 +1,7 @@
 import express from 'express';
 import pool from '../config/database.js';
 // Scoped to a specific pet — mounted at /pets/:petId/symptoms
-const router = express.Router({ mergeParams: true }{ mergeParams: true });
+const router = express.Router({ mergeParams: true });
 
 // GET /pets/:petId/symptoms
 router.get('/', async (req, res) => {

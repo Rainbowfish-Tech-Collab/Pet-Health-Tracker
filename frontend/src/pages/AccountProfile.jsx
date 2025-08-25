@@ -1,16 +1,19 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
 import '../App.css';
+import validate from '../components/validate.js';
+import ErrorMessage from '../components/ErrorMessage.jsx';
 
 const Account = () => {
 	const [user, setUser] = useState(null);
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
-	const [error, setError] = useState(null);
+	// const [error, setError] = useState(null);
+  const { validatePassword, validateEmail, errors } = validate();
   const pictureRef = useRef(null);
 	const usernameRef = useRef(null);
 	const emailRef = useRef(null);
   const navigate = useNavigate();
-
+  
 	useEffect(() => {
 		fetch("http://localhost:3000/auth/status", {
 			credentials: "include", //send cookies with the request
@@ -38,7 +41,7 @@ const Account = () => {
     if (file) {
       const maxSize = 500 * 1024 * 1024; // 500MB for both video and images
       if (file.size > maxSize) {
-        alert(`File size too large. Please choose a ${type} under 500MB.`);
+        alert(`File size too large. Please choose an image under 500MB.`);
         return;
       }
     }
@@ -52,23 +55,23 @@ const Account = () => {
 		}
 	}
 
-	function validatePassword(password, passwordCheck) {
-		const passwordRegex = /^(?=.*\d)(?=.*[@$!%*#?&]).{6,}$/;
+	// function validatePassword(password, passwordCheck) {
+	// 	const passwordRegex = /^(?=.*\d)(?=.*[@$!%*#?&]).{6,}$/;
 
-		if (passwordCheck && password !== passwordCheck) {
-			setError("Passwords do not match");
-			return false;
-		}
+	// 	if (passwordCheck && password !== passwordCheck) {
+	// 		setError("Passwords do not match");
+	// 		return false;
+	// 	}
 
-		if (!passwordRegex.test(password)) {
-			setError(
-				"Password must be at least 6 characters long and include a number and special character."
-			);
-			return false;
-		}
+	// 	if (!passwordRegex.test(password)) {
+	// 		setError(
+	// 			"Password must be at least 6 characters long and include a number and special character."
+	// 		);
+	// 		return false;
+	// 	}
 
-		return true;
-	}
+	// 	return true;
+	// }
 	function handleSubmit(event) {
 		event.preventDefault();
 
@@ -222,11 +225,8 @@ const Account = () => {
 					</div>
 
 					{/* Password fields*/}
-					{error && (
-						<div className="text-red-600 text-center mb-2 text-sm font-medium">
-							{error}
-						</div>
-					)}
+					<ErrorMessage message={errors.password} />
+          
 					<input
 						type="password"
 						id="password"
