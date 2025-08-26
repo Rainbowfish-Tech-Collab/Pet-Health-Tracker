@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import '../App.css';
 import validate from '../components/validate.js';
 import ErrorMessage from '../components/ErrorMessage.jsx';
+import { ToastContainer, toast } from "react-toastify";
 
 const Account = () => {
 	const [user, setUser] = useState(null);
@@ -12,6 +13,8 @@ const Account = () => {
   const pictureRef = useRef(null);
 	const usernameRef = useRef(null);
 	const emailRef = useRef(null);
+  const passwordRef = useRef(null);
+  const passwordCheckRef = useRef(null);
   const navigate = useNavigate();
   
 	useEffect(() => {
@@ -55,32 +58,18 @@ const Account = () => {
 		}
 	}
 
-	// function validatePassword(password, passwordCheck) {
-	// 	const passwordRegex = /^(?=.*\d)(?=.*[@$!%*#?&]).{6,}$/;
-
-	// 	if (passwordCheck && password !== passwordCheck) {
-	// 		setError("Passwords do not match");
-	// 		return false;
-	// 	}
-
-	// 	if (!passwordRegex.test(password)) {
-	// 		setError(
-	// 			"Password must be at least 6 characters long and include a number and special character."
-	// 		);
-	// 		return false;
-	// 	}
-
-	// 	return true;
-	// }
 	function handleSubmit(event) {
 		event.preventDefault();
+
+    if (user.email) {
+      const isValid = validateEmail(user.email);
+      if (!isValid) return; // stop if validation fails
+    }
 
 		if (user.password || user.passwordCheck) {
 			const isValid = validatePassword(user.password, user.passwordCheck);
 			if (!isValid) return; // stop if validation fails
 		}
-
-		setError(null); // reset error state
 
 		fetch(`http://localhost:3000/users/${user.id}`, {
 			method: "PATCH",
@@ -97,25 +86,92 @@ const Account = () => {
 			.then((res) => res.json())
 			.then((data) => {
 				console.log(data);
+        // reset input password fields
+        passwordRef.current && (passwordRef.current.value = "");
+        passwordCheckRef.current && (passwordCheckRef.current.value = "");
 			});
 	}
 
+  function CustomNotification({ closeToast, data, toastProps }) {
+    const isColored = toastProps.theme === 'colored';
+
+    return (
+      <div className="flex flex-col w-full">
+        <h3
+          className={`text-sm font-semibold`}
+        >
+          {data.title}
+        </h3>
+        <div className="flex items-center justify-between">
+          <span 
+              className="material-symbols-outlined cursor-pointer hover:text-[#355233] transition-colors"
+              onClick={closeToast}
+          >
+              arrow_back_ios
+          </span>
+          <p className="text-sm text-center">{data.content}</p>
+          <span
+              className={`material-symbols-outlined cursor-pointer rounded-xl p-1 border-1 border-transparent text-white hover:text-black hover:border-black hover:border transition-colors`}
+              onClick={handleDelete}
+            >
+              delete
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  function confirmDelete() {
+    toast.error(CustomNotification, {
+      position: "top-center",
+      data: {
+        content: (
+          <>
+            This will permanently delete your account and all associated data.<br />
+            Are you sure?
+          </>
+        )
+      },
+      ariaLabel: 'This will permanently delete your account and all associated data. Are you sure?',
+      closeButton: false,
+      autoClose: false,
+      icon: false,
+      theme: 'colored',
+      style: {
+        background: "#EB5757",
+        color: "white"
+      }
+    });
+  }
+
   function handleDelete() {
-    fetch(`http://localhost:3000/users/${user.id}`, {
-      method: "DELETE",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
+    
+
+    fetch("http://localhost:3000/auth/logout", { method: "GET", credentials: "include" })
+      .then(res => res.json())
+      .then(() => {
+        return fetch(`http://localhost:3000/users/${user.id}`, { method: "DELETE" });
+      })
+      .then(() => {
         setIsAuthenticated(false);
         setUser(null);
-        fetch("http://localhost:3000/auth/logout", { method: "GET", credentials: "include" })
-          .then((res) => res.json())
-          .then((data) => {
-            console.log(data);
-            navigate("/login");
-          });
+        navigate("/login");
       });
+    // fetch(`http://localhost:3000/users/${user.id}`, {
+    //   method: "DELETE",
+    // })
+    //   .then((res) => res.json())
+    //   .then((data) => {
+    //     console.log(data);
+    //     setIsAuthenticated(false);
+    //     setUser(null);
+    //     fetch("http://localhost:3000/auth/logout", { method: "GET", credentials: "include" })
+    //       .then((res) => res.json())
+    //       .then((data) => {
+    //         console.log(data);
+    //         navigate("/login");
+    //       });
+    //   });
   }
 
 	if (!isAuthenticated) {
@@ -139,8 +195,8 @@ const Account = () => {
             </span>
             <h1 className="text-2xl text-[#355233] font-bold">Profile</h1>
             <span
-              className="material-symbols-outlined cursor-pointer rounded-xl p-1 bg-[#EB5757] text-white hover:bg-[#F9A03B] transition-colors"
-              onClick={handleDelete}
+              className="material-symbols-outlined cursor-pointer rounded-xl p-1 bg-[#EB5757] text-white hover:bg-[#f9713b] transition-colors"
+              onClick={confirmDelete}
             >
               delete
             </span>
@@ -223,15 +279,13 @@ const Account = () => {
 							edit
 						</span>
 					</div>
-
-					{/* Password fields*/}
-					<ErrorMessage message={errors.password} />
           
 					<input
 						type="password"
 						id="password"
 						placeholder="Password"
 						onChange={handleChange}
+            ref={passwordRef}
 						className="bg-[#fffdf5] border border-black w-full px-3 py-2 rounded mb-2"
 					/>
 					<input
@@ -239,14 +293,22 @@ const Account = () => {
 						id="passwordCheck"
 						placeholder="Confirm Password"
 						onChange={handleChange}
+            ref={passwordCheckRef}
 						className="bg-[#fffdf5] border border-black w-full px-3 py-2 rounded mb-4"
 					/>
 
+          {/* Email fields*/}
+					<ErrorMessage message={errors.email} />
+          {/* Password fields*/}
+					<ErrorMessage message={errors.password} />
+
 					<button
 						type="submit"
+            onClick = {() => toast.success("Profile updated!", { position: "top-center", autoClose: 2000 })}
 						className="w-full cursor-pointer bg-[#355233] text-white text-2xl font-semibold rounded py-2 mt-2 hover:bg-[#99CC66] transition-colors">
 						Update
 					</button>
+          <ToastContainer />
 				</div>
 			</div>
 		</form>

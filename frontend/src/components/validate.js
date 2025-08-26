@@ -1,27 +1,5 @@
 import { useState } from "react";
 
-// const validatePassword = () => {
-//   const [error, setError] = useState("");
-//   const checkPassword = useCallback((password, passwordCheck) => {
-//     const passwordRegex = /^(?=.*\d)(?=.*[@$!%*#?&]).{6,}$/;
-
-//     if (passwordCheck && password !== passwordCheck) {
-//       setError("Passwords do not match");
-//       return false;
-//     } else if (!passwordRegex.test(password)) {
-//       setError(
-//         "Password must be at least 6 characters long and include at least one special character and one number."
-//       );
-//       return false;
-//     } else {
-//       setError("");
-//       return true;
-//     }
-//   }, []);
-
-//   return { error, checkPassword };
-// }
-
 const validate = () => {
   const [errors, setErrors] = useState("");
 
