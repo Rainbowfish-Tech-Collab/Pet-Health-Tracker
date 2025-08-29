@@ -311,7 +311,7 @@ const Account = () => {
 
 					<button
 						type="submit"
-            onClick = {() => toast("Profile updated!", { position: "top-center", autoClose: 2000, color: "black", progressClassName: 'my-progress' })}
+            onClick = {() => toast.success("Profile updated!", { position: "top-center", autoClose: 2000, color: "black" })}
 						className="w-full cursor-pointer bg-[#355233] text-white text-2xl font-semibold rounded py-2 mt-2 hover:bg-[#99CC66] transition-colors">
 						Update
 					</button>
