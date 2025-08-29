@@ -1,19 +1,22 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { FaArrowLeft, FaPlus, FaTrash, FaChevronDown } from "react-icons/fa";
+import { useNavigate, useParams } from "react-router-dom";
+import { FaArrowLeft, FaPlus, FaChevronDown } from "react-icons/fa";
 
 const EditPetProfile = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
 
-  // Pet data state
+  // Check if this is a new pet or editing existing
+  const isNewPet = id === 'new';
+
+  // Pet data state - empty for new pets, filled for existing
   const [petData, setPetData] = useState({
-    name: "Whiskers",
-    species: "Cat",
-    breed: "Domestic Shorthair",
-    birthday: "04/23",
-    sex: "F",
-    description:
-      "about me - Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vehicula enim vitae justo volutpat, sit amet pellentesque elit rutrum.",
+    name: isNewPet ? "" : "Whiskers",
+    species: isNewPet ? "" : "Dog",
+    breed: isNewPet ? "" : "Domestic Shorthair",
+    birthday: isNewPet ? "" : "04/23",
+    sex: isNewPet ? "" : "M",
+    description: isNewPet ? "" : "about me - Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vehicula enim vitae justo volutpat, sit amet pellentesque elit rutrum.",
   });
 
   const handleInputChange = (field, value) => {
@@ -46,14 +49,20 @@ const EditPetProfile = () => {
               <FaArrowLeft />
             </button>
             <h1 className="text-2xl font-bold text-[#355233]">
-              Edit Pet Profile
+              {isNewPet ? "Add New Pet" : "Edit Pet Profile"}
             </h1>
-            <button
-              onClick={handleDelete}
-              className="text-red-500 text-xl focus:outline-none cursor-pointer"
-            >
-              <FaTrash />
-            </button>
+            {!isNewPet && (
+              <button
+                onClick={handleDelete}
+                className="text-red-500 text-xl focus:outline-none cursor-pointer"
+              >
+                <img
+                  src="/src/assets/delete.svg"
+                  alt="Delete"
+                  className="w-6 h-6"
+                />
+              </button>
+            )}
           </div>
         </div>
 
@@ -62,11 +71,17 @@ const EditPetProfile = () => {
           {/* Pet Profile Picture */}
           <div className="flex justify-center mb-8">
             <div className="relative">
-              <img
-                src="https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=facearea&w=256&h=256&facepad=2"
-                alt="Pet profile"
-                className="w-32 h-32 rounded-full object-cover border-4 border-[#fcfaec] shadow"
-              />
+              {isNewPet ? (
+                <div className="w-32 h-32 rounded-full bg-gray-200 border-4 border-[#fcfaec] flex items-center justify-center">
+                  <FaPlus className="text-gray-400 text-4xl" />
+                </div>
+              ) : (
+                <img
+                  src="https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=facearea&w=256&h=256&facepad=2"
+                  alt="Pet profile"
+                  className="w-32 h-32 rounded-full object-cover border-4 border-[#fcfaec] shadow"
+                />
+              )}
               {/* Add photo overlay */}
               <div className="absolute bottom-2 right-2 bg-[#355233] text-white rounded-full w-8 h-8 flex items-center justify-center border-2 border-white">
                 <FaPlus size={12} />
@@ -181,7 +196,7 @@ const EditPetProfile = () => {
               onClick={handleUpdate}
               className="w-full bg-[#355233] text-white font-bold py-3 px-6 rounded-lg hover:bg-[#2a4128] transition-colors focus:outline-none focus:ring-2 focus:ring-[#355233] focus:ring-offset-2"
             >
-              Update
+              {isNewPet ? "Add Pet" : "Update"}
             </button>
           </div>
         </div>

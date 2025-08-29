@@ -37,7 +37,10 @@ const ManagePetProfile = () => {
         {/* Pet profile */}
         <div className="flex flex-col items-center w-full gap-8 mt-4">
           {/* Existing pet */}
-          <div className="flex flex-col items-center">
+          <div
+            className="flex flex-col items-center cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => navigate(`/edit-pet/${pets[0].id}`)}
+          >
             <img
               src={pets[0].image}
               alt={pets[0].name}
