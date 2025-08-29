@@ -43,7 +43,7 @@ passport.use(
           return done(null, false, { message: 'Incorrect password.' });
         }
 
-        return done(null, user);
+        return done(null, { ...user, provider: 'local' });
       } catch (error) {
         return done(error);
       }
@@ -81,7 +81,7 @@ passport.use(
           ]
         );
 
-        return done(null, newUser.rows[0]);
+        return done(null, { ...newUser.rows[0], provider: 'google' });
       } catch (error) {
         return done(error, null);
       }

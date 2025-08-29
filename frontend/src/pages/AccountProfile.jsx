@@ -8,6 +8,7 @@ import { ToastContainer, toast } from "react-toastify";
 const Account = () => {
 	const [user, setUser] = useState(null);
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isGoogle, setIsGoogle] = useState(false);
 	// const [error, setError] = useState(null);
   const { validatePassword, validateEmail, errors } = validate();
   const pictureRef = useRef(null);
@@ -26,6 +27,7 @@ const Account = () => {
 				console.log(data.user);
 				setUser(data.user);
 				setIsAuthenticated(data.isAuthenticated);
+        if (data.user.provider === "google") setIsGoogle(true);
 			});
 	}, []);
 
@@ -256,55 +258,60 @@ const Account = () => {
 						</span>
 					</div>
 
-					{/* email */}
-					<label
-						htmlFor="email"
-						className="text-sm mb-1 block text-left w-full text-gray-500">
-						email
-					</label>
-					<div className="flex items-center gap-2 mb-4 w-full">
-						<input
-							type="email"
-							id="email"
-							value={user.email}
-							onChange={handleChange}
-							ref={emailRef}
-							onClick={() => makeEditable(emailRef)}
-							readOnly
-							className="bg-[#fffdf5] border border-black w-full px-3 py-2 rounded"
-						/>
-						<span
-							className="material-symbols-outlined cursor-pointer rounded-xl p-0.75 bg-[#355233] text-white hover:bg-[#99CC66] transition-colors"
-							onClick={() => makeEditable(emailRef)}>
-							edit
-						</span>
-					</div>
-          
-					<input
-						type="password"
-						id="password"
-						placeholder="Password"
-						onChange={handleChange}
-            ref={passwordRef}
-						className="bg-[#fffdf5] border border-black w-full px-3 py-2 rounded mb-2"
-					/>
-					<input
-						type="password"
-						id="passwordCheck"
-						placeholder="Confirm Password"
-						onChange={handleChange}
-            ref={passwordCheckRef}
-						className="bg-[#fffdf5] border border-black w-full px-3 py-2 rounded mb-4"
-					/>
+          {isGoogle && (
+            <>
+            {/* email */}
+            <label
+              htmlFor="email"
+              className="text-sm mb-1 block text-left w-full text-gray-500">
+              email
+            </label>
+            <div className="flex items-center gap-2 mb-4 w-full">
+              <input
+                type="email"
+                id="email"
+                value={user.email}
+                onChange={handleChange}
+                ref={emailRef}
+                onClick={() => makeEditable(emailRef)}
+                readOnly
+                className="bg-[#fffdf5] border border-black w-full px-3 py-2 rounded"
+              />
+              <span
+                className="material-symbols-outlined cursor-pointer rounded-xl p-0.75 bg-[#355233] text-white hover:bg-[#99CC66] transition-colors"
+                onClick={() => makeEditable(emailRef)}>
+                edit
+              </span>
+            </div>
+            
+            <input
+              type="password"
+              id="password"
+              placeholder="Password"
+              onChange={handleChange}
+              ref={passwordRef}
+              className="bg-[#fffdf5] border border-black w-full px-3 py-2 rounded mb-2"
+            />
+            <input
+              type="password"
+              id="passwordCheck"
+              placeholder="Confirm Password"
+              onChange={handleChange}
+              ref={passwordCheckRef}
+              className="bg-[#fffdf5] border border-black w-full px-3 py-2 rounded mb-4"
+            />
 
-          {/* Email fields*/}
-					<ErrorMessage message={errors.email} />
-          {/* Password fields*/}
-					<ErrorMessage message={errors.password} />
+            {/* Email fields*/}
+            <ErrorMessage message={errors.email} />
+            {/* Password fields*/}
+            <ErrorMessage message={errors.password} />
+            </>
+          )}
+					
 
 					<button
 						type="submit"
-            onClick = {() => toast.success("Profile updated!", { position: "top-center", autoClose: 2000 })}
+            onClick = {() => toast("Profile updated!", { position: "top-center", autoClose: 2000, color: "black", progressClassName: 'my-progress' })}
 						className="w-full cursor-pointer bg-[#355233] text-white text-2xl font-semibold rounded py-2 mt-2 hover:bg-[#99CC66] transition-colors">
 						Update
 					</button>

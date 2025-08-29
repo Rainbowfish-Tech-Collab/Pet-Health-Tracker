@@ -1,3 +1,7 @@
 #account-form input{
   border-color: #355233;
 }
+
+.my-progress {
+  background-color: #99CC66 !important;
+}
