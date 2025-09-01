@@ -5,12 +5,13 @@ import SpecificDataEntry from './pages/SpecificDataEntry';
 import Login from './components/Login';
 import Register from './components/Register';
 import AccountProfile from './pages/AccountProfile';
+import { ToastContainer } from 'react-toastify';
 import './App.css';
 
 function App() {
   return (
     <Router>
-      <Routes>
+      <Routes>  
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/" element={<Home />} />
@@ -19,6 +20,7 @@ function App() {
         <Route path="/add-entry" element={<SpecificDataEntry />} />
         <Route path="/settings" element={<div>Settings Page (Coming Soon)</div>} />
       </Routes>
+      <ToastContainer />
     </Router>
   );
 }

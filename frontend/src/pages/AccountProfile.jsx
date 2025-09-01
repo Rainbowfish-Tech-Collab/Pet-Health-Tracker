@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import '../App.css';
 import validate from '../components/validate.js';
 import ErrorMessage from '../components/ErrorMessage.jsx';
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
+import CustomNotification from "../components/CustomNotification.jsx";
 
 const Account = () => {
 	const [user, setUser] = useState(null);
@@ -94,37 +95,37 @@ const Account = () => {
 			});
 	}
 
-  function CustomNotification({ closeToast, data, toastProps }) {
-    const isColored = toastProps.theme === 'colored';
+  // function CustomNotification({ closeToast, data, toastProps }) {
+  //   const isColored = toastProps.theme === 'colored';
 
-    return (
-      <div className="flex flex-col w-full">
-        <h3
-          className={`text-sm font-semibold`}
-        >
-          {data.title}
-        </h3>
-        <div className="flex items-center justify-between">
-          <span 
-              className="material-symbols-outlined cursor-pointer hover:text-[#355233] transition-colors"
-              onClick={closeToast}
-          >
-              arrow_back_ios
-          </span>
-          <p className="text-sm text-center">{data.content}</p>
-          <span
-              className={`material-symbols-outlined cursor-pointer rounded-xl p-1 border-1 border-transparent text-white hover:text-black hover:border-black hover:border transition-colors`}
-              onClick={handleDelete}
-            >
-              delete
-          </span>
-        </div>
-      </div>
-    );
-  }
+  //   return (
+  //     <div className="flex flex-col w-full">
+  //       <h3
+  //         className={`text-sm font-semibold`}
+  //       >
+  //         {data.title}
+  //       </h3>
+  //       <div className="flex items-center justify-between">
+  //         <span 
+  //             className="material-symbols-outlined cursor-pointer hover:text-[#355233] transition-colors"
+  //             onClick={closeToast}
+  //         >
+  //             arrow_back_ios
+  //         </span>
+  //         <p className="text-sm text-center">{data.content}</p>
+  //         <span
+  //             className={`material-symbols-outlined cursor-pointer rounded-xl p-1 border-1 border-transparent text-white hover:text-black hover:border-black hover:border transition-colors`}
+  //             onClick={handleDelete}
+  //           >
+  //             delete
+  //         </span>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   function confirmDelete() {
-    toast.error(CustomNotification, {
+    toast.error(<CustomNotification /> , {
       position: "top-center",
       data: {
         content: (
@@ -132,7 +133,9 @@ const Account = () => {
             This will permanently delete your account and all associated data.<br />
             Are you sure?
           </>
-        )
+        ),
+        function: handleDelete,
+        icon: "delete"
       },
       ariaLabel: 'This will permanently delete your account and all associated data. Are you sure?',
       closeButton: false,
@@ -187,7 +190,8 @@ const Account = () => {
 	return (
 		<form id = "account-form" onSubmit={handleSubmit}>
 			<div className="min-h-screen flex items-center justify-center bg-[#222]">
-				<div className="bg-[#fcfaec] rounded-2xl shadow-lg p-6 sm:p-10 w-[350px] flex flex-col items-center border-8 border-[#222] text-left relative">
+				<div className="bg-[#fcfaec] rounded-2xl shadow-lg p-6 sm:p-10 w-[350px] flex flex-col items-center border-8 border-[#222] text-left relative max-h-[672px] h-screen overflow-y-auto">
+
           <div className = "absolute top-0 flex justify-between w-full mb-6 p-2 px-4 pt-10 bg-[#FFF9DD] border-b border-gray-300 shadow-md shadow-gray-40">
             <span 
               className="material-symbols-outlined cursor-pointer p-1 text-[#355233] hover:text-[#99CC66] transition-colors"
@@ -258,7 +262,7 @@ const Account = () => {
 						</span>
 					</div>
 
-          {isGoogle && (
+          {!isGoogle && (
             <>
             {/* email */}
             <label
@@ -311,11 +315,17 @@ const Account = () => {
 
 					<button
 						type="submit"
-            onClick = {() => toast.success("Profile updated!", { position: "top-center", autoClose: 2000, color: "black" })}
+            onClick = {() => toast.success("Profile updated!", 
+            { 
+              position: "top-center", 
+              autoClose: 2000, color: "black",  
+              progressClassName: 'my-progress',
+              style: {'--toastify-icon-color-success': '#355233'} 
+            })}
 						className="w-full cursor-pointer bg-[#355233] text-white text-2xl font-semibold rounded py-2 mt-2 hover:bg-[#99CC66] transition-colors">
 						Update
 					</button>
-          <ToastContainer />
+          
 				</div>
 			</div>
 		</form>
