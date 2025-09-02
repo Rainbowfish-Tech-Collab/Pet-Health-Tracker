@@ -12,23 +12,79 @@ const EditPetProfile = () => {
   // Pet data state - empty for new pets, filled for existing
   const [petData, setPetData] = useState({
     name: isNewPet ? "" : "Whiskers",
-    species: isNewPet ? "" : "Dog",
+    species: isNewPet ? "Dog" : "Dog",
     breed: isNewPet ? "" : "Domestic Shorthair",
     birthday: isNewPet ? "" : "04/23",
-    sex: isNewPet ? "" : "M",
+    sex: isNewPet ? "Male" : "M",
     description: isNewPet ? "" : "about me - Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vehicula enim vitae justo volutpat, sit amet pellentesque elit rutrum.",
   });
 
   const handleInputChange = (field, value) => {
-    setPetData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    console.log(`Updating ${field} to:`, value);
+    setPetData((prev) => {
+      const newData = {
+        ...prev,
+        [field]: value,
+      };
+      console.log("New petData:", newData);
+      return newData;
+    });
   };
 
-  const handleUpdate = () => {
-    // Handle update logic here
-    console.log("Updating pet profile:", petData);
+  const handleUpdate = async () => {
+    // Debug: log current state
+    console.log("Current petData:", petData);
+    console.log("Name:", petData.name, "Species:", petData.species);
+
+    // Basic validation
+    if (!petData.name || !petData.species) {
+      alert("Please fill in at least the name and species fields.");
+      return;
+    }
+
+    try {
+      if (isNewPet) {
+        // Add new pet to database
+        const response = await fetch('http://localhost:3000/pets', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(petData),
+        });
+
+        if (response.ok) {
+          const newPet = await response.json();
+          console.log("New pet added successfully:", newPet);
+          // Navigate back to manage pets page
+          navigate('/manage-pets');
+        } else {
+          console.error("Failed to add pet");
+          alert("Failed to add pet. Please try again.");
+        }
+      } else {
+        // Update existing pet in database
+        const response = await fetch(`http://localhost:3000/pets/${id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(petData),
+        });
+
+        if (response.ok) {
+          console.log("Pet updated successfully:", petData);
+          // Navigate back to manage pets page
+          navigate('/manage-pets');
+        } else {
+          console.error("Failed to update pet");
+          alert("Failed to update pet. Please try again.");
+        }
+      }
+    } catch (error) {
+      console.error("Error saving pet:", error);
+      alert("An error occurred. Please try again.");
+    }
   };
 
   const handleDelete = () => {
