@@ -232,9 +232,38 @@ const EditPetProfile = () => {
     }
   };
 
-  const handleDelete = () => {
-    // Handle delete logic here
-    console.log("Deleting pet profile");
+  const handleDelete = async () => {
+    if (isNewPet) {
+      return; // Don't delete if it's a new pet
+    }
+
+    // Confirm deletion
+    const confirmed = window.confirm(`Are you sure you want to delete ${petData.name}? This action cannot be undone.`);
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3000/pets/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        console.log("Pet deleted successfully");
+        alert(`${petData.name} has been deleted successfully.`);
+        // Navigate back to manage pets page
+        navigate('/manage-pets');
+      } else {
+        console.error("Failed to delete pet");
+        alert("Failed to delete pet. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error deleting pet:", error);
+      alert("An error occurred while deleting the pet. Please try again.");
+    }
   };
 
   return (
@@ -255,12 +284,13 @@ const EditPetProfile = () => {
             {!isNewPet && (
               <button
                 onClick={handleDelete}
-                className="text-red-500 text-xl focus:outline-none cursor-pointer"
+                className="text-red-500 text-xl focus:outline-none cursor-pointer hover:text-red-700 transition-colors"
               >
                 <img
                   src="/src/assets/delete.svg"
                   alt="Delete"
-                  className="w-6 h-6"
+                  className="w-6 h-6 filter-red-500"
+                  style={{ filter: 'invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)' }}
                 />
               </button>
             )}

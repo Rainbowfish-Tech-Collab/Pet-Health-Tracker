@@ -202,6 +202,36 @@ router.put("/:id", async (req, res, next) => {
   }
 });
 
+// DELETE delete a pet by id
+router.delete("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    console.log('Deleting pet with ID:', id);
+
+    const result = await pool.query(
+      "DELETE FROM pet WHERE id = $1 RETURNING *",
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Pet not found" });
+    }
+
+    console.log('Pet deleted successfully:', result.rows[0]);
+    res.json({
+      message: "Pet deleted successfully",
+      deletedPet: result.rows[0]
+    });
+  } catch (err) {
+    console.error('Error deleting pet:', err);
+    res.status(500).json({
+      error: "Failed to delete pet",
+      details: err.message,
+      code: err.code
+    });
+  }
+});
+
 // middleware to check if pet exists
 export const checkPetExists = async (req, res, next) => {
   try{
