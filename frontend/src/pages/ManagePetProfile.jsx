@@ -54,7 +54,9 @@ const ManagePetProfile = () => {
           ) : (
             <>
               {/* Existing pets */}
-              {pets.map((pet) => (
+              {pets
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((pet) => (
                 <div
                   key={pet.id}
                   className="flex flex-col items-center cursor-pointer hover:opacity-80 transition-opacity"
