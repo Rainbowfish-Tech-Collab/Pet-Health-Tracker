@@ -29,7 +29,7 @@ router.get("/test", async (req, res) => {
 // POST add a new pet
 router.post("/", async (req, res, next) => {
   try {
-    const { species, sex, name, birthday, description, profile_picture, breed } = req.body;
+    const { species, sex, name, birthday, description, profile_picture, breed, breed_id, species_id } = req.body;
 
     console.log('Received pet data:', { species, sex, name, birthday, description, profile_picture, breed });
 
@@ -46,9 +46,23 @@ router.post("/", async (req, res, next) => {
       });
     }
 
-    // Convert species to pet_breed_id (for now, use a default breed for the species)
+    // Use species_id if provided, otherwise convert species name to species_id
+    let pet_species_id;
+    if (species_id) {
+      pet_species_id = species_id;
+    } else if (species === 'Dog') {
+      pet_species_id = 1;
+    } else if (species === 'Cat') {
+      pet_species_id = 2;
+    } else {
+      pet_species_id = 1; // Default to Dog
+    }
+
+    // Use breed_id if provided, otherwise convert species to pet_breed_id
     let pet_breed_id;
-    if (species === 'Dog') {
+    if (breed_id) {
+      pet_breed_id = breed_id;
+    } else if (species === 'Dog') {
       pet_breed_id = 1; // Use first dog breed as default
     } else if (species === 'Cat') {
       pet_breed_id = 23; // Use first cat breed as default
@@ -66,11 +80,11 @@ router.post("/", async (req, res, next) => {
       sex_id = 1; // Default to Male
     }
 
-    console.log('Converted IDs:', { pet_breed_id, sex_id });
+    console.log('Converted IDs:', { pet_species_id, pet_breed_id, sex_id });
 
     const result = await pool.query(
-      "INSERT INTO pet (pet_breed_id, sex_id, name, birthday, description, profile_picture) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-      [pet_breed_id, sex_id, name, birthday, description, profile_picture || null]
+      "INSERT INTO pet (pet_species_id, pet_breed_id, sex_id, name, birthday, description, profile_picture) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+      [pet_species_id, pet_breed_id, sex_id, name, birthday, description, profile_picture || null]
     );
     res.json(result.rows[0]);
   } catch (err) {
@@ -116,27 +130,77 @@ router.get("/:id", async (req, res, next) => {
 router.put("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
-    const fields = Object.keys(req.body);
-    const values = Object.values(req.body);
+    const { species, sex, name, birthday, description, profile_picture, breed, breed_id, species_id } = req.body;
 
-    if (fields.length === 0) {
-      return res.status(400).json({ error: "No fields to update" });
+    console.log('Updating pet with ID:', id);
+    console.log('Update data:', { species, sex, name, birthday, description, profile_picture, breed, breed_id, species_id });
+
+    // Use species_id if provided, otherwise convert species name to species_id
+    let pet_species_id;
+    if (species_id) {
+      pet_species_id = species_id;
+    } else if (species === 'Dog') {
+      pet_species_id = 1;
+    } else if (species === 'Cat') {
+      pet_species_id = 2;
+    } else {
+      pet_species_id = 1; // Default to Dog
     }
 
+    // Use breed_id if provided, otherwise convert species to pet_breed_id
+    let pet_breed_id;
+    if (breed_id) {
+      pet_breed_id = breed_id;
+    } else if (species === 'Dog') {
+      pet_breed_id = 1; // Use first dog breed as default
+    } else if (species === 'Cat') {
+      pet_breed_id = 23; // Use first cat breed as default
+    } else {
+      pet_breed_id = 1; // Default to dog breed
+    }
+
+    // Convert sex to sex_id
+    let sex_id;
+    if (sex === 'Male') {
+      sex_id = 1;
+    } else if (sex === 'Female') {
+      sex_id = 2;
+    } else {
+      sex_id = 1; // Default to Male
+    }
+
+    console.log('Converted IDs for update:', { pet_species_id, pet_breed_id, sex_id });
+
     const result = await pool.query(
-      `
-        UPDATE pet SET ${fields.map((field, index) => `${field} = $${index + 1}`).join(", ")}
-        WHERE id = $${fields.length + 1}
-        RETURNING *
-      `, [...values, id]
+      `UPDATE pet SET
+        pet_species_id = $1,
+        pet_breed_id = $2,
+        sex_id = $3,
+        name = $4,
+        birthday = $5,
+        description = $6,
+        profile_picture = $7,
+        date_updated = NOW()
+      WHERE id = $8
+      RETURNING *`,
+      [pet_species_id, pet_breed_id, sex_id, name, birthday, description, profile_picture || null, id]
     );
 
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Pet not found" });
+    }
+
+    console.log('Pet updated successfully:', result.rows[0]);
     res.json(result.rows[0]);
   } catch (err) {
-    console.error(err);
-    next(err);
+    console.error('Error updating pet:', err);
+    res.status(500).json({
+      error: "Failed to update pet",
+      details: err.message,
+      code: err.code
+    });
   }
-})
+});
 
 // middleware to check if pet exists
 export const checkPetExists = async (req, res, next) => {

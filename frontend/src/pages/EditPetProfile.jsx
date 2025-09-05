@@ -21,6 +21,54 @@ const EditPetProfile = () => {
   });
 
   const [loading, setLoading] = useState(!isNewPet);
+  const [breeds, setBreeds] = useState([]);
+  const [breedsLoading, setBreedsLoading] = useState(true);
+  const [species, setSpecies] = useState([]);
+  const [speciesLoading, setSpeciesLoading] = useState(true);
+
+  // Fetch species from database
+  useEffect(() => {
+    const fetchSpecies = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/db/petSpecies');
+        if (response.ok) {
+          const speciesData = await response.json();
+          console.log('Fetched species:', speciesData);
+          setSpecies(speciesData);
+        } else {
+          console.error('Failed to fetch species');
+        }
+      } catch (error) {
+        console.error('Error fetching species:', error);
+      } finally {
+        setSpeciesLoading(false);
+      }
+    };
+
+    fetchSpecies();
+  }, []);
+
+  // Fetch breeds from database
+  useEffect(() => {
+    const fetchBreeds = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/db/petBreeds');
+        if (response.ok) {
+          const breedsData = await response.json();
+          console.log('Fetched breeds:', breedsData);
+          setBreeds(breedsData);
+        } else {
+          console.error('Failed to fetch breeds');
+        }
+      } catch (error) {
+        console.error('Error fetching breeds:', error);
+      } finally {
+        setBreedsLoading(false);
+      }
+    };
+
+    fetchBreeds();
+  }, []);
 
   // Fetch pet data when editing existing pet
   useEffect(() => {
@@ -33,21 +81,23 @@ const EditPetProfile = () => {
             console.log('Fetched pet data:', pet);
 
             // Convert database fields to frontend format
-            // Convert pet_breed_id to species (simplified mapping for now)
-            let species = "Dog";
-            if (pet.pet_breed_id === 1) species = "Dog";
-            else if (pet.pet_breed_id === 23) species = "Cat";
-            // Add more mappings as needed
+            // Convert pet_species_id to species name
+            const currentSpecies = species.find(s => s.id === pet.pet_species_id);
+            const speciesName = currentSpecies ? currentSpecies.species : "Dog";
 
             // Convert sex_id to sex
             let sex = "Male";
             if (pet.sex_id === 1) sex = "Male";
             else if (pet.sex_id === 2) sex = "Female";
 
+            // Find the breed name from the breeds array
+            const currentBreed = breeds.find(breed => breed.id === pet.pet_breed_id);
+            const breedName = currentBreed ? currentBreed.pet_breed : "";
+
             setPetData({
               name: pet.name || "",
-              species: species,
-              breed: pet.breed || "",
+              species: speciesName,
+              breed: breedName,
               birthday: pet.birthday || "",
               sex: sex,
               description: pet.description || "",
@@ -67,7 +117,7 @@ const EditPetProfile = () => {
 
       fetchPet();
     }
-  }, [id, isNewPet]);
+  }, [id, isNewPet, breeds, species]);
 
   const handleInputChange = (field, value) => {
     console.log(`Updating ${field} to:`, value);
@@ -76,9 +126,39 @@ const EditPetProfile = () => {
         ...prev,
         [field]: value,
       };
+
+      // If species is changed, reset breed to empty and filter breeds
+      if (field === 'species') {
+        newData.breed = ""; // Reset breed when species changes
+      }
+
       console.log("New petData:", newData);
       return newData;
     });
+  };
+
+  // Filter breeds based on selected species
+  const getFilteredBreeds = () => {
+    if (!petData.species || speciesLoading) {
+      console.log('No species selected or still loading species, returning all breeds');
+      return breeds;
+    }
+
+    // Find the selected species ID
+    const selectedSpecies = species.find(spec => spec.species === petData.species);
+    if (!selectedSpecies) {
+      console.log('Species not found in species array:', petData.species);
+      return breeds;
+    }
+
+    console.log('Selected species:', selectedSpecies);
+    console.log('All breeds:', breeds);
+
+    // Filter breeds by pet_species_id
+    const filteredBreeds = breeds.filter(breed => breed.pet_species_id === selectedSpecies.id);
+    console.log('Filtered breeds for species', selectedSpecies.species, ':', filteredBreeds);
+
+    return filteredBreeds;
   };
 
   const handleUpdate = async () => {
@@ -92,6 +172,21 @@ const EditPetProfile = () => {
       return;
     }
 
+    // Find the species ID from the selected species name
+    const selectedSpecies = species.find(spec => spec.species === petData.species);
+    const speciesId = selectedSpecies ? selectedSpecies.id : null;
+
+    // Find the breed ID from the selected breed name (use filtered breeds)
+    const selectedBreed = getFilteredBreeds().find(breed => breed.pet_breed === petData.breed);
+    const breedId = selectedBreed ? selectedBreed.id : null;
+
+    // Prepare data for API (convert species and breed names to IDs)
+    const apiData = {
+      ...petData,
+      species_id: speciesId,
+      breed_id: breedId
+    };
+
     try {
       if (isNewPet) {
         // Add new pet to database
@@ -100,7 +195,7 @@ const EditPetProfile = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(petData),
+          body: JSON.stringify(apiData),
         });
 
         if (response.ok) {
@@ -119,11 +214,11 @@ const EditPetProfile = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(petData),
+          body: JSON.stringify(apiData),
         });
 
         if (response.ok) {
-          console.log("Pet updated successfully:", petData);
+          console.log("Pet updated successfully:", apiData);
           // Navigate back to manage pets page
           navigate('/manage-pets');
         } else {
@@ -226,16 +321,14 @@ const EditPetProfile = () => {
                   value={petData.species}
                   onChange={(e) => handleInputChange("species", e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#355233] focus:border-transparent appearance-none bg-[#fcfaec]"
+                  disabled={speciesLoading}
                 >
-                  <option value="Dog">Dog</option>
-                  <option value="Cat">Cat</option>
-                  <option value="Bird">Bird</option>
-                  <option value="Small Animals">Small Animals</option>
-                  <option value="Reptile">Reptile</option>
-                  <option value="Horse">Horse</option>
-                  <option value="Fish">Fish</option>
-                  <option value="Livestock">Livestock</option>
-                  <option value="Other">Other</option>
+                  <option value="">Select a species</option>
+                  {species.map((spec) => (
+                    <option key={spec.id} value={spec.species}>
+                      {spec.species}
+                    </option>
+                  ))}
                 </select>
                 <FaChevronDown className="absolute right-3 top-3 text-[#355233] pointer-events-none" />
               </div>
@@ -246,12 +339,22 @@ const EditPetProfile = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 breed
               </label>
-              <input
-                type="text"
-                value={petData.breed}
-                onChange={(e) => handleInputChange("breed", e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#355233] focus:border-transparent"
-              />
+              <div className="relative">
+                <select
+                  value={petData.breed}
+                  onChange={(e) => handleInputChange("breed", e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#355233] focus:border-transparent appearance-none bg-[#fcfaec]"
+                  disabled={breedsLoading || speciesLoading}
+                >
+                  <option value="">Select a breed</option>
+                  {getFilteredBreeds().map((breed) => (
+                    <option key={breed.id} value={breed.pet_breed}>
+                      {breed.pet_breed}
+                    </option>
+                  ))}
+                </select>
+                <FaChevronDown className="absolute right-3 top-3 text-[#355233] pointer-events-none" />
+              </div>
             </div>
 
             {/* Birthday */}
