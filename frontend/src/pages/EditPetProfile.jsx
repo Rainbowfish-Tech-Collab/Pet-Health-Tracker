@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaArrowLeft, FaPlus, FaChevronDown } from "react-icons/fa";
 
@@ -11,13 +11,63 @@ const EditPetProfile = () => {
 
   // Pet data state - empty for new pets, filled for existing
   const [petData, setPetData] = useState({
-    name: isNewPet ? "" : "Whiskers",
-    species: isNewPet ? "Dog" : "Dog",
-    breed: isNewPet ? "" : "Domestic Shorthair",
-    birthday: isNewPet ? "" : "04/23",
-    sex: isNewPet ? "Male" : "M",
-    description: isNewPet ? "" : "about me - Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vehicula enim vitae justo volutpat, sit amet pellentesque elit rutrum.",
+    name: "",
+    species: "Dog",
+    breed: "",
+    birthday: "",
+    sex: "Male",
+    description: "",
+    profile_picture: null,
   });
+
+  const [loading, setLoading] = useState(!isNewPet);
+
+  // Fetch pet data when editing existing pet
+  useEffect(() => {
+    if (!isNewPet && id) {
+      const fetchPet = async () => {
+        try {
+          const response = await fetch(`http://localhost:3000/pets/${id}`);
+          if (response.ok) {
+            const pet = await response.json();
+            console.log('Fetched pet data:', pet);
+
+            // Convert database fields to frontend format
+            // Convert pet_breed_id to species (simplified mapping for now)
+            let species = "Dog";
+            if (pet.pet_breed_id === 1) species = "Dog";
+            else if (pet.pet_breed_id === 23) species = "Cat";
+            // Add more mappings as needed
+
+            // Convert sex_id to sex
+            let sex = "Male";
+            if (pet.sex_id === 1) sex = "Male";
+            else if (pet.sex_id === 2) sex = "Female";
+
+            setPetData({
+              name: pet.name || "",
+              species: species,
+              breed: pet.breed || "",
+              birthday: pet.birthday || "",
+              sex: sex,
+              description: pet.description || "",
+              profile_picture: pet.profile_picture || null,
+            });
+          } else {
+            console.error('Failed to fetch pet');
+            alert('Failed to load pet data');
+          }
+        } catch (error) {
+          console.error('Error fetching pet:', error);
+          alert('Error loading pet data');
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchPet();
+    }
+  }, [id, isNewPet]);
 
   const handleInputChange = (field, value) => {
     console.log(`Updating ${field} to:`, value);
@@ -65,7 +115,7 @@ const EditPetProfile = () => {
       } else {
         // Update existing pet in database
         const response = await fetch(`http://localhost:3000/pets/${id}`, {
-          method: 'PATCH',
+          method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -124,26 +174,32 @@ const EditPetProfile = () => {
 
         {/* Main content */}
         <div className="flex-1 px-6 py-6">
-          {/* Pet Profile Picture */}
-          <div className="flex justify-center mb-8">
-            <div className="relative">
-              {isNewPet ? (
-                <div className="w-32 h-32 rounded-full bg-gray-200 border-4 border-[#fcfaec] flex items-center justify-center">
-                  <FaPlus className="text-gray-400 text-4xl" />
-                </div>
-              ) : (
-                <img
-                  src="https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=facearea&w=256&h=256&facepad=2"
-                  alt="Pet profile"
-                  className="w-32 h-32 rounded-full object-cover border-4 border-[#fcfaec] shadow"
-                />
-              )}
-              {/* Add photo overlay */}
-              <div className="absolute bottom-2 right-2 bg-[#355233] text-white rounded-full w-8 h-8 flex items-center justify-center border-2 border-white">
-                <FaPlus size={12} />
-              </div>
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="text-gray-600">Loading pet data...</div>
             </div>
-          </div>
+          ) : (
+            <>
+              {/* Pet Profile Picture */}
+              <div className="flex justify-center mb-8">
+                <div className="relative">
+                  {isNewPet ? (
+                    <div className="w-32 h-32 rounded-full bg-gray-200 border-4 border-[#fcfaec] flex items-center justify-center">
+                      <FaPlus className="text-gray-400 text-4xl" />
+                    </div>
+                  ) : (
+                    <img
+                      src={petData.profile_picture || "https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=facearea&w=256&h=256&facepad=2"}
+                      alt="Pet profile"
+                      className="w-32 h-32 rounded-full object-cover border-4 border-[#fcfaec] shadow"
+                    />
+                  )}
+                  {/* Add photo overlay */}
+                  <div className="absolute bottom-2 right-2 bg-[#355233] text-white rounded-full w-8 h-8 flex items-center justify-center border-2 border-white">
+                    <FaPlus size={12} />
+                  </div>
+                </div>
+              </div>
 
           {/* Input Fields */}
           <div className="space-y-6">
@@ -246,15 +302,17 @@ const EditPetProfile = () => {
             </div>
           </div>
 
-          {/* Update Button */}
-          <div className="mt-8">
-            <button
-              onClick={handleUpdate}
-              className="w-full bg-[#355233] text-white font-bold py-3 px-6 rounded-lg hover:bg-[#2a4128] transition-colors focus:outline-none focus:ring-2 focus:ring-[#355233] focus:ring-offset-2"
-            >
-              {isNewPet ? "Add Pet" : "Update"}
-            </button>
-          </div>
+              {/* Update Button */}
+              <div className="mt-8">
+                <button
+                  onClick={handleUpdate}
+                  className="w-full bg-[#355233] text-white font-bold py-3 px-6 rounded-lg hover:bg-[#2a4128] transition-colors focus:outline-none focus:ring-2 focus:ring-[#355233] focus:ring-offset-2"
+                >
+                  {isNewPet ? "Add Pet" : "Update"}
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
