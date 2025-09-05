@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaArrowLeft, FaPlus, FaChevronDown } from "react-icons/fa";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const EditPetProfile = () => {
   const navigate = useNavigate();
@@ -170,7 +172,7 @@ const EditPetProfile = () => {
 
     // Basic validation
     if (!petData.name || !petData.species) {
-      alert("Please fill in at least the name and species fields.");
+      toast.error("Please fill in at least the name and species fields.");
       return;
     }
 
@@ -203,11 +205,12 @@ const EditPetProfile = () => {
         if (response.ok) {
           const newPet = await response.json();
           console.log("New pet added successfully:", newPet);
+          toast.success("Pet added successfully!");
           // Navigate back to manage pets page
           navigate('/manage-pets');
         } else {
           console.error("Failed to add pet");
-          alert("Failed to add pet. Please try again.");
+          toast.error("Failed to add pet. Please try again.");
         }
       } else {
         // Update existing pet in database
@@ -221,16 +224,17 @@ const EditPetProfile = () => {
 
         if (response.ok) {
           console.log("Pet updated successfully:", apiData);
+          toast.success("Pet updated successfully!");
           // Navigate back to manage pets page
           navigate('/manage-pets');
         } else {
           console.error("Failed to update pet");
-          alert("Failed to update pet. Please try again.");
+          toast.error("Failed to update pet. Please try again.");
         }
       }
     } catch (error) {
       console.error("Error saving pet:", error);
-      alert("An error occurred. Please try again.");
+      toast.error("An error occurred. Please try again.");
     }
   };
 
@@ -255,16 +259,16 @@ const EditPetProfile = () => {
 
       if (response.ok) {
         console.log("Pet deleted successfully");
-        alert(`${petData.name} has been deleted successfully.`);
+        toast.success(`${petData.name} has been deleted successfully.`);
         // Navigate back to manage pets page
         navigate('/manage-pets');
       } else {
         console.error("Failed to delete pet");
-        alert("Failed to delete pet. Please try again.");
+        toast.error("Failed to delete pet. Please try again.");
       }
     } catch (error) {
       console.error("Error deleting pet:", error);
-      alert("An error occurred while deleting the pet. Please try again.");
+      toast.error("An error occurred while deleting the pet. Please try again.");
     }
   };
 
@@ -450,6 +454,18 @@ const EditPetProfile = () => {
           )}
         </div>
       </div>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
   );
 };
