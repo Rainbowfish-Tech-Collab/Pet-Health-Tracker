@@ -14,6 +14,7 @@ import {
   Filler
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import NavBar from '../components/NavBar';
 
 // Register ChartJS components
 ChartJS.register(
@@ -269,29 +270,8 @@ function Home() {
 
   return (
     <div className="flex flex-col h-screen p-3 gap-4" style={{ backgroundColor: '#FCF9ED' }}>
+      <NavBar pets={pets} selectedPet={selectedPet} setSelectedPet={setSelectedPet} />
       <div className="flex-1 bg-white rounded-[20px] p-5 flex flex-col gap-5 shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
-        <div className="flex items-center gap-4 p-2 border-b border-[#E8E6E1] mb-2 bg-transparent">
-          <div className="rounded-2xl p-2" style={{ backgroundColor: 'rgba(202,228,197,1)' }}>
-            <img 
-              src={Logo} 
-              alt="Pet Health Tracker" 
-              className="w-20 h-16 object-contain" 
-            />
-          </div>
-          <div className="flex-1 relative">
-            <select 
-              value={selectedPet}
-              onChange={(e) => setSelectedPet(e.target.value)}
-              className="w-full py-3 px-4 pr-10 rounded-xl border border-[#E8E6E1] bg-white text-[#2D3F2D] text-base appearance-none cursor-pointer hover:border-[#4A654A] focus:outline-none focus:border-[#4A654A] focus:ring-2 focus:ring-[#4A654A]/10"
-            >
-              {pets.map((pet, index) => (
-                <option key={index} value={pet.id}>{pet.name}</option>
-              ))}
-            </select>
-            <FaChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-[#4A654A] pointer-events-none text-sm" />
-          </div>
-        </div>
-
         <div className="p-5 bg-white rounded-2xl border border-[#E8E6E1]">
           <select
             style={{
@@ -399,51 +379,6 @@ function Home() {
             </div>
           ))}
         </div>
-      </div>
-
-      <div className="fixed bottom-0 left-0 right-0 flex justify-around items-center py-3 px-5 bg-white border-t border-[#E8E6E1] shadow-[0_-2px_8px_rgba(0,0,0,0.05)]">
-        <button 
-          onClick={() => {
-            setActiveTab('log');
-            navigate('/pet-data-log');
-          }}
-          className={`flex flex-col items-center text-xl cursor-pointer px-4 py-2 rounded-lg transition-colors ${
-            activeTab === 'log' 
-              ? 'text-[#2D4A2D] bg-[#F3F7F3]' 
-              : 'text-[#6B7D6B] hover:bg-[#F3F7F3] hover:text-[#2D4A2D]'
-          }`}
-        >
-          <FaEdit />
-          <span className="text-xs mt-1 font-medium">Log</span>
-        </button>
-        <button 
-          onClick={() => {
-            setActiveTab('add');
-            navigate('/add-entry');
-          }}
-          className={`flex flex-col items-center text-xl cursor-pointer px-4 py-2 rounded-lg transition-colors ${
-            activeTab === 'add' 
-              ? 'text-[#2D4A2D] bg-[#F3F7F3]' 
-              : 'text-[#6B7D6B] hover:bg-[#F3F7F3] hover:text-[#2D4A2D]'
-          }`}
-        >
-          <FaPlus />
-          <span className="text-xs mt-1 font-medium">Add</span>
-        </button>
-        <button 
-          onClick={() => {
-            setActiveTab('settings');
-            navigate('/settings');
-          }}
-          className={`flex flex-col items-center text-xl cursor-pointer px-4 py-2 rounded-lg transition-colors ${
-            activeTab === 'settings' 
-              ? 'text-[#2D4A2D] bg-[#F3F7F3]' 
-              : 'text-[#6B7D6B] hover:bg-[#F3F7F3] hover:text-[#2D4A2D]'
-          }`}
-        >
-          <FaCog />
-          <span className="text-xs mt-1 font-medium">Settings</span>
-        </button>
       </div>
     </div>
   );
