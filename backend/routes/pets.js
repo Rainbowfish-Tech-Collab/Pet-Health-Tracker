@@ -83,8 +83,8 @@ router.post("/", async (req, res, next) => {
     console.log('Converted IDs:', { pet_species_id, pet_breed_id, sex_id });
 
     const result = await pool.query(
-      "INSERT INTO pet (pet_species_id, pet_breed_id, sex_id, name, birthday, description, profile_picture) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
-      [pet_species_id, pet_breed_id, sex_id, name, birthday, description, profile_picture || null]
+      "INSERT INTO pet (pet_breed_id, sex_id, name, birthday, description, profile_picture) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+      [pet_breed_id, sex_id, name, birthday, description, profile_picture || null]
     );
     res.json(result.rows[0]);
   } catch (err) {
@@ -173,17 +173,16 @@ router.put("/:id", async (req, res, next) => {
 
     const result = await pool.query(
       `UPDATE pet SET
-        pet_species_id = $1,
-        pet_breed_id = $2,
-        sex_id = $3,
-        name = $4,
-        birthday = $5,
-        description = $6,
-        profile_picture = $7,
+        pet_breed_id = $1,
+        sex_id = $2,
+        name = $3,
+        birthday = $4,
+        description = $5,
+        profile_picture = $6,
         date_updated = NOW()
-      WHERE id = $8
+      WHERE id = $7
       RETURNING *`,
-      [pet_species_id, pet_breed_id, sex_id, name, birthday, description, profile_picture || null, id]
+      [pet_breed_id, sex_id, name, birthday, description, profile_picture || null, id]
     );
 
     if (result.rows.length === 0) {

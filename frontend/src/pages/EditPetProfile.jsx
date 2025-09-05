@@ -81,8 +81,9 @@ const EditPetProfile = () => {
             console.log('Fetched pet data:', pet);
 
             // Convert database fields to frontend format
-            // Convert pet_species_id to species name
-            const currentSpecies = species.find(s => s.id === pet.pet_species_id);
+            // Find the breed to get the species information
+            const currentBreed = breeds.find(breed => breed.id === pet.pet_breed_id);
+            const currentSpecies = currentBreed ? species.find(s => s.id === currentBreed.pet_species_id) : null;
             const speciesName = currentSpecies ? currentSpecies.species : "Dog";
 
             // Convert sex_id to sex
@@ -90,8 +91,7 @@ const EditPetProfile = () => {
             if (pet.sex_id === 1) sex = "Male";
             else if (pet.sex_id === 2) sex = "Female";
 
-            // Find the breed name from the breeds array
-            const currentBreed = breeds.find(breed => breed.id === pet.pet_breed_id);
+            // Get the breed name from the current breed
             const breedName = currentBreed ? currentBreed.pet_breed : "";
 
             setPetData({
@@ -154,8 +154,10 @@ const EditPetProfile = () => {
     console.log('Selected species:', selectedSpecies);
     console.log('All breeds:', breeds);
 
-    // Filter breeds by pet_species_id
-    const filteredBreeds = breeds.filter(breed => breed.pet_species_id === selectedSpecies.id);
+    // Filter breeds by pet_species_id and sort alphabetically
+    const filteredBreeds = breeds
+      .filter(breed => breed.pet_species_id === selectedSpecies.id)
+      .sort((a, b) => a.pet_breed.localeCompare(b.pet_breed));
     console.log('Filtered breeds for species', selectedSpecies.species, ':', filteredBreeds);
 
     return filteredBreeds;
