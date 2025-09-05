@@ -96,11 +96,18 @@ const EditPetProfile = () => {
             // Get the breed name from the current breed
             const breedName = currentBreed ? currentBreed.pet_breed : "";
 
+            // Format birthday for date input (YYYY-MM-DD)
+            let formattedBirthday = "";
+            if (pet.birthday) {
+              const date = new Date(pet.birthday);
+              formattedBirthday = date.toISOString().split('T')[0];
+            }
+
             setPetData({
               name: pet.name || "",
               species: speciesName,
               breed: breedName,
-              birthday: pet.birthday || "",
+              birthday: formattedBirthday,
               sex: sex,
               description: pet.description || "",
               profile_picture: pet.profile_picture || null,
@@ -396,13 +403,12 @@ const EditPetProfile = () => {
             {/* Birthday */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                birthday MM/DD
+                birthday
               </label>
               <input
-                type="text"
+                type="date"
                 value={petData.birthday}
                 onChange={(e) => handleInputChange("birthday", e.target.value)}
-                placeholder="MM/DD"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#355233] focus:border-transparent"
               />
             </div>
