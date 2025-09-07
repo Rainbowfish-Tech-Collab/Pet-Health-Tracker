@@ -14,10 +14,10 @@ const NavBar = ({
   const navigate = useNavigate();
 
   return (
-    <nav className="w-full flex items-center justify-between px-6 py-3 bg-white border-b border-[#E8E6E1] shadow-sm">
+    <nav className="w-full flex items-center justify-between px-6 py-3 bg-[#294B29]">
       {/* Left: Logo and Pet Dropdown */}
       <div className="flex items-center gap-4">
-        <img src={Logo} alt="Logo" className="w-24 h-20 object-contain" />
+        <img src={Logo} alt="Logo" className="w-14 h-14 object-contain rounded-lg" style={{ backgroundColor: '#CFE0CE' }} />
         <div className="flex items-center gap-2">
           {/* Pet profile picture placeholder */}
           <div className="w-10 h-10 rounded-full bg-[#E7F2E7] flex items-center justify-center overflow-hidden">
@@ -31,7 +31,7 @@ const NavBar = ({
           <select
             value={selectedPet}
             onChange={e => setSelectedPet(e.target.value)}
-            className="py-2 px-3 rounded-xl border border-[#E8E6E1] bg-white text-[#2D3F2D] text-base appearance-none cursor-pointer hover:border-[#4A654A] focus:outline-none focus:border-[#4A654A]"
+            className="py-2 px-3 rounded-xl border border-[#E8E6E1] bg-white text-[#294B29] text-base appearance-none cursor-pointer hover:border-[#4A654A] focus:outline-none focus:border-[#4A654A]"
           >
             {pets.map((pet, idx) => (
               <option key={idx} value={pet.id}>{pet.name}</option>
@@ -42,28 +42,28 @@ const NavBar = ({
 
       {/* Center: Navigation Buttons */}
       <div className="flex gap-6">
-        <button onClick={() => navigate('/')} className="flex items-center gap-2 text-[#2D4A2D] font-semibold hover:text-[#4A654A]">
-          <FaHome /> Home
+        <button onClick={() => navigate('/')} className="flex items-center gap-2 text-white font-semibold hover:text-[#FFD700]">
+          <FaHome className="text-white" /> Home
         </button>
-        <button onClick={() => navigate('/pet-data-log')} className="flex items-center gap-2 text-[#2D4A2D] font-semibold hover:text-[#4A654A]">
-          <FaListAlt /> Full Data Log
+        <button onClick={() => navigate('/pet-data-log')} className="flex items-center gap-2 text-white font-semibold hover:text-[#FFD700]">
+          <FaListAlt className="text-white" /> Full Data Log
         </button>
-        <button onClick={() => navigate('/add-entry')} className="flex items-center gap-2 text-[#2D4A2D] font-semibold hover:text-[#4A654A]">
-          <FaPlus /> New Entry
+        <button onClick={() => navigate('/add-entry')} className="flex items-center gap-2 text-white font-semibold hover:text-[#FFD700]">
+          <FaPlus className="text-white" /> New Entry
         </button>
-        <button onClick={() => navigate('/about')} className="flex items-center gap-2 text-[#2D4A2D] font-semibold hover:text-[#4A654A]">
-          <FaInfoCircle /> About
+        <button onClick={() => navigate('/about')} className="flex items-center gap-2 text-white font-semibold hover:text-[#FFD700]">
+          <FaInfoCircle className="text-white" /> About
         </button>
       </div>
 
       {/* Right: Username and Dropdown */}
       <div className="relative flex items-center gap-2">
-        <span className="text-[#2D4A2D] font-medium">{username}</span>
+        <span className="text-white font-medium">{username}</span>
         <button
           onClick={() => setDropdownOpen(v => !v)}
-          className="flex items-center p-2 rounded-full hover:bg-[#F3F7F3]"
+          className="flex items-center p-2 rounded-full hover:bg-[#3A5A3A]"
         >
-          <FaChevronDown />
+          <FaChevronDown className="text-white" />
         </button>
         {dropdownOpen && (
           <div className="absolute right-0 top-full mt-2 bg-white border border-[#E8E6E1] rounded-lg shadow-lg z-10 min-w-[200px] flex flex-col gap-2 p-3">
@@ -87,7 +87,7 @@ const NavBar = ({
             </button>
             <button
               onClick={() => { setDropdownOpen(false); /* Add logout logic here */ }}
-              className="w-full text-left px-4 py-2 bg-[#FFE4C2] text-[#2D4A2D] rounded-lg hover:bg-[#FFD6A0] transition-colors font-semibold"
+              className="w-full text-left px-4 py-2 bg-[#D97706] text-white rounded-lg hover:bg-[#B45309] transition-colors font-semibold"
             >
               Log out
             </button>
