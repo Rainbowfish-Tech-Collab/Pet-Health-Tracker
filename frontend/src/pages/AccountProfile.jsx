@@ -1,12 +1,13 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
 import '../App.css';
-import validate from '../components/validate.js';
+import validate from '../utils/validate.js';
 import ErrorMessage from '../components/ErrorMessage.jsx';
 import { toast } from "react-toastify";
 import CustomNotification from "../components/CustomNotification.jsx";
 import MobileContainer from "../components/MobileContainer.jsx";
 import TopElement from "../components/TopElement.jsx";
+import MobileContent from "../components/MobileContent.jsx";
 
 const Account = () => {
 	const [user, setUser] = useState(null);
@@ -27,7 +28,7 @@ const Account = () => {
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				console.log(data.user);
+				console.log(data);
 				setUser(data.user);
 				setIsAuthenticated(data.isAuthenticated);
         if (data.user.provider === "google") setIsGoogle(true);
@@ -200,124 +201,125 @@ const Account = () => {
             delete
           </span>
         </TopElement>
-					
-        {/* Profile picture */}
+				<MobileContent>
+          {/* Profile picture */}
 
-        <div className="relative w-[150px] h-[150px] mb-4 mt-15">
-          <img
-            src={
-              user.profile_picture ||
-              "https://images.unsplash.com/photo-1543852786-1cf6624b9987?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2F0c3xlbnwwfHwwfHx8MA%3D%3D"
-            }
-            className="w-full h-full object-cover object-top rounded-full"
-            alt="Profile Picture"
-            id="pfp"
-          />
-          <input
-            type="file"
-            accept="image/*"
-            ref = {pictureRef}
-            className = "hidden"
-            onChange={handleFileChange}
-          />
-          <span
-            className="material-symbols-outlined cursor-pointer rounded-2xl p-1 bg-[#355233] text-white hover:bg-[#99CC66] transition-colors absolute bottom-2 right-2"
-            onClick={() => pictureRef.current.click()}
-          >
-            photo_camera
-          </span>
-        </div>
-        
-        {/* Name */}
-        {/* <input className = "m-2 text-center pointer-events-none" value={user.username} readOnly/> */}
-
-        {/* username */}
-        <label
-          htmlFor="username"
-          className="text-sm mb-1 block text-left w-full text-gray-500">
-          username
-        </label>
-        <div className="flex items-center gap-2 mb-2 w-full">
-          <input
-            type="text"
-            id="username"
-            value={user.username}
-            onChange={handleChange}
-            onClick={() => makeEditable(usernameRef)}
-            ref={usernameRef}
-            readOnly
-            className="bg-[#fffdf5] border border-black w-full px-3 py-2 rounded"
-          />
-          <span
-            className="material-symbols-outlined cursor-pointer rounded-xl p-0.75 bg-[#355233] text-white hover:bg-[#99CC66] transition-colors"
-            onClick={() => makeEditable(usernameRef)}>
-            edit
-          </span>
-        </div>
-
-        {!isGoogle && (
-          <>
-          {/* email */}
-          <label
-            htmlFor="email"
-            className="text-sm mb-1 block text-left w-full text-gray-500">
-            email
-          </label>
-          <div className="flex items-center gap-2 mb-4 w-full">
+          <div className="relative w-[150px] h-[150px] mb-4">
+            <img
+              src={
+                user.profile_picture ||
+                "https://images.unsplash.com/photo-1543852786-1cf6624b9987?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2F0c3xlbnwwfHwwfHx8MA%3D%3D"
+              }
+              className="w-full h-full object-cover object-top rounded-full"
+              alt="Profile Picture"
+              id="pfp"
+            />
             <input
-              type="email"
-              id="email"
-              value={user.email}
+              type="file"
+              accept="image/*"
+              ref = {pictureRef}
+              className = "hidden"
+              onChange={handleFileChange}
+            />
+            <span
+              className="material-symbols-outlined cursor-pointer rounded-2xl p-1 bg-[#355233] text-white hover:bg-[#99CC66] transition-colors absolute bottom-2 right-2"
+              onClick={() => pictureRef.current.click()}
+            >
+              photo_camera
+            </span>
+          </div>
+          
+          {/* Name */}
+          {/* <input className = "m-2 text-center pointer-events-none" value={user.username} readOnly/> */}
+
+          {/* username */}
+          <label
+            htmlFor="username"
+            className="text-sm mb-1 block text-left w-full text-gray-500">
+            username
+          </label>
+          <div className="flex items-center gap-2 mb-2 w-full">
+            <input
+              type="text"
+              id="username"
+              value={user.username}
               onChange={handleChange}
-              ref={emailRef}
-              onClick={() => makeEditable(emailRef)}
+              onClick={() => makeEditable(usernameRef)}
+              ref={usernameRef}
               readOnly
               className="bg-[#fffdf5] border border-black w-full px-3 py-2 rounded"
             />
             <span
               className="material-symbols-outlined cursor-pointer rounded-xl p-0.75 bg-[#355233] text-white hover:bg-[#99CC66] transition-colors"
-              onClick={() => makeEditable(emailRef)}>
+              onClick={() => makeEditable(usernameRef)}>
               edit
             </span>
           </div>
+
+          {!isGoogle && (
+            <>
+            {/* email */}
+            <label
+              htmlFor="email"
+              className="text-sm mb-1 block text-left w-full text-gray-500">
+              email
+            </label>
+            <div className="flex items-center gap-2 mb-4 w-full">
+              <input
+                type="email"
+                id="email"
+                value={user.email}
+                onChange={handleChange}
+                ref={emailRef}
+                onClick={() => makeEditable(emailRef)}
+                readOnly
+                className="bg-[#fffdf5] border border-black w-full px-3 py-2 rounded"
+              />
+              <span
+                className="material-symbols-outlined cursor-pointer rounded-xl p-0.75 bg-[#355233] text-white hover:bg-[#99CC66] transition-colors"
+                onClick={() => makeEditable(emailRef)}>
+                edit
+              </span>
+            </div>
+            
+            <input
+              type="password"
+              id="password"
+              placeholder="Password"
+              onChange={handleChange}
+              ref={passwordRef}
+              className="bg-[#fffdf5] border border-black w-full px-3 py-2 rounded mb-2"
+            />
+            <input
+              type="password"
+              id="passwordCheck"
+              placeholder="Confirm Password"
+              onChange={handleChange}
+              ref={passwordCheckRef}
+              className="bg-[#fffdf5] border border-black w-full px-3 py-2 rounded mb-4"
+            />
+
+            {/* Email fields*/}
+            <ErrorMessage message={errors.email} />
+            {/* Password fields*/}
+            <ErrorMessage message={errors.password} />
+            </>
+          )}
           
-          <input
-            type="password"
-            id="password"
-            placeholder="Password"
-            onChange={handleChange}
-            ref={passwordRef}
-            className="bg-[#fffdf5] border border-black w-full px-3 py-2 rounded mb-2"
-          />
-          <input
-            type="password"
-            id="passwordCheck"
-            placeholder="Confirm Password"
-            onChange={handleChange}
-            ref={passwordCheckRef}
-            className="bg-[#fffdf5] border border-black w-full px-3 py-2 rounded mb-4"
-          />
 
-          {/* Email fields*/}
-          <ErrorMessage message={errors.email} />
-          {/* Password fields*/}
-          <ErrorMessage message={errors.password} />
-          </>
-        )}
-        
-
-        <button
-          type="submit"
-          onClick = {() => toast.success("Profile updated!", 
-          { 
-            position: "top-center", 
-            autoClose: 2000, color: "black",  
-            progressClassName: 'my-progress',
-            style: {'--toastify-icon-color-success': '#355233'} 
-          })}
-          className="w-full cursor-pointer bg-[#355233] text-white text-2xl font-semibold rounded py-2 mt-2 hover:bg-[#99CC66] transition-colors">
-          Update
-        </button>
+          <button
+            type="submit"
+            onClick = {() => toast.success("Profile updated!", 
+            { 
+              position: "top-center", 
+              autoClose: 2000, color: "black",  
+              progressClassName: 'my-progress',
+              style: {'--toastify-icon-color-success': '#355233'} 
+            })}
+            className="w-full cursor-pointer bg-[#355233] text-white text-2xl font-semibold rounded py-2 mt-2 hover:bg-[#99CC66] transition-colors">
+            Update
+          </button>
+        </MobileContent>
 			</MobileContainer>
 		</form>
 	);

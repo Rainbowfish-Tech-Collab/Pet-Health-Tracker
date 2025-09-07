@@ -190,9 +190,9 @@ router.get('/medications', async (req, res, next) => {
   }
 });
 
-// GET all log related tables associated with the database
-// -- /db/logs
-router.get('/logs', async(req, res, next) => {
+// GET all log related table names associated with the database
+// -- /db/logs/names
+router.get('/logs/names', async(req, res, next) => {
   try {
     const result = await pool.query(`
       SELECT DISTINCT table_name
@@ -207,5 +207,79 @@ router.get('/logs', async(req, res, next) => {
     next(err);
   }
 });
+
+// GET all logs associated with a petId
+// -- /db/:petId/logs
+// -- /db/:petId/logs/deleted
+router.get('/:petId/logs/:deleted?', async (req, res, next) => {
+  try {
+    const { petId } = req.params;
+    const showDeleted = req.params.deleted === "deleted";
+    const showDeletedString = showDeleted ? "IS NOT NULL" : "IS NULL";
+    const [activities, symptoms, bodilyFunctions, medications, weights, glucose, heartRate, respiratoryRate, other] = await Promise.all([
+			pool.query(`
+        SELECT activity.id, activity_type_id, name, duration_in_hours, note, activity_date AS log_date, date_created, date_updated ${showDeleted ? ", activity.date_archived" : ""} 
+        FROM activity 
+        JOIN activity_type ON activity.activity_type_id = activity_type.id 
+        WHERE date_archived ${showDeletedString}  AND pet_id = $1`, [petId]),
+      pool.query(`
+        SELECT symptom.id, symptom_type_id, name, symptom_other, symptom_description, symptom_date AS log_date, date_created, date_updated ${showDeleted ? ", symptom.date_archived" : ""} 
+        FROM symptom 
+        JOIN symptom_type ON symptom.symptom_type_id = symptom_type.id 
+        WHERE symptom.date_archived ${showDeletedString}  AND symptom.pet_id = $1`, [petId]),
+      pool.query(`
+        SELECT bodily_function.id, function_id, name, note, bodily_function_date AS log_date, date_created, date_updated ${showDeleted ? ", bodily_function.date_archived" : ""}
+        FROM bodily_function 
+        JOIN function ON bodily_function.function_id = function.id 
+        WHERE date_archived ${showDeletedString}  AND pet_id = $1`, [petId]),
+      pool.query(`
+        SELECT medication.id, medication_type_id, name, dosage_id, dosage.unit, dosage, medication_date AS log_date, date_created, date_updated ${showDeleted ? ", medication.date_archived" : ""}
+        FROM medication 
+        JOIN medication_type ON medication.medication_type_id = medication_type.id 
+        JOIN dosage ON medication.dosage_id = dosage.id
+        WHERE medication.date_archived ${showDeletedString}  AND medication.pet_id = $1`, [petId]),
+      pool.query(`
+				SELECT weight_stat.stat_id, stat.description, 'Weight' AS subcategory, weight_stat.id AS weight_stat_id, weight_stat.weight_id, weight.unit, weight, stat.stat_date AS log_date, stat.date_created, stat.date_updated FROM weight_stat
+        JOIN stat ON weight_stat.stat_id = stat.id
+        JOIN weight ON weight.id = weight_stat.weight_id
+        WHERE weight_stat.date_archived ${showDeletedString}  AND stat.pet_id = $1`, [petId]),
+			pool.query(`
+				SELECT glucose_stat.stat_id, stat.description, 'Glucose' AS subcategory, glucose_stat.id AS glucose_stat_id, glucose_stat.glucose_id, glucose.unit, glucose_level, stat.stat_date AS log_date, stat.date_created, stat.date_updated FROM glucose_stat
+        JOIN stat ON glucose_stat.stat_id = stat.id
+        JOIN glucose ON glucose.id = glucose_stat.glucose_id
+        WHERE glucose_stat.date_archived ${showDeletedString}  AND stat.pet_id = $1`, [petId]),
+      pool.query(`
+        SELECT heart_rate_stat.stat_id, stat.description, 'Heart Rate' AS subcategory, heart_rate_stat.id AS heart_rate_stat_id, heart_rate_stat.beats_per_minute, stat.stat_date AS log_date, stat.date_created, stat.date_updated FROM heart_rate_stat
+        JOIN stat ON heart_rate_stat.stat_id = stat.id
+        WHERE heart_rate_stat.date_archived ${showDeletedString}  AND stat.pet_id = $1`, [petId]),
+      pool.query(`
+        SELECT respiratory_rate_stat.stat_id, stat.description, 'Respiratory Rate' AS subcategory, respiratory_rate_stat.id AS respiratory_rate_stat_id, respiratory_rate_stat.breaths_per_minute, stat.stat_date AS log_date, stat.date_created, stat.date_updated FROM respiratory_rate_stat
+        JOIN stat ON respiratory_rate_stat.stat_id = stat.id
+        WHERE respiratory_rate_stat.date_archived ${showDeletedString}  AND stat.pet_id = $1`, [petId]),
+      pool.query(`
+        SELECT other_stat.stat_id, stat.description, 'Other' AS subcategory, other_stat.id AS other_stat_id, other_stat.note, stat.stat_date AS log_date, stat.date_created, stat.date_updated FROM other_stat
+        JOIN stat ON other_stat.stat_id = stat.id
+        WHERE other_stat.date_archived ${showDeletedString}  AND stat.pet_id = $1`, [petId])
+    ]);
+    const result = [
+      ...activities.rows,
+      ...symptoms.rows,
+      ...bodilyFunctions.rows,
+      ...medications.rows,
+      ...weights.rows,
+      ...glucose.rows,
+      ...heartRate.rows,
+      ...respiratoryRate.rows,
+      ...other.rows
+    ];
+
+    result.sort((a, b) => b.log_date - a.log_date);
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+});
+
 
 export default router;
