@@ -14,6 +14,9 @@ const NavBar = ({
   const navigate = useNavigate();
   const location = useLocation();
   const [displayName, setDisplayName] = useState(username);
+  const [userAvatar, setUserAvatar] = useState(null);
+  const [userInitial, setUserInitial] = useState((username?.[0] || 'U').toUpperCase());
+  const [userEmail, setUserEmail] = useState('');
   const dropdownRef = useRef(null);
 
   const handleNavigate = (path) => {
@@ -39,7 +42,7 @@ const NavBar = ({
     };
   }, []);
 
-  // Fetch authenticated user to display username in the navbar
+  // Fetch authenticated user to display username and avatar in the navbar
   useEffect(() => {
     const fetchAuthStatus = async () => {
       try {
@@ -48,11 +51,49 @@ const NavBar = ({
         });
         const data = await res.json();
         if (data?.isAuthenticated && data?.user) {
-          const name = data.user.username || data.user.name || data.user.email || username;
+          const user = data.user;
+          const name = user.username || user.name || user.email || username;
           setDisplayName(name);
+          const sourceForInitial = user.email || name || username;
+          setUserInitial((sourceForInitial?.[0] || 'U').toUpperCase());
+          setUserEmail(user.email || '');
+
+          // Try multiple common fields/locations for a profile photo from Passport providers
+          const candidates = [
+            user.profile_picture,
+            user.picture,
+            user.photo,
+            user.avatar,
+            user.image,
+            user.profilePhoto,
+            user.pictureUrl,
+            user.profile_image_url,
+            user._json && user._json.picture,
+            Array.isArray(user.photos) && user.photos[0] && user.photos[0].value,
+          ].filter(Boolean);
+
+          let photo = candidates.length ? String(candidates[0]) : null;
+
+          // If it's a Google photo, ensure a reasonable size parameter
+          if (photo && /googleusercontent\.com/.test(photo)) {
+            // Some URLs use "=s96-c" or ",s96" styles; keep if present, else add size
+            if (!/[?&]sz=/.test(photo) && !/=s\d+/.test(photo)) {
+              photo += (photo.includes('?') ? '&' : '?') + 'sz=64';
+            }
+          }
+
+          // Debug: surface which field we're using (dev only)
+          if (import.meta?.env?.MODE !== 'production') {
+            // eslint-disable-next-line no-console
+            console.log('[NavBar] auth status user:', user);
+            // eslint-disable-next-line no-console
+            console.log('[NavBar] derived avatar url:', photo);
+          }
+
+          if (photo) setUserAvatar(photo);
         }
       } catch (e) {
-        // silently ignore; keep default username
+        // silently ignore; keep defaults
       }
     };
     fetchAuthStatus();
@@ -117,7 +158,27 @@ const NavBar = ({
 
       {/* Right: Username and Dropdown */}
       <div className="relative flex items-center gap-2" ref={dropdownRef}>
-        <span className="text-white font-medium">{displayName}</span>
+        {userAvatar ? (
+          <img
+            src={userAvatar}
+            alt="User"
+            className="w-8 h-8 rounded-full object-cover border border-white/20"
+            referrerPolicy="no-referrer"
+            title={userEmail || displayName}
+            onLoad={() => {
+              if (import.meta?.env?.MODE !== 'production') {
+                // eslint-disable-next-line no-console
+                console.log('[NavBar] avatar loaded OK');
+              }
+            }}
+            onError={() => setUserAvatar(null)}
+          />
+        ) : (
+          <div className="w-8 h-8 rounded-full bg-white/20 text-white flex items-center justify-center font-semibold" title={userEmail || displayName}>
+            {userInitial}
+          </div>
+        )}
+        <span className="text-white font-medium" title={userEmail || displayName} aria-label={userEmail || displayName}>{displayName}</span>
         <button
           onClick={() => setDropdownOpen(v => !v)}
           className="flex items-center p-2 rounded-full hover:bg-[#3A5A3A]"

@@ -64,23 +64,41 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        // Check if user already exists
+        // derive a photo URL from Google profile, if available
+        const photoUrl =
+          (Array.isArray(profile.photos) && profile.photos[0] && profile.photos[0].value) ||
+          (profile._json && profile._json.picture) ||
+          null;
+
+        // Check if user already exists (by email)
         const result = await pool.query(
           'SELECT * FROM "user" WHERE email = $1',
           [profile.emails[0].value]
         );
 
         if (result.rows.length > 0) {
-          return done(null, result.rows[0]);
+          const existingUser = result.rows[0];
+
+          // If we have a Google photo and it's not stored yet (or has changed), update it
+          if (photoUrl && existingUser.profile_picture !== photoUrl) {
+            const updated = await pool.query(
+              'UPDATE "user" SET profile_picture = $1, username = COALESCE($2, username), date_updated = NOW() WHERE id = $3 RETURNING *',
+              [photoUrl, profile.displayName || null, existingUser.id]
+            );
+            return done(null, updated.rows[0]);
+          }
+
+          return done(null, existingUser);
         }
 
-        // If user doesn't exist, create new user
+        // If user doesn't exist, create new user with Google marker in password_hashed and store photo
         const newUser = await pool.query(
-          'INSERT INTO "user" (email, username, password_hashed, date_created, date_updated) VALUES ($1, $2, $3, NOW(), NOW()) RETURNING *',
+          'INSERT INTO "user" (email, username, password_hashed, profile_picture, date_created, date_updated) VALUES ($1, $2, $3, $4, NOW(), NOW()) RETURNING *',
           [
             profile.emails[0].value,
             profile.displayName,
             'google-oauth-' + profile.id, // Using Google ID as a placeholder for password
+            photoUrl,
           ]
         );
 
