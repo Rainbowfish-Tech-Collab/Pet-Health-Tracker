@@ -14,7 +14,7 @@ import './App.css';
  *
  * How it works:
  * - Calls GET http://localhost:3000/auth/status with credentials so the server can read the session cookie.
- * - While the request is in-flight we render nothing (you can swap this for a spinner).
+ * - While the request is in-flight we render a loading spinner.
  * - If not authenticated, we redirect to /login using <Navigate replace /> to avoid polluting history.
  * - If authenticated, we render the protected children.
  */
@@ -45,7 +45,14 @@ function ProtectedRoute({ children }) {
   }, []);
 
   // Optionally render a spinner or skeleton while verifying auth
-  if (status.loading) return null;
+  if (status.loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="h-10 w-10 border-4 border-[#E7F2E7] border-t-[#294B29] rounded-full animate-spin" aria-label="Loading" />
+        <span className="sr-only">Checking authentication…</span>
+      </div>
+    );
+  }
 
   // Not authenticated -> redirect to login
   if (!status.isAuthenticated) return <Navigate to="/login" replace />;
