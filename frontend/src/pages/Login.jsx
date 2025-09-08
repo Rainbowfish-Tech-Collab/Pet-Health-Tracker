@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import logo from '../assets/fetched-logo.svg';
 
@@ -10,6 +10,19 @@ const Login = () => {
   const [emailWarning, setEmailWarning] = useState('');
   const navigate = useNavigate();
 
+  useEffect(() => {
+      fetch("http://localhost:3000/auth/status", {
+        credentials: "include", //send cookies with the request
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data.user);
+          if (data.isAuthenticated) {
+            navigate('/'); // Redirect to home if already logged in
+          }
+        });
+    }, []);
+  
   const validateEmail = (email) => {
     // Simple email regex
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);

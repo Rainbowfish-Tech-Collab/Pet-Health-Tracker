@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "connect": "dotenv -e .env -- sh -c \"$CONNECT\"",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -16,6 +17,7 @@
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.6.0",
+    "react-toastify": "^11.0.5",
     "recharts": "^2.15.3",
     "vite-plugin-svgr": "^4.3.0"
   },

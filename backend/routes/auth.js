@@ -87,10 +87,24 @@ router.get(
 
 // Logout route
 router.get('/logout', (req, res) => {
-  req.logout(() => {
-    res.redirect('/');
+  req.logout((err) => {
+    if (err) {
+      console.error("Logout error:", err);
+      return res.status(500).json({ error: "Logout failed" });
+    }
+    if(req.session){
+      req.session.destroy((err) => {
+        if (err) {
+          console.error("Session destroy error:", err);
+          return res.status(500).json({ error: "Logout failed" });
+        }
+        res.clearCookie('connect.sid');
+        return res.json({ message: "Logout successful" });
+      })
+    } 
   });
 });
+
 
 // Check authentication status
 router.get('/status', (req, res) => {
