@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Logo from '../assets/Logo.svg';
-import { FaHome, FaPlus, FaInfoCircle, FaChevronDown, FaUserCircle, FaListAlt } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const NavBar = ({
@@ -18,6 +17,9 @@ const NavBar = ({
   const [userInitial, setUserInitial] = useState((username?.[0] || 'U').toUpperCase());
   const [userEmail, setUserEmail] = useState('');
   const dropdownRef = useRef(null);
+
+  // Use an inline SVG data URI so we don't rely on any external network request
+  const PET_PLACEHOLDER = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="100%" height="100%" fill="%23E7F2E7"/><g fill="%234A654A"><circle cx="24" cy="28" r="7"/><circle cx="56" cy="28" r="7"/><circle cx="40" cy="22" r="6"/><path d="M40 38c-10 0-18 8-18 18 0 4 3 7 7 7h22c4 0 7-3 7-7 0-10-8-18-18-18z"/></g></svg>';
 
   const handleNavigate = (path) => {
     navigate(path);
@@ -121,11 +123,23 @@ const NavBar = ({
         <div className="flex items-center gap-2">
           {/* Pet profile picture placeholder */}
           <div className="w-10 h-10 rounded-full bg-[#E7F2E7] flex items-center justify-center overflow-hidden">
-            {profilePicUrl ? (
-              <img src={profilePicUrl} alt="Pet" className="w-full h-full object-cover" />
-            ) : (
-              <FaUserCircle className="text-[#4A654A] text-2xl" />
-            )}
+            {(() => {
+              const selected = pets.find(p => String(p.id) === String(selectedPet));
+              const petName = selected?.name || 'Pet';
+              const petPhoto = selected?.photoUrl || profilePicUrl || PET_PLACEHOLDER;
+              return (
+                <img
+                  src={petPhoto}
+                  alt={petName}
+                  title={petName}
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    e.currentTarget.src = PET_PLACEHOLDER;
+                  }}
+                />
+              );
+            })()}
           </div>
           {/* Pet selector */}
           <select
@@ -143,16 +157,20 @@ const NavBar = ({
       {/* Center: Navigation Buttons */}
       <div className="flex gap-6">
         <button onClick={() => handleNavigate('/')} className={`flex items-center gap-2 font-semibold hover:text-[#FFD700] ${location.pathname === '/' ? 'text-[#FFD700]' : 'text-white'}`} aria-current={location.pathname === '/' ? 'page' : undefined}>
-          <FaHome className="text-white" /> Home
+          <span className="material-symbols-outlined">home</span>
+          <span>Home</span>
         </button>
         <button onClick={() => handleNavigate('/pet-data-log')} className={`flex items-center gap-2 font-semibold hover:text-[#FFD700] ${location.pathname === '/pet-data-log' ? 'text-[#FFD700]' : 'text-white'}`} aria-current={location.pathname === '/pet-data-log' ? 'page' : undefined}>
-          <FaListAlt className="text-white" /> Full Data Log
+          <span className="material-symbols-outlined">list</span>
+          <span>Full Data Log</span>
         </button>
         <button onClick={() => handleNavigate('/add-entry')} className={`flex items-center gap-2 font-semibold hover:text-[#FFD700] ${location.pathname === '/add-entry' ? 'text-[#FFD700]' : 'text-white'}`} aria-current={location.pathname === '/add-entry' ? 'page' : undefined}>
-          <FaPlus className="text-white" /> New Entry
+          <span className="material-symbols-outlined">add</span>
+          <span>New Entry</span>
         </button>
         <button onClick={() => handleNavigate('/about')} className={`flex items-center gap-2 font-semibold hover:text-[#FFD700] ${location.pathname === '/about' ? 'text-[#FFD700]' : 'text-white'}`} aria-current={location.pathname === '/about' ? 'page' : undefined}>
-          <FaInfoCircle className="text-white" /> About
+          <span className="material-symbols-outlined">info</span>
+          <span>About</span>
         </button>
       </div>
 
@@ -186,7 +204,7 @@ const NavBar = ({
           aria-expanded={dropdownOpen}
           aria-label="User menu"
         >
-          <FaChevronDown className="text-white" />
+          <span className="material-symbols-outlined text-white">expand_more</span>
         </button>
         {dropdownOpen && (
           <div className="absolute right-0 top-full mt-2 bg-white border border-[#E8E6E1] rounded-lg shadow-lg z-10 min-w-[200px] flex flex-col gap-2 p-3" role="menu">
