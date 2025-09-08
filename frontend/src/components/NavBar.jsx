@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Logo from '../assets/Logo.svg';
 import { FaHome, FaPlus, FaInfoCircle, FaChevronDown, FaUserCircle, FaListAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +12,40 @@ const NavBar = ({
 }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
+  const [displayName, setDisplayName] = useState(username);
+
+  // Fetch authenticated user to display username in the navbar
+  useEffect(() => {
+    const fetchAuthStatus = async () => {
+      try {
+        const res = await fetch('http://localhost:3000/auth/status', {
+          credentials: 'include',
+        });
+        const data = await res.json();
+        if (data?.isAuthenticated && data?.user) {
+          const name = data.user.username || data.user.name || data.user.email || username;
+          setDisplayName(name);
+        }
+      } catch (e) {
+        // silently ignore; keep default username
+      }
+    };
+    fetchAuthStatus();
+  }, []);
+
+  // Logs out the user via Passport backend and redirects to login page
+  const handleLogout = async () => {
+    try {
+      await fetch('http://localhost:3000/auth/logout', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      setDropdownOpen(false);
+      navigate('/login');
+    } catch (err) {
+      alert('Logout failed. Please try again.');
+    }
+  };
 
   return (
     <nav className="w-full flex items-center justify-between px-6 py-3 bg-[#294B29]">
@@ -58,7 +92,7 @@ const NavBar = ({
 
       {/* Right: Username and Dropdown */}
       <div className="relative flex items-center gap-2">
-        <span className="text-white font-medium">{username}</span>
+        <span className="text-white font-medium">{displayName}</span>
         <button
           onClick={() => setDropdownOpen(v => !v)}
           className="flex items-center p-2 rounded-full hover:bg-[#3A5A3A]"
@@ -86,7 +120,7 @@ const NavBar = ({
               Account information <span className='ml-2'>&#8250;</span>
             </button>
             <button
-              onClick={() => { setDropdownOpen(false); /* Add logout logic here */ }}
+              onClick={handleLogout}
               className="w-full text-left px-4 py-2 bg-[#D97706] text-white rounded-lg hover:bg-[#B45309] transition-colors font-semibold"
             >
               Log out
