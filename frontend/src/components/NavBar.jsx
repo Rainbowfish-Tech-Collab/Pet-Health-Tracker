@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Logo from '../assets/Logo.svg';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 
 const NavBar = ({
   pets = [],
@@ -16,6 +17,7 @@ const NavBar = ({
   const [userAvatar, setUserAvatar] = useState(null);
   const [userInitial, setUserInitial] = useState((username?.[0] || 'U').toUpperCase());
   const [userEmail, setUserEmail] = useState('');
+  const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
   const dropdownRef = useRef(null);
 
   // Use an inline SVG data URI so we don't rely on any external network request
@@ -25,6 +27,33 @@ const NavBar = ({
     navigate(path);
     setDropdownOpen(false);
   };
+
+  // Prevent dropdown from instantly closing due to overlay/document handlers
+  const toggleDropdown = (e) => {
+    e?.stopPropagation?.();
+    setDropdownOpen(v => !v);
+  };
+
+  // Position the dropdown portal relative to the trigger
+  useEffect(() => {
+    const compute = () => {
+      if (!dropdownOpen || !dropdownRef.current) return;
+      const rect = dropdownRef.current.getBoundingClientRect();
+      setMenuPos({
+        top: rect.bottom + window.scrollY + 8,
+        right: window.innerWidth - rect.right + window.scrollX,
+      });
+    };
+    compute();
+    if (dropdownOpen) {
+      window.addEventListener('resize', compute);
+      window.addEventListener('scroll', compute, true);
+    }
+    return () => {
+      window.removeEventListener('resize', compute);
+      window.removeEventListener('scroll', compute, true);
+    };
+  }, [dropdownOpen]);
 
   // Close dropdown when clicking outside or pressing Escape
   useEffect(() => {
@@ -116,13 +145,13 @@ const NavBar = ({
   };
 
   return (
-    <nav className="w-full flex items-center justify-between px-6 py-3 bg-[#294B29]">
+    <nav className="relative z-30 w-full flex items-center justify-between px-3 sm:px-6 py-2 sm:py-3 bg-[#294B29] overflow-x-hidden">
       {/* Left: Logo and Pet Dropdown */}
-      <div className="flex items-center gap-4">
-        <img src={Logo} alt="Logo" className="w-14 h-14 object-contain rounded-lg" style={{ backgroundColor: '#CFE0CE' }} />
-        <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+        <img src={Logo} alt="Logo" className="w-10 h-10 sm:w-14 sm:h-14 object-contain rounded-lg" style={{ backgroundColor: '#CFE0CE' }} />
+        <div className="flex items-center gap-2 min-w-0">
           {/* Pet profile picture placeholder */}
-          <div className="w-10 h-10 rounded-full bg-[#E7F2E7] flex items-center justify-center overflow-hidden">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#E7F2E7] flex items-center justify-center overflow-hidden flex-shrink-0">
             {(() => {
               const selected = pets.find(p => String(p.id) === String(selectedPet));
               const petName = selected?.name || 'Pet';
@@ -145,7 +174,7 @@ const NavBar = ({
           <select
             value={selectedPet}
             onChange={e => setSelectedPet(e.target.value)}
-            className="py-2 px-3 rounded-xl border border-[#E8E6E1] bg-white text-[#294B29] text-base appearance-none cursor-pointer hover:border-[#4A654A] focus:outline-none focus:border-[#4A654A]"
+            className="py-1.5 px-2 rounded-xl border border-[#E8E6E1] bg-white text-[#294B29] text-sm sm:text-base appearance-none cursor-pointer hover:border-[#4A654A] focus:outline-none focus:border-[#4A654A] max-w-[120px] sm:max-w-none truncate"
           >
             {pets.map((pet, idx) => (
               <option key={idx} value={pet.id}>{pet.name}</option>
@@ -154,35 +183,43 @@ const NavBar = ({
         </div>
       </div>
 
-      {/* Center: Navigation Buttons */}
-      <div className="flex gap-6">
-        <button onClick={() => handleNavigate('/')} className={`flex items-center gap-2 font-semibold hover:text-[#FFD700] ${location.pathname === '/' ? 'text-[#FFD700]' : 'text-white'}`} aria-current={location.pathname === '/' ? 'page' : undefined}>
-          <span className="material-symbols-outlined">home</span>
-          <span>Home</span>
+      {/* Center: Navigation Buttons (hidden on xs to avoid duplication with quick action) */}
+      <div className="hidden sm:flex gap-4">
+        <button onClick={() => handleNavigate('/')} className={`flex items-center gap-1 sm:gap-2 font-semibold hover:text-[#FFD700] ${location.pathname === '/' ? 'text-[#FFD700]' : 'text-white'} text-sm sm:text-base`} aria-current={location.pathname === '/' ? 'page' : undefined}>
+          <span className="material-symbols-outlined leading-none align-middle text-[20px] sm:text-[24px]">home</span>
+          <span className="hidden sm:inline">Home</span>
         </button>
-        <button onClick={() => handleNavigate('/pet-data-log')} className={`flex items-center gap-2 font-semibold hover:text-[#FFD700] ${location.pathname === '/pet-data-log' ? 'text-[#FFD700]' : 'text-white'}`} aria-current={location.pathname === '/pet-data-log' ? 'page' : undefined}>
-          <span className="material-symbols-outlined">list</span>
-          <span>Full Data Log</span>
+        <button onClick={() => handleNavigate('/pet-data-log')} className={`hidden md:flex items-center gap-2 font-semibold hover:text-[#FFD700] ${location.pathname === '/pet-data-log' ? 'text-[#FFD700]' : 'text-white'}`} aria-current={location.pathname === '/pet-data-log' ? 'page' : undefined}>
+          <span className="material-symbols-outlined leading-none align-middle text-[20px] sm:text-[24px]">list</span>
+          <span className="hidden sm:inline">Full Data Log</span>
         </button>
-        <button onClick={() => handleNavigate('/add-entry')} className={`flex items-center gap-2 font-semibold hover:text-[#FFD700] ${location.pathname === '/add-entry' ? 'text-[#FFD700]' : 'text-white'}`} aria-current={location.pathname === '/add-entry' ? 'page' : undefined}>
-          <span className="material-symbols-outlined">add</span>
-          <span>New Entry</span>
+        <button onClick={() => handleNavigate('/add-entry')} className={`flex items-center gap-1 sm:gap-2 font-semibold hover:text-[#FFD700] ${location.pathname === '/add-entry' ? 'text-[#FFD700]' : 'text-white'} text-sm sm:text-base`} aria-current={location.pathname === '/add-entry' ? 'page' : undefined}>
+          <span className="material-symbols-outlined leading-none align-middle text-[20px] sm:text-[24px]">add</span>
+          <span className="hidden sm:inline">New Entry</span>
         </button>
-        <button onClick={() => handleNavigate('/about')} className={`flex items-center gap-2 font-semibold hover:text-[#FFD700] ${location.pathname === '/about' ? 'text-[#FFD700]' : 'text-white'}`} aria-current={location.pathname === '/about' ? 'page' : undefined}>
-          <span className="material-symbols-outlined">info</span>
-          <span>About</span>
+        <button onClick={() => handleNavigate('/about')} className={`hidden md:flex items-center gap-2 font-semibold hover:text-[#FFD700] ${location.pathname === '/about' ? 'text-[#FFD700]' : 'text-white'}`} aria-current={location.pathname === '/about' ? 'page' : undefined}>
+          <span className="material-symbols-outlined leading-none align-middle text-[20px] sm:text-[24px]">info</span>
+          <span className="hidden sm:inline">About</span>
+        </button>
+      </div>
+
+      {/* Quick action for very small screens only */}
+      <div className="flex sm:hidden items-center gap-2">
+        <button onClick={() => handleNavigate('/add-entry')} className="text-white hover:text-[#FFD700]" aria-label="New Entry">
+          <span className="material-symbols-outlined leading-none align-middle text-[22px]">add</span>
         </button>
       </div>
 
       {/* Right: Username and Dropdown */}
-      <div className="relative flex items-center gap-2" ref={dropdownRef}>
+      <div className="relative flex items-center gap-1 sm:gap-2" ref={dropdownRef}>
         {userAvatar ? (
           <img
             src={userAvatar}
             alt="User"
-            className="w-8 h-8 rounded-full object-cover border border-white/20"
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border border-white/20"
             referrerPolicy="no-referrer"
             title={userEmail || displayName}
+            onClick={toggleDropdown}
             onLoad={() => {
               if (import.meta?.env?.MODE !== 'production') {
                 // eslint-disable-next-line no-console
@@ -192,51 +229,75 @@ const NavBar = ({
             onError={() => setUserAvatar(null)}
           />
         ) : (
-          <div className="w-8 h-8 rounded-full bg-white/20 text-white flex items-center justify-center font-semibold" title={userEmail || displayName}>
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/20 text-white flex items-center justify-center font-semibold cursor-pointer" title={userEmail || displayName} onClick={toggleDropdown}>
             {userInitial}
           </div>
         )}
-        <span className="text-white font-medium" title={userEmail || displayName} aria-label={userEmail || displayName}>{displayName}</span>
+        <span className="hidden sm:inline text-white font-medium" title={userEmail || displayName} aria-label={userEmail || displayName}>{displayName}</span>
         <button
-          onClick={() => setDropdownOpen(v => !v)}
-          className="flex items-center p-2 rounded-full hover:bg-[#3A5A3A]"
+          onClick={toggleDropdown}
+          className="hidden sm:flex items-center p-2 rounded-full hover:bg-[#3A5A3A]"
           aria-haspopup="menu"
           aria-expanded={dropdownOpen}
           aria-label="User menu"
         >
-          <span className="material-symbols-outlined text-white">expand_more</span>
+          <span className="material-symbols-outlined leading-none align-middle text-white text-[20px] sm:text-[24px]">expand_more</span>
         </button>
-        {dropdownOpen && (
-          <div className="absolute right-0 top-full mt-2 bg-white border border-[#E8E6E1] rounded-lg shadow-lg z-10 min-w-[200px] flex flex-col gap-2 p-3" role="menu">
-            <button
-              onClick={() => handleNavigate('/add-pet')}
-              className="w-full text-left px-4 py-2 bg-[#4A654A] text-white rounded-lg hover:bg-[#3D7A3D] transition-colors flex justify-between items-center"
-              role="menuitem"
+        {dropdownOpen && createPortal(
+          <>
+            <div className="fixed inset-0 z-[998]" onMouseDown={() => setDropdownOpen(false)} aria-hidden="true" />
+            <div
+              className="fixed z-[999] bg-white border border-[#E8E6E1] rounded-lg shadow-lg min-w-[200px] flex flex-col gap-2 p-3"
+              style={{ top: `${menuPos.top}px`, right: `${menuPos.right}px` }}
+              role="menu"
+              onMouseDown={(e) => e.stopPropagation()}
             >
-              Add a pet <span className='ml-2'>&#8250;</span>
-            </button>
-            <button
-              onClick={() => handleNavigate('/edit-pet')}
-              className="w-full text-left px-4 py-2 bg-[#4A654A] text-white rounded-lg hover:bg-[#3D7A3D] transition-colors flex justify-between items-center"
-              role="menuitem"
-            >
-              Edit a pet <span className='ml-2'>&#8250;</span>
-            </button>
-            <button
-              onClick={() => handleNavigate('/account-info')}
-              className="w-full text-left px-4 py-2 bg-[#4A654A] text-white rounded-lg hover:bg-[#3D7A3D] transition-colors flex justify-between items-center"
-              role="menuitem"
-            >
-              Account information <span className='ml-2'>&#8250;</span>
-            </button>
-            <button
-              onClick={handleLogout}
-              className="w-full text-left px-4 py-2 bg-[#D97706] text-white rounded-lg hover:bg-[#B45309] transition-colors font-semibold"
-              role="menuitem"
-            >
-              Log out
-            </button>
-          </div>
+              {/* Mobile-only quick links to routes hidden from the top bar on xs */}
+              <button
+                onClick={() => handleNavigate('/pet-data-log')}
+                className="sm:hidden w-full text-left px-4 py-2 rounded-lg hover:bg-[#F3F7F3] text-[#294B29] flex justify-between items-center"
+                role="menuitem"
+              >
+                Full Data Log <span className='ml-2'>&#8250;</span>
+              </button>
+              <button
+                onClick={() => handleNavigate('/about')}
+                className="sm:hidden w-full text-left px-4 py-2 rounded-lg hover:bg-[#F3F7F3] text-[#294B29] flex justify-between items-center"
+                role="menuitem"
+              >
+                About <span className='ml-2'>&#8250;</span>
+              </button>
+              <button
+                onClick={() => handleNavigate('/add-pet')}
+                className="w-full text-left px-4 py-2 bg-[#4A654A] text-white rounded-lg hover:bg-[#3D7A3D] transition-colors flex justify-between items-center"
+                role="menuitem"
+              >
+                Add a pet <span className='ml-2'>&#8250;</span>
+              </button>
+              <button
+                onClick={() => handleNavigate('/edit-pet')}
+                className="w-full text-left px-4 py-2 bg-[#4A654A] text-white rounded-lg hover:bg-[#3D7A3D] transition-colors flex justify-between items-center"
+                role="menuitem"
+              >
+                Edit a pet <span className='ml-2'>&#8250;</span>
+              </button>
+              <button
+                onClick={() => handleNavigate('/account-info')}
+                className="w-full text-left px-4 py-2 bg-[#4A654A] text-white rounded-lg hover:bg-[#3D7A3D] transition-colors flex justify-between items-center"
+                role="menuitem"
+              >
+                Account information <span className='ml-2'>&#8250;</span>
+              </button>
+              <button
+                onClick={handleLogout}
+                className="w-full text-left px-4 py-2 bg-[#D97706] text-white rounded-lg hover:bg-[#B45309] transition-colors font-semibold"
+                role="menuitem"
+              >
+                Log out
+              </button>
+            </div>
+          </>,
+          document.body
         )}
       </div>
     </nav>

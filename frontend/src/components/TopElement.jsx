@@ -1,6 +1,10 @@
 //html and styling for a top element absolute positioned on a mobile container
 import '../App.css';
+// Enable programmatic navigation from within this component via React Router
+import { useNavigate } from 'react-router-dom';
 const TopElement = ({ title, children }) => {
+  // Obtain the navigate function; allows us to imperatively change routes
+  const navigate = useNavigate();
   return (
     <div className = "absolute top-0 flex justify-between w-full mb-6 p-2 px-4 pt-10 bg-[#FFF9DD] border-b border-gray-300 shadow-md shadow-gray-40">
       <span 
