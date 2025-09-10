@@ -17,8 +17,10 @@ const NavBar = ({
   const [userAvatar, setUserAvatar] = useState(null);
   const [userInitial, setUserInitial] = useState((username?.[0] || 'U').toUpperCase());
   const [userEmail, setUserEmail] = useState('');
-  const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
-  const dropdownRef = useRef(null);
+  const [menuPos, setMenuPos] = useState({ top: 0, right: 0, left: null });
+  const [menuType, setMenuType] = useState(null); // 'user' | 'pet'
+  const dropdownRef = useRef(null); // right (user) anchor
+  const petAnchorRef = useRef(null); // left (pet) anchor
 
   // Use an inline SVG data URI so we don't rely on any external network request
   const PET_PLACEHOLDER = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="100%" height="100%" fill="%23E7F2E7"/><g fill="%234A654A"><circle cx="24" cy="28" r="7"/><circle cx="56" cy="28" r="7"/><circle cx="40" cy="22" r="6"/><path d="M40 38c-10 0-18 8-18 18 0 4 3 7 7 7h22c4 0 7-3 7-7 0-10-8-18-18-18z"/></g></svg>';
@@ -29,20 +31,34 @@ const NavBar = ({
   };
 
   // Prevent dropdown from instantly closing due to overlay/document handlers
-  const toggleDropdown = (e) => {
+  const toggleUserMenu = (e) => {
     e?.stopPropagation?.();
-    setDropdownOpen(v => !v);
+    setMenuType('user');
+    setDropdownOpen(prev => menuType === 'user' ? !prev : true);
+  };
+
+  const togglePetMenu = (e) => {
+    e?.stopPropagation?.();
+    setMenuType('pet');
+    setDropdownOpen(prev => menuType === 'pet' ? !prev : true);
   };
 
   // Position the dropdown portal relative to the trigger
   useEffect(() => {
     const compute = () => {
-      if (!dropdownOpen || !dropdownRef.current) return;
-      const rect = dropdownRef.current.getBoundingClientRect();
-      setMenuPos({
-        top: rect.bottom + window.scrollY + 8,
-        right: window.innerWidth - rect.right + window.scrollX,
-      });
+      // Prefer pet anchor for pet menu if it's visible (not display:none)
+      const petRect = petAnchorRef.current?.getBoundingClientRect?.();
+      const hasPetAnchor = menuType === 'pet' && petRect && petRect.width > 0 && petRect.height > 0;
+      const anchor = hasPetAnchor ? petAnchorRef.current : dropdownRef.current;
+      if (!dropdownOpen || !anchor) return;
+      const rect = anchor.getBoundingClientRect();
+      if (hasPetAnchor) {
+        // Align from the left of the pet avatar; clamp to 8px from viewport edge
+        setMenuPos({ top: rect.bottom + 8, left: Math.max(8, rect.left), right: null });
+      } else {
+        // Align to the right of the user cluster; clamp to 8px from viewport edge
+        setMenuPos({ top: rect.bottom + 8, right: Math.max(8, window.innerWidth - rect.right), left: null });
+      }
     };
     compute();
     if (dropdownOpen) {
@@ -53,7 +69,7 @@ const NavBar = ({
       window.removeEventListener('resize', compute);
       window.removeEventListener('scroll', compute, true);
     };
-  }, [dropdownOpen]);
+  }, [dropdownOpen, menuType]);
 
   // Close dropdown when clicking outside or pressing Escape
   useEffect(() => {
@@ -151,7 +167,7 @@ const NavBar = ({
         <img src={Logo} alt="Logo" className="w-10 h-10 sm:w-14 sm:h-14 object-contain rounded-lg" style={{ backgroundColor: '#CFE0CE' }} />
         <div className="flex items-center gap-2 min-w-0">
           {/* Pet profile picture placeholder */}
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#E7F2E7] flex items-center justify-center overflow-hidden flex-shrink-0">
+          <div className="hidden md:flex w-10 h-10 rounded-full bg-[#E7F2E7] items-center justify-center overflow-hidden flex-shrink-0 cursor-default" ref={petAnchorRef} aria-hidden="true">
             {(() => {
               const selected = pets.find(p => String(p.id) === String(selectedPet));
               const petName = selected?.name || 'Pet';
@@ -161,7 +177,7 @@ const NavBar = ({
                   src={petPhoto}
                   alt={petName}
                   title={petName}
-                  className="w-full h-full object-cover"
+                  className="hidden md:block w-full h-full object-cover"
                   referrerPolicy="no-referrer"
                   onError={(e) => {
                     e.currentTarget.src = PET_PLACEHOLDER;
@@ -203,10 +219,16 @@ const NavBar = ({
         </button>
       </div>
 
-      {/* Quick action for very small screens only */}
+      {/* Quick action for very small screens only (clear affordance) */}
       <div className="flex sm:hidden items-center gap-2">
-        <button onClick={() => handleNavigate('/add-entry')} className="text-white hover:text-[#FFD700]" aria-label="New Entry">
-          <span className="material-symbols-outlined leading-none align-middle text-[22px]">add</span>
+        <button
+          onClick={() => handleNavigate('/add-entry')}
+          className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/10 border border-white/20 text-white text-xs font-semibold hover:bg-[#3A5A3A]"
+          aria-label="Add new entry"
+          title="Add new entry"
+        >
+          <span className="material-symbols-outlined leading-none align-middle text-[18px]">add</span>
+          <span className="leading-none">New Entry</span>
         </button>
       </div>
 
@@ -219,7 +241,7 @@ const NavBar = ({
             className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border border-white/20"
             referrerPolicy="no-referrer"
             title={userEmail || displayName}
-            onClick={toggleDropdown}
+            onClick={toggleUserMenu}
             onLoad={() => {
               if (import.meta?.env?.MODE !== 'production') {
                 // eslint-disable-next-line no-console
@@ -229,13 +251,13 @@ const NavBar = ({
             onError={() => setUserAvatar(null)}
           />
         ) : (
-          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/20 text-white flex items-center justify-center font-semibold cursor-pointer" title={userEmail || displayName} onClick={toggleDropdown}>
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/20 text-white flex items-center justify-center font-semibold cursor-pointer" title={userEmail || displayName} onClick={toggleUserMenu}>
             {userInitial}
           </div>
         )}
         <span className="hidden sm:inline text-white font-medium" title={userEmail || displayName} aria-label={userEmail || displayName}>{displayName}</span>
         <button
-          onClick={toggleDropdown}
+          onClick={toggleUserMenu}
           className="hidden sm:flex items-center p-2 rounded-full hover:bg-[#3A5A3A]"
           aria-haspopup="menu"
           aria-expanded={dropdownOpen}
@@ -247,54 +269,93 @@ const NavBar = ({
           <>
             <div className="fixed inset-0 z-[998]" onMouseDown={() => setDropdownOpen(false)} aria-hidden="true" />
             <div
-              className="fixed z-[999] bg-white border border-[#E8E6E1] rounded-lg shadow-lg min-w-[200px] flex flex-col gap-2 p-3"
-              style={{ top: `${menuPos.top}px`, right: `${menuPos.right}px` }}
+              className="fixed z-[999] bg-white border border-[#E8E6E1] rounded-lg shadow-lg min-w-[220px] max-w-[92vw] flex flex-col gap-2 p-3"
+              style={{ top: `${menuPos.top}px`, ...(menuPos.left != null ? { left: `${menuPos.left}px` } : { right: `${menuPos.right}px` }) }}
               role="menu"
               onMouseDown={(e) => e.stopPropagation()}
             >
-              {/* Mobile-only quick links to routes hidden from the top bar on xs */}
-              <button
-                onClick={() => handleNavigate('/pet-data-log')}
-                className="sm:hidden w-full text-left px-4 py-2 rounded-lg hover:bg-[#F3F7F3] text-[#294B29] flex justify-between items-center"
-                role="menuitem"
-              >
-                Full Data Log <span className='ml-2'>&#8250;</span>
-              </button>
-              <button
-                onClick={() => handleNavigate('/about')}
-                className="sm:hidden w-full text-left px-4 py-2 rounded-lg hover:bg-[#F3F7F3] text-[#294B29] flex justify-between items-center"
-                role="menuitem"
-              >
-                About <span className='ml-2'>&#8250;</span>
-              </button>
-              <button
-                onClick={() => handleNavigate('/add-pet')}
-                className="w-full text-left px-4 py-2 bg-[#4A654A] text-white rounded-lg hover:bg-[#3D7A3D] transition-colors flex justify-between items-center"
-                role="menuitem"
-              >
-                Add a pet <span className='ml-2'>&#8250;</span>
-              </button>
-              <button
-                onClick={() => handleNavigate('/edit-pet')}
-                className="w-full text-left px-4 py-2 bg-[#4A654A] text-white rounded-lg hover:bg-[#3D7A3D] transition-colors flex justify-between items-center"
-                role="menuitem"
-              >
-                Edit a pet <span className='ml-2'>&#8250;</span>
-              </button>
-              <button
-                onClick={() => handleNavigate('/account-info')}
-                className="w-full text-left px-4 py-2 bg-[#4A654A] text-white rounded-lg hover:bg-[#3D7A3D] transition-colors flex justify-between items-center"
-                role="menuitem"
-              >
-                Account information <span className='ml-2'>&#8250;</span>
-              </button>
-              <button
-                onClick={handleLogout}
-                className="w-full text-left px-4 py-2 bg-[#D97706] text-white rounded-lg hover:bg-[#B45309] transition-colors font-semibold"
-                role="menuitem"
-              >
-                Log out
-              </button>
+              {/* Toggle header: User | Pets */}
+              <div className="flex items-center gap-2 mb-2">
+                <button onClick={() => setMenuType('user')} className={`px-3 py-1 rounded-full text-sm font-medium ${menuType==='user' ? 'bg-[#E7F2E7] text-[#294B29]' : 'text-[#294B29]/70 hover:bg-[#F3F7F3]'}`}>User</button>
+                <button onClick={() => setMenuType('pet')} className={`sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden px-3 py-1 rounded-full text-sm font-medium ${menuType==='pet' ? 'bg-[#E7F2E7] text-[#294B29]' : 'text-[#294B29]/70 hover:bg-[#F3F7F3]'}`}>Pets</button>
+              </div>
+
+              {menuType === 'pet' ? (
+                <div className="max-h-[50vh] overflow-y-auto pr-1">
+                  {pets?.length ? pets.map((pet, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => { setSelectedPet(pet.id); setDropdownOpen(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#F3F7F3] text-left"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-[#E7F2E7] flex items-center justify-center overflow-hidden">
+                        <img
+                          src={pet.photoUrl || 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'80\' height=\'80\' viewBox=\'0 0 80 80\'><rect width=\'100%\' height=\'100%\' fill=\'%23E7F2E7\'/><g fill=\'%234A654A\'><circle cx=\'24\' cy=\'28\' r=\'7\'/><circle cx=\'56\' cy=\'28\' r=\'7\'/><circle cx=\'40\' cy=\'22\' r=\'6\'/><path d=\'M40 38c-10 0-18 8-18 18 0 4 3 7 7 7h22c4 0 7-3 7-7 0-10-8-18-18-18z\'/></g></svg>'}
+                          alt={pet.name}
+                          className="hidden sm:block w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
+                        />
+                      </div>
+                      <span className="text-[#294B29] font-medium">{pet.name}</span>
+                    </button>
+                  )) : (
+                    <div className="px-4 py-2 text-sm text-[#6B7D6B]">No pets yet</div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {/* Mobile-only quick links hidden from top bar on xs */}
+                  <button
+                    onClick={() => handleNavigate('/pet-data-log')}
+                    className="sm:hidden w-full text-left px-4 py-2 rounded-lg hover:bg-[#F3F7F3] text-[#294B29] flex justify-between items-center"
+                    role="menuitem"
+                  >
+                    Full Data Log <span className='ml-2'>&#8250;</span>
+                  </button>
+                  <button
+                    onClick={() => handleNavigate('/about')}
+                    className="sm:hidden w-full text-left px-4 py-2 rounded-lg hover:bg-[#F3F7F3] text-[#294B29] flex justify-between items-center"
+                    role="menuitem"
+                  >
+                    About <span className='ml-2'>&#8250;</span>
+                  </button>
+                  <button
+                    onClick={() => handleNavigate('/add-pet')}
+                    className="w-full text-left px-4 py-2 bg-[#4A654A] text-white rounded-lg hover:bg-[#3D7A3D] transition-colors flex justify-between items-center"
+                    role="menuitem"
+                  >
+                    Add a pet <span className='ml-2'>&#8250;</span>
+                  </button>
+                  <button
+                    onClick={() => handleNavigate('/edit-pet')}
+                    className="w-full text-left px-4 py-2 bg-[#4A654A] text-white rounded-lg hover:bg-[#3D7A3D] transition-colors flex justify-between items-center"
+                    role="menuitem"
+                  >
+                    Edit a pet <span className='ml-2'>&#8250;</span>
+                  </button>
+                  <button
+                    onClick={() => handleNavigate('/account-info')}
+                    className="w-full text-left px-4 py-2 bg-[#4A654A] text-white rounded-lg hover:bg-[#3D7A3D] transition-colors flex justify-between items-center"
+                    role="menuitem"
+                  >
+                    Account information <span className='ml-2'>&#8250;</span>
+                  </button>
+                  <button
+                    onClick={() => handleNavigate('/settings')}
+                    className="w-full text-left px-4 py-2 bg-[#4A654A] text-white rounded-lg hover:bg-[#3D7A3D] transition-colors flex justify-between items-center"
+                    role="menuitem"
+                  >
+                    User Preferences <span className='ml-2'>&#8250;</span>
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 bg-[#D97706] text-white rounded-lg hover:bg-[#B45309] transition-colors font-semibold"
+                    role="menuitem"
+                  >
+                    Log out
+                  </button>
+                </div>
+              )}
             </div>
           </>,
           document.body
