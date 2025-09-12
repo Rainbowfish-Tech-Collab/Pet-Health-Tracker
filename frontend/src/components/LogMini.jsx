@@ -19,7 +19,7 @@ const LogMini = ({ date, subcategory, value, unit, description }) => {
       <div className="grid grid-cols-[48%_52%] items-center">
         <div className="text-left">{date}</div>
         <div className = "grid grid-cols-[60%_40%] items-center">
-          <div className="text-right">{subcategory} </div><div className="text-right">{value} {abbreviations(unit)}</div>
+          <div className="pl-2 text-left">{subcategory} </div><div className="text-left">{value} {abbreviations(unit)}</div>
         </div>
         
       </div>

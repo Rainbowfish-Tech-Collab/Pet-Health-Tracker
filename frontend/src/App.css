@@ -79,7 +79,10 @@
   --error: #EB5757;
 }
 
-
+::-webkit-scrollbar { /*remove scrollbar view*/
+  width: 0px;
+  background: transparent;
+}
 
 #account-form input{
   border-color: #355233;
