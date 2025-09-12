@@ -4,13 +4,22 @@ const formatDate = isoString => {
   const date = new Date(isoString);
 
   // Use browser locale (automatically picks user’s settings)
-  return date.toLocaleString(undefined, {
+  
+  // Format date only
+  const datePart = date.toLocaleDateString(undefined, {
     year: "numeric",
-    month: "short",  // "Jan", "Feb"...
+    month: "numeric",
     day: "numeric",
-    hour: "2-digit",
+  });
+
+  // Format time only
+  const timePart = date.toLocaleTimeString(undefined, {
+    hour: "numeric",
     minute: "2-digit",
   });
+
+  
+  return { datePart, timePart }; 
 }
 
 export default formatDate;

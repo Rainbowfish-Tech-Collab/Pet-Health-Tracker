@@ -1,5 +1,6 @@
 import MobileContainer from "../components/MobileContainer";
 import TopElement from "../components/TopElement";
+import MobileContent from "../components/MobileContent";
 import '../App.css';
 import LogMini from "../components/LogMini";
 import { useEffect, useState } from "react";
@@ -25,42 +26,47 @@ const DeletedData = () => {
   const currentLogs = logs.slice(indexOfFirstLog, indexOfLastLog);
   const totalPages = Math.ceil(logs.length / logsPerPage);
 
+  const showTimestamps = JSON.parse(localStorage.getItem("showTimestamps")) ?? true;
   return (
-    <MobileContainer>
+    <MobileContainer > 
       <TopElement title="Deleted Data" />
-      <div className="mt-15" />
+      <MobileContent className = "p-6 pt-2">
+        {currentLogs.map((log) => {
+          const { datePart, timePart } = formatDate(log.date);
 
-      {currentLogs.map((log) => (
-        <LogMini
-          key={log.id}
-          date={formatDate(log.date)}
-          subcategory={log.subcategory}
-          value={log.value}
-          unit={log.unit}
-          description={log.description}
-        />
-      ))}
+          return (
+            <LogMini
+              key={log.id}
+              date={showTimestamps ? `${datePart} - ${timePart}` : datePart}
+              subcategory={log.subcategory}
+              value={log.value}
+              unit={log.unit}
+              description={log.description}
+            />
+          );
+        })}
 
-      {/* Pagination Controls */}
-      <div className="flex justify-center items-center gap-2 mt-4">
-        <button
-          disabled={currentPage === 1}
-          onClick={() => setCurrentPage((p) => p - 1)}
-        >
-          Prev
-        </button>
+        {/* Pagination Controls */}
+        <div className="flex justify-center items-center gap-2 mt-4">
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((p) => p - 1)}
+          >
+            Prev
+          </button>
 
-        <span>
-          Page {currentPage} of {totalPages}
-        </span>
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
 
-        <button
-          disabled={currentPage === totalPages}
-          onClick={() => setCurrentPage((p) => p + 1)}
-        >
-          Next
-        </button>
-      </div>
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((p) => p + 1)}
+          >
+            Next
+          </button>
+        </div>
+      </MobileContent>
     </MobileContainer>
   );
 };

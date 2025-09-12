@@ -218,17 +218,17 @@ router.get('/:petId/logs/:deleted?', async (req, res, next) => {
     const showDeletedString = showDeleted ? "IS NOT NULL" : "IS NULL";
     const [activities, symptoms, bodilyFunctions, medications, weights, glucose, heartRate, respiratoryRate, other] = await Promise.all([
 			pool.query(`
-        SELECT activity.id, activity_type_id, name, duration_in_hours, note, activity_date AS log_date, date_created, date_updated ${showDeleted ? ", activity.date_archived" : ""} 
+        SELECT activity.id, activity_type_id, 'Activity' AS subcategory, name, duration_in_hours, note, activity_date AS log_date, date_created, date_updated ${showDeleted ? ", activity.date_archived" : ""} 
         FROM activity 
         JOIN activity_type ON activity.activity_type_id = activity_type.id 
         WHERE date_archived ${showDeletedString}  AND pet_id = $1`, [petId]),
       pool.query(`
-        SELECT symptom.id, symptom_type_id, name, symptom_other, symptom_description, symptom_date AS log_date, date_created, date_updated ${showDeleted ? ", symptom.date_archived" : ""} 
+        SELECT symptom.id, symptom_type_id, 'Symptom' AS subcategory, name, symptom_other, symptom_description, symptom_date AS log_date, date_created, date_updated ${showDeleted ? ", symptom.date_archived" : ""} 
         FROM symptom 
         JOIN symptom_type ON symptom.symptom_type_id = symptom_type.id 
         WHERE symptom.date_archived ${showDeletedString}  AND symptom.pet_id = $1`, [petId]),
       pool.query(`
-        SELECT bodily_function.id, function_id, name, note, bodily_function_date AS log_date, date_created, date_updated ${showDeleted ? ", bodily_function.date_archived" : ""}
+        SELECT bodily_function.id, function_id, 'Bodily Function' AS subcategory, name, note, bodily_function_date AS log_date, date_created, date_updated ${showDeleted ? ", bodily_function.date_archived" : ""}
         FROM bodily_function 
         JOIN function ON bodily_function.function_id = function.id 
         WHERE date_archived ${showDeletedString}  AND pet_id = $1`, [petId]),

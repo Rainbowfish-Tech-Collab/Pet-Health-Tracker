@@ -1,3 +1,86 @@
+:root {
+  /* Grays */
+  --gray-1: #333333;
+  --gray-2: #4F4F4F;
+  --gray-3: #828282;
+  --gray-4: #BDBDBD;
+  --gray-5: #E0E0E0;
+
+
+  /* Green01 */
+  ---green01-500: #0A1109;
+  ---green01-400: #0E190D;
+  ---green01-300: #0F170E;
+  ---green01-200: #132111;
+  ---green01-100: #1C321A;
+  --green01: #254222;
+  --green01-100: #51684E;
+  --green01-200: #7C8E7A;
+  --green01-300: #A8B3A7;
+  --green01-400: #B9C2B9;
+  --green01-500: #CBD1CA;
+
+  /* Cream */
+  ---cream-500: #201F1B;
+  ---cream-400: #302F28;
+  ---cream-300: #403E35;
+  ---cream-200: #807C6A;
+  ---cream-100: #BFB99F;
+  ---cream: #ECE2B1;
+  --cream-100: #FFF9DD;
+  --cream-200: #FFFAE5;
+  --cream-300: #FFFCEE;
+  --cream-400: #FFFDF1;
+  --cream-500: #FFFDF5;
+
+  /* Green02 */
+  ---green02-500: #191D19;
+  ---green02-400: #262B25;
+  ---green02-300: #323931;
+  ---green02-200: #657D63;
+  ---green02-100: ##98AB94;
+  --green02: #CAE4C5;
+  --green02-100: #D5E9D1;
+  --green02-200: #DFEFDC;
+  --green02-300: #E4F4E8;
+  --green02-400: #EEF6ED;
+  --green02-500: #F2F8F1;
+
+  /* Green03 */
+  ---green03-500: #13190D;
+  ---green03-400: #27331A;
+  ---green03-300: #3A4D26;
+  ---green03-200: #4D6633;
+  ---green03-100: #73994D;
+  --green03: #99CC66;
+  --green03-100: #ADD685;
+  --green03-200: #C2E0A3;
+  --green03-300: #D6EBC2;
+  --green03-400: #DEEFCE;
+  --green03-500: #E6F3DA;
+
+  /* Orange */
+  ---orange-500: #0A1109;
+  ---orange-400: #1F1408;
+  ---orange-300: #3E280F;
+  ---orange-200: #7D501E;
+  ---orange-100: #BB782C;
+  --orange: #F9A03B;
+  --orange-100: #FAB362;
+  --orange-200: #FBC689;
+  --orange-300: #FDD9B1;
+  --orange-400: #FDE1C1;
+  --orange-500: #FEE8D0;
+
+  /* States */
+  --info: #2F80ED;
+  --success: #27AE60;
+  --warning: #E2B93B;
+  --error: #EB5757;
+}
+
+
+
 #account-form input{
   border-color: #355233;
 }

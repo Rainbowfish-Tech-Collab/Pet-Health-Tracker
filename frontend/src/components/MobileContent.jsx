@@ -1,8 +1,8 @@
 import '../App.css';
 
-const MobileContent = ({ children }) => {
+const MobileContent = ({ children, ...props }) => {
   return (
-    <div className="flex flex-col items-center p-6">
+    <div className="flex flex-col items-center p-6" {...props}>
       {children}
     </div>
   )

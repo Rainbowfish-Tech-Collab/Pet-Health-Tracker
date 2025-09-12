@@ -17,7 +17,7 @@ const normalizeLogs = (data) => {
         obj.dosage ??
         obj.duration_in_hours ??
         obj.name ?? // for symptoms & bodily functions
-        obj.note ?? "",
+        (obj.note ? "note" : ""),
       unit,
       description:
         obj.description ||
