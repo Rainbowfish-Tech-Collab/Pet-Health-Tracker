@@ -219,21 +219,27 @@ const NavBar = ({
         </button>
       </div>
 
-      {/* Quick action for very small screens only (clear affordance) */}
-      <div className="flex sm:hidden items-center gap-2">
-        <button
-          onClick={() => handleNavigate('/add-entry')}
-          className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/10 border border-white/20 text-white text-xs font-semibold hover:bg-[#3A5A3A]"
-          aria-label="Add new entry"
-          title="Add new entry"
-        >
-          <span className="material-symbols-outlined leading-none align-middle text-[18px]">add</span>
-          <span className="leading-none">New Entry</span>
-        </button>
-      </div>
-
       {/* Right: Username and Dropdown */}
       <div className="relative flex items-center gap-1 sm:gap-2" ref={dropdownRef}>
+        {/* Mobile: right-side quick icons */}
+        <div className="flex sm:hidden items-center gap-1 mr-1">
+          <button
+            onClick={() => handleNavigate('/add-entry')}
+            className={`p-2 rounded-full hover:bg-[#3A5A3A] ${location.pathname === '/add-entry' ? 'text-[#FFD700]' : 'text-white'}`}
+            aria-label="New Entry"
+            title="New Entry"
+          >
+            <span className="material-symbols-outlined leading-none align-middle text-[22px]">add</span>
+          </button>
+          <button
+            onClick={() => handleNavigate('/pet-data-log')}
+            className={`p-2 rounded-full hover:bg-[#3A5A3A] ${location.pathname === '/pet-data-log' ? 'text-[#FFD700]' : 'text-white'}`}
+            aria-label="Full Data Log"
+            title="Full Data Log"
+          >
+            <span className="material-symbols-outlined leading-none align-middle text-[22px]">list</span>
+          </button>
+        </div>
         {userAvatar ? (
           <img
             src={userAvatar}
