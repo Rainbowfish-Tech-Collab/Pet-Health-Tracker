@@ -160,6 +160,9 @@ const NavBar = ({
     }
   };
 
+  // Selected pet name for display on mobile
+  const selectedPetName = pets.find(p => String(p.id) === String(selectedPet))?.name || 'Pet';
+
   return (
     <nav className="relative z-30 w-full flex items-center justify-between px-3 sm:px-6 py-2 sm:py-3 bg-[#294B29] overflow-x-hidden">
       {/* Left: Logo and Pet Dropdown */}
@@ -186,11 +189,15 @@ const NavBar = ({
               );
             })()}
           </div>
-          {/* Pet selector */}
+          {/* Mobile: show selected pet name */}
+          <span className="block sm:hidden text-white font-semibold truncate max-w-[120px]" title={selectedPetName}>
+            {selectedPetName}
+          </span>
+          {/* Pet selector (hidden on mobile) */}
           <select
             value={selectedPet}
             onChange={e => setSelectedPet(e.target.value)}
-            className="py-1.5 px-2 rounded-xl border border-[#E8E6E1] bg-white text-[#294B29] text-sm sm:text-base appearance-none cursor-pointer hover:border-[#4A654A] focus:outline-none focus:border-[#4A654A] max-w-[120px] sm:max-w-none truncate"
+            className="hidden sm:block py-1.5 px-2 rounded-xl border border-[#E8E6E1] bg-white text-[#294B29] text-sm sm:text-base appearance-none cursor-pointer hover:border-[#4A654A] focus:outline-none focus:border-[#4A654A] max-w-[120px] sm:max-w-none truncate"
           >
             {pets.map((pet, idx) => (
               <option key={idx} value={pet.id}>{pet.name}</option>
@@ -283,7 +290,7 @@ const NavBar = ({
               {/* Toggle header: User | Pets */}
               <div className="flex items-center gap-2 mb-2">
                 <button onClick={() => setMenuType('user')} className={`px-3 py-1 rounded-full text-sm font-medium ${menuType==='user' ? 'bg-[#E7F2E7] text-[#294B29]' : 'text-[#294B29]/70 hover:bg-[#F3F7F3]'}`}>User</button>
-                <button onClick={() => setMenuType('pet')} className={`sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden px-3 py-1 rounded-full text-sm font-medium ${menuType==='pet' ? 'bg-[#E7F2E7] text-[#294B29]' : 'text-[#294B29]/70 hover:bg-[#F3F7F3]'}`}>Pets</button>
+                <button onClick={() => setMenuType('pet')} className={`sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden px-3 py-1 rounded-full text-sm font-medium ${menuType==='pet' ? 'bg-[#E7F2E7] text-[#294B29]' : 'text-[#294B29]/70 hover:bg-[#F3F7F3]'}`}>Pets</button>
               </div>
 
               {menuType === 'pet' ? (
