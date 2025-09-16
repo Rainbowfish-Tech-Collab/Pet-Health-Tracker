@@ -227,15 +227,6 @@ const NavBar = ({
           <span className="material-symbols-outlined leading-none align-middle text-[20px] sm:text-[24px]">add</span>
           <span className="hidden sm:inline">New Entry</span>
         </button>
-        {/* Hidden in header; About moved into user menu */}
-        <button
-          onClick={() => handleNavigate('/about')}
-          className={`hidden md:flex items-center gap-2 font-semibold hover:text-[#FFD700] ${location.pathname === '/about' ? 'text-[#FFD700]' : 'text-white'}`}
-          aria-current={location.pathname === '/about' ? 'page' : undefined}
-        >
-          <span className="material-symbols-outlined leading-none align-middle text-[20px] sm:text-[24px]">info</span>
-          <span className="hidden">About</span>
-        </button>
       </div>
 
       {/* Right: Username and Dropdown */}
