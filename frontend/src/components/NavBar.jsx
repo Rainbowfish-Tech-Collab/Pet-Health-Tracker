@@ -227,9 +227,14 @@ const NavBar = ({
           <span className="material-symbols-outlined leading-none align-middle text-[20px] sm:text-[24px]">add</span>
           <span className="hidden sm:inline">New Entry</span>
         </button>
-        <button onClick={() => handleNavigate('/about')} className={`hidden md:flex items-center gap-2 font-semibold hover:text-[#FFD700] ${location.pathname === '/about' ? 'text-[#FFD700]' : 'text-white'}`} aria-current={location.pathname === '/about' ? 'page' : undefined}>
+        {/* Hidden in header; About moved into user menu */}
+        <button
+          onClick={() => handleNavigate('/about')}
+          className={`hidden md:flex items-center gap-2 font-semibold hover:text-[#FFD700] ${location.pathname === '/about' ? 'text-[#FFD700]' : 'text-white'}`}
+          aria-current={location.pathname === '/about' ? 'page' : undefined}
+        >
           <span className="material-symbols-outlined leading-none align-middle text-[20px] sm:text-[24px]">info</span>
-          <span className="hidden sm:inline">About</span>
+          <span className="hidden">About</span>
         </button>
       </div>
 
@@ -335,7 +340,7 @@ const NavBar = ({
                   </button>
                   <button
                     onClick={() => handleNavigate('/about')}
-                    className="sm:hidden w-full text-left px-4 py-2 rounded-lg hover:bg-[#F3F7F3] text-[#294B29] flex justify-between items-center"
+                    className="w-full text-left px-4 py-2 rounded-lg hover:bg-[#F3F7F3] text-[#294B29] flex justify-between items-center"
                     role="menuitem"
                   >
                     About <span className='ml-2'>&#8250;</span>
