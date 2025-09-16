@@ -170,7 +170,7 @@ const NavBar = ({
         <img src={Logo} alt="Logo" className="w-10 h-10 sm:w-14 sm:h-14 object-contain rounded-lg" style={{ backgroundColor: '#CFE0CE' }} />
         <div className="flex items-center gap-2 min-w-0">
           {/* Pet profile picture placeholder */}
-          <div className="hidden md:flex w-10 h-10 rounded-full bg-[#E7F2E7] items-center justify-center overflow-hidden flex-shrink-0 cursor-default" ref={petAnchorRef} aria-hidden="true">
+          <div className="hidden md:flex w-10 h-10 rounded-full bg-[#E7F2E7] items-center justify-center overflow-hidden flex-shrink-0 cursor-default" aria-hidden="true">
             {(() => {
               const selected = pets.find(p => String(p.id) === String(selectedPet));
               const petName = selected?.name || 'Pet';
@@ -189,10 +189,17 @@ const NavBar = ({
               );
             })()}
           </div>
-          {/* Mobile: show selected pet name */}
-          <span className="block sm:hidden text-white font-semibold truncate max-w-[120px]" title={selectedPetName}>
-            {selectedPetName}
-          </span>
+          {/* Mobile: show selected pet name (clickable to open pet menu) */}
+          <button
+            ref={petAnchorRef}
+            onClick={togglePetMenu}
+            className="sm:hidden flex items-center gap-1 text-white font-semibold truncate max-w-[140px]"
+            aria-haspopup="menu"
+            aria-expanded={dropdownOpen && menuType === 'pet'}
+            title="Select pet"
+          >
+            <span className="truncate">{selectedPetName}</span>
+          </button>
           {/* Pet selector (hidden on mobile) */}
           <select
             value={selectedPet}
@@ -287,12 +294,13 @@ const NavBar = ({
               role="menu"
               onMouseDown={(e) => e.stopPropagation()}
             >
-              {/* Toggle header: User | Pets */}
-              <div className="flex items-center gap-2 mb-2">
-                <button onClick={() => setMenuType('user')} className={`px-3 py-1 rounded-full text-sm font-medium ${menuType==='user' ? 'bg-[#E7F2E7] text-[#294B29]' : 'text-[#294B29]/70 hover:bg-[#F3F7F3]'}`}>User</button>
-                <button onClick={() => setMenuType('pet')} className={`sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden sm:hidden px-3 py-1 rounded-full text-sm font-medium ${menuType==='pet' ? 'bg-[#E7F2E7] text-[#294B29]' : 'text-[#294B29]/70 hover:bg-[#F3F7F3]'}`}>Pets</button>
-              </div>
-
+              {/* Toggle header: User | Pets (hidden when viewing pet menu) */}
+              {menuType !== 'pet' && (
+                <div className="flex items-center gap-2 mb-2">
+                  <button onClick={() => setMenuType('user')} className={`px-3 py-1 rounded-full text-sm font-medium ${menuType==='user' ? 'bg-[#E7F2E7] text-[#294B29]' : 'text-[#294B29]/70 hover:bg-[#F3F7F3]'}`}>User</button>
+                  <button onClick={() => setMenuType('pet')} className={`sm:hidden px-3 py-1 rounded-full text-sm font-medium ${menuType==='pet' ? 'bg-[#E7F2E7] text-[#294B29]' : 'text-[#294B29]/70 hover:bg-[#F3F7F3]'}`}>Pets</button>
+                </div>
+              )}
               {menuType === 'pet' ? (
                 <div className="max-h-[50vh] overflow-y-auto pr-1">
                   {pets?.length ? pets.map((pet, idx) => (
