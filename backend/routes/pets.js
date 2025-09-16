@@ -2,6 +2,8 @@ import express from 'express';
 import pool from '../config/database.js';
 const router = express.Router();
 
+// do delete
+
 // router: /pets
 
 // Test database connection endpoint
@@ -172,17 +174,11 @@ router.put("/:id", async (req, res, next) => {
     console.log('Converted IDs for update:', { pet_species_id, pet_breed_id, sex_id });
 
     const result = await pool.query(
-      `UPDATE pet SET
-        pet_breed_id = $1,
-        sex_id = $2,
-        name = $3,
-        birthday = $4,
-        description = $5,
-        profile_picture = $6,
-        date_updated = NOW()
-      WHERE id = $7
-      RETURNING *`,
-      [pet_breed_id, sex_id, name, birthday, description, profile_picture || null, id]
+      `
+        UPDATE pet SET ${fields.map((field, index) => `${field} = $${index + 1}`).join(", ")}, date_updated = NOW()
+        WHERE id = $${fields.length + 1}
+        RETURNING *
+      `, [...values, id]
     );
 
     if (result.rows.length === 0) {
@@ -192,44 +188,23 @@ router.put("/:id", async (req, res, next) => {
     console.log('Pet updated successfully:', result.rows[0]);
     res.json(result.rows[0]);
   } catch (err) {
-    console.error('Error updating pet:', err);
-    res.status(500).json({
-      error: "Failed to update pet",
-      details: err.message,
-      code: err.code
-    });
+    console.error(err);
+    next(err);
   }
-});
+})
 
-// DELETE delete a pet by id
+// DELETE a pet by id
 router.delete("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
-    console.log('Deleting pet with ID:', id);
-
-    const result = await pool.query(
-      "DELETE FROM pet WHERE id = $1 RETURNING *",
-      [id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Pet not found" });
-    }
-
-    console.log('Pet deleted successfully:', result.rows[0]);
-    res.json({
-      message: "Pet deleted successfully",
-      deletedPet: result.rows[0]
-    });
+    const result = await pool.query("DELETE FROM pet WHERE id = $1 RETURNING *", [id]);
+    if(!result.rows[0]) return res.status(404).json({ error: "Pet not found" });
+    res.json(`Pet ${id}: ${result.rows[0].name} deleted`);
   } catch (err) {
-    console.error('Error deleting pet:', err);
-    res.status(500).json({
-      error: "Failed to delete pet",
-      details: err.message,
-      code: err.code
-    });
+    console.error(err);
+    next(err);
   }
-});
+})
 
 // middleware to check if pet exists
 export const checkPetExists = async (req, res, next) => {

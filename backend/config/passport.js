@@ -11,7 +11,10 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser(async (id, done) => {
   try {
     const result = await pool.query('SELECT * FROM "user" WHERE id = $1', [id]);
-    done(null, result.rows[0]);
+    const user = result.rows[0];
+    const provider = user.password_hashed.startsWith("google-oauth-") ? "google" : "local";
+
+    done(null, { ...user, provider });
   } catch (error) {
     done(error, null);
   }
@@ -43,7 +46,7 @@ passport.use(
           return done(null, false, { message: 'Incorrect password.' });
         }
 
-        return done(null, user);
+        return done(null, { ...user, provider: 'local' });
       } catch (error) {
         return done(error);
       }
@@ -81,7 +84,7 @@ passport.use(
           ]
         );
 
-        return done(null, newUser.rows[0]);
+        return done(null, { ...newUser.rows[0], provider: 'google' });
       } catch (error) {
         return done(error, null);
       }

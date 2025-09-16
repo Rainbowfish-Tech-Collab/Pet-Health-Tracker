@@ -47,11 +47,30 @@ router.get("/", async (req, res, next) => {
     const {type, graph, archived, sort, direction} = req.query;
 
     /* -------------------- IF GRAPH IS PROVIDED AND TRUE ------------------- */
-    let columns = graph?.toLowerCase() == "true" 
-    ? "function.name, bodily_function_date "
-    : "bodily_function.id, function.name, note, bodily_function_date, date_created, date_updated";
+    if (graph?.toLowerCase() === "true") {
+      // Generate last 7 days of mock bodily function data
+      const mockData = [];
+      const functions = ['Urination', 'Defecation', 'Vomiting'];
+      
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        // Randomly decide if there were functions on this day (40% chance)
+        if (Math.random() < 0.4) {
+          mockData.push({
+            function: functions[Math.floor(Math.random() * functions.length)],
+            timestamp: date.toISOString(),
+            value: 1, // Each occurrence counts as 1 for frequency
+            bodily_function_date: date.toISOString().split('T')[0]
+          });
+        }
+      }
+      return res.json(mockData);
+    }
 
-    columns += archived?.toLowerCase() == "true" || archived?.toLowerCase() == "only" ? ", date_archived" : "";
+    const columns = graph?.toLowerCase() === "true"
+      ? "function.name, date_updated, bodily_function_date"
+      : "bodily_function.id, function.name, note, bodily_function_date, date_created, date_updated";
 
     let baseQuery = 
     `
