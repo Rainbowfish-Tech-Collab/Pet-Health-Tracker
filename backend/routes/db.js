@@ -208,6 +208,68 @@ router.get('/logs/names', async(req, res, next) => {
   }
 });
 
+// GET dropdown related table information. Used for the dropdowns on the front end
+// -- /db/logs/dropdown
+router.get('/logs/dropdown', async (req, res, next) => {
+  try{
+    const resultObj = {};
+
+    // 1. Simple relation tables in one query
+    const { rows: simpleRows } = await pool.query(`
+      SELECT 'activity' AS category, json_agg(name ORDER BY name) AS values FROM activity_type
+      UNION ALL
+      SELECT 'bodily function' AS category, json_agg(name ORDER BY name) AS values FROM function
+      UNION ALL
+      SELECT 'symptom' AS category, json_agg(name ORDER BY name) AS values FROM symptom_type
+      UNION ALL
+      SELECT 'medication' AS category, 
+        json_build_object(
+          'types', (SELECT json_agg(name ORDER BY name) FROM medication_type),
+          'dosages', (SELECT json_agg(unit ORDER BY unit) FROM dosage)
+        ) AS values
+      `
+    );
+
+    simpleRows.forEach(r => {
+      resultObj[r.category] = r.values;
+    });
+
+    
+
+    const { rows: statTablesRows } = await pool.query(`
+      SELECT 'Weight' AS category, json_agg(unit) AS values FROM weight
+      UNION ALL
+      SELECT 'Glucose' AS category, json_agg(unit) AS values FROM glucose
+      `
+    );
+    let statTypes = {};
+
+    statTablesRows.forEach(r => {
+      statTypes[r.category] = r.values;
+    });
+
+    
+    const fixed = [
+      'Heart Rate',
+      'Respiratory Rate',
+      'Other'
+    ]
+
+    resultObj['stat'] = {...statTypes, fixed};
+
+    res.json(resultObj);
+  } catch (err) {
+    console.error(err);
+    next(err);
+    // const { rows: statTablesRows } = await client.query(`
+    //   SELECT tablename
+    //   FROM pg_tables
+    //   WHERE schemaname = 'public'
+    //     AND tablename LIKE '%\\_stat'
+    // `);
+  }
+})
+
 // GET all logs associated with a petId
 // -- /db/:petId/logs
 // -- /db/:petId/logs/deleted
@@ -218,7 +280,7 @@ router.get('/:petId/logs/:deleted?', async (req, res, next) => {
     const showDeletedString = showDeleted ? "IS NOT NULL" : "IS NULL";
     const [activities, symptoms, bodilyFunctions, medications, weights, glucose, heartRate, respiratoryRate, other] = await Promise.all([
 			pool.query(`
-        SELECT activity.id, activity_type_id, 'Activity' AS subcategory, name, duration_in_hours, note, activity_date AS log_date, date_created, date_updated ${showDeleted ? ", activity.date_archived" : ""} 
+        SELECT activity.id, activity_type_id, name, duration_in_hours, note, activity_date AS log_date, date_created, date_updated ${showDeleted ? ", activity.date_archived" : ""} 
         FROM activity 
         JOIN activity_type ON activity.activity_type_id = activity_type.id 
         WHERE date_archived ${showDeletedString}  AND pet_id = $1`, [petId]),

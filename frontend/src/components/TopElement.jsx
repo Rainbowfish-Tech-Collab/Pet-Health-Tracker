@@ -9,7 +9,7 @@ const TopElement = ({ title, children }) => {
     <div className="sticky top-0 z-50 flex justify-between w-full p-2 px-4 pt-10 bg-[#FFF9DD] border-b border-gray-400 shadow-gray-400 shadow-sm/70">
       {/* Left button */}
       <span 
-        className="material-symbols-outlined cursor-pointer p-1 text-[#355233] hover:text-[#99CC66] transition-colors"
+        className="material-symbols-rounded cursor-pointer p-1 text-[#355233] hover:text-[#99CC66] transition-colors"
         onClick={() => navigate(-1)}
       >
         arrow_back_ios

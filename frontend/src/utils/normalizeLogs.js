@@ -1,14 +1,26 @@
 const normalizeLogs = (data) => {
   return data.map((obj) => {
+
+    // normalize unit
     let unit = obj.unit || "";
     if (obj.beats_per_minute !== undefined || obj.breaths_per_minute !== undefined) {
       unit = "bpm";
     } else if (obj.duration_in_hours !== undefined) {
       unit = "hr";
     }
+
+    // normalize subcategory
+    let subcategory = obj.subcategory || obj.name || "Unknown";
+    if (subcategory === "Respiratory Rate") {
+      subcategory = "Resp. Rate";
+    }
+    if (subcategory === "Bodily Function") {
+      subcategory = "Bodily Func.";
+    }
+
     return {
       date: obj.log_date,
-      subcategory: obj.subcategory || obj.name || "Unknown",
+      subcategory,
       value:
         obj.weight ??
         obj.glucose_level ??
