@@ -33,10 +33,10 @@ const ManagePetProfile = () => {
       <div className="w-[680px] min-h-[600px] bg-[#fcfaec] rounded-2xl border-8 border-[#222] flex flex-col items-center p-0">
         {/* Header with light beige background */}
         <div className="w-full bg-[#f5f5dc] px-4 pt-6 pb-3 rounded-t-2xl">
-          <div className="flex items-center">
+          <div className="flex items-center justify-center relative">
             <button
               onClick={() => navigate(-1)}
-              className="mr-2 text-[#355233] text-xl focus:outline-none cursor-pointer"
+              className="absolute left-4 text-[#355233] text-xl focus:outline-none cursor-pointer"
             >
               <FaArrowLeft />
             </button>
@@ -70,15 +70,15 @@ const ManagePetProfile = () => {
                   <span className="mt-2 text-base text-gray-700 font-medium">
                     {pet.name}
                   </span>
-                </div>
+          </div>
               ))}
 
-              {/* Add pet button */}
-              <button
+          {/* Add pet button */}
+          <button
                 onClick={() => navigate('/edit-pet/new')}
                 className="relative flex flex-col items-center focus:outline-none cursor-pointer"
-                aria-label="Add pet"
-              >
+            aria-label="Add pet"
+          >
                 <div className="w-32 h-32 bg-[#AAD1A1] rounded-full flex items-center justify-center relative">
                   {/* Paw print icon */}
                   <img
@@ -93,8 +93,8 @@ const ManagePetProfile = () => {
                 </div>
                 <span className="mt-2 text-base text-gray-700 font-medium">
                   Add pet
-                </span>
-              </button>
+              </span>
+          </button>
             </>
           )}
         </div>
