@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
-import ArrowButton from "./ArrowButton";
-/* Collapsible with max-height transition (same as before) */
+import DropdownButton from "./DropdownButton";
+import upperCase from "../utils/upperCase";
+/* Collapsible with max-height transition */
 const Collapsible = ({ isOpen, children }) => {
   const ref = useRef(null);
   const [height, setHeight] = useState(0);
@@ -96,10 +97,10 @@ const buildMaps = (data) => {
   return { childrenMap, descendantsMap };
 };
 
-const Dropdown = ({ data }) => {
+const Dropdown = ({ data, onFilter }) => {
   const [checked, setChecked] = useState({});
   const [expanded, setExpanded] = useState({});
-
+  console.log('checked state:', checked);
   // build the maps once for the incoming data so toggles are data-driven and reliable
   const { childrenMap, descendantsMap } = useMemo(() => buildMaps(data), [data]);
 
@@ -116,7 +117,7 @@ const Dropdown = ({ data }) => {
       const descendants = descendantsMap[path] || [];
       descendants.forEach((d) => (next[d] = isNow));
 
-      // walk ancestors (shortest ancestor first -> nearest parent) and update based on immediate children
+      // walk/update ancestors (shortest ancestor first -> nearest parent) and update based on immediate children
       const parts = path.split(".");
       for (let i = parts.length - 1; i > 0; i--) {
         const ancestor = parts.slice(0, i).join(".");
@@ -177,12 +178,12 @@ const Dropdown = ({ data }) => {
                 checked={!!checked[parentPath]}
                 onChange={() => toggleChild(parentPath)}
               />
-              {category.charAt(0).toUpperCase() + category.slice(1)}
+              {upperCase(category)}
             </label>
-            <ArrowButton
-  expanded={isExpanded} // pass the computed boolean from parent
-  onClick={() => toggleExpand(parentPath)}
-/>
+            <DropdownButton
+              expanded={isExpanded} // pass the computed boolean from parent
+              onClick={() => toggleExpand(parentPath)}
+            />
           </div>
 
           <Collapsible isOpen={isExpanded}>
@@ -212,9 +213,9 @@ const Dropdown = ({ data }) => {
                 checked={!!checked[parentPath]}
                 onChange={() => toggleChild(parentPath)}
               />
-              {category.charAt(0).toUpperCase() + category.slice(1)}
+              {upperCase(category)}
             </label>
-            <ArrowButton
+            <DropdownButton
   expanded={isExpanded} // pass the computed boolean from parent
   onClick={() => toggleExpand(parentPath)}
 />
@@ -233,7 +234,7 @@ const Dropdown = ({ data }) => {
                         checked={!!checked[subPath]}
                         onChange={() => toggleChild(subPath)}
                       />
-                      {key}
+                      {upperCase(key)}
                     </label>
 
                     {/* items under stat.Weight use keys like stat.Weight.kg */}
@@ -254,7 +255,7 @@ const Dropdown = ({ data }) => {
                         checked={!!checked[fixedKey]}
                         onChange={() => toggleChild(fixedKey)}
                       />
-                      {v}
+                      {upperCase(v)}
                     </label>
                   );
                 })}
@@ -276,9 +277,9 @@ const Dropdown = ({ data }) => {
                 checked={!!checked[parentPath]}
                 onChange={() => toggleChild(parentPath)}
               />
-              {category.charAt(0).toUpperCase() + category.slice(1)}
+              {upperCase(category)}
             </label>
-            <ArrowButton
+            <DropdownButton
   expanded={isExpanded} // pass the computed boolean from parent
   onClick={() => toggleExpand(parentPath)}
 />
@@ -294,7 +295,36 @@ const Dropdown = ({ data }) => {
     return null;
   };
 
-  return <div className="space-y-3">{Object.entries(data).map(([k, v]) => renderCategory(k, v))}</div>;
+  // apply and clear handlers
+  const handleApply = () => {
+    onFilter?.(checked || {});
+  };
+
+  const handleClear = () => {
+    setChecked({});
+    onFilter?.({}); // notify parent to clear filters
+  };
+  
+  return (
+    <div className="space-y-3">{Object.entries(data).map(([k, v]) => renderCategory(k, v))}
+
+      {/* Filter button */}
+      <div className="pt-2 flex gap-2">
+        <button
+          onClick={handleApply}
+          className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        >
+          Apply Filters
+        </button>
+        <button
+          onClick={handleClear}
+          className="px-3 py-1 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+        >
+          Clear Filters
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default Dropdown;

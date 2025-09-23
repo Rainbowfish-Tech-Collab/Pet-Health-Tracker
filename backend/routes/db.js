@@ -216,11 +216,11 @@ router.get('/logs/dropdown', async (req, res, next) => {
 
     // 1. Simple relation tables in one query
     const { rows: simpleRows } = await pool.query(`
-      SELECT 'activity' AS category, json_agg(name ORDER BY name) AS values FROM activity_type
+      SELECT 'activity' AS category, json_agg(name) AS values FROM activity_type
       UNION ALL
-      SELECT 'bodily function' AS category, json_agg(name ORDER BY name) AS values FROM function
+      SELECT 'bodily function' AS category, json_agg(name) AS values FROM function
       UNION ALL
-      SELECT 'symptom' AS category, json_agg(name ORDER BY name) AS values FROM symptom_type
+      SELECT 'symptom' AS category, json_agg(name) AS values FROM symptom_type
       UNION ALL
       SELECT 'medication' AS category, 
         json_build_object(
@@ -237,9 +237,9 @@ router.get('/logs/dropdown', async (req, res, next) => {
     
 
     const { rows: statTablesRows } = await pool.query(`
-      SELECT 'Weight' AS category, json_agg(unit) AS values FROM weight
+      SELECT 'weight' AS category, json_agg(unit) AS values FROM weight
       UNION ALL
-      SELECT 'Glucose' AS category, json_agg(unit) AS values FROM glucose
+      SELECT 'glucose' AS category, json_agg(unit) AS values FROM glucose
       `
     );
     let statTypes = {};
@@ -250,9 +250,9 @@ router.get('/logs/dropdown', async (req, res, next) => {
 
     
     const fixed = [
-      'Heart Rate',
-      'Respiratory Rate',
-      'Other'
+      'heart rate',
+      'respiratory rate',
+      'other'
     ]
 
     resultObj['stat'] = {...statTypes, fixed};

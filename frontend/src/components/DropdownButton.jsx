@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const ArrowButton = ({expanded, onClick}) => {
+const DropdownButton = ({expanded, onClick}) => {
       return (
         <button
           className={`material-symbols-rounded text-gray-500 hover:text-gray-700 
@@ -13,4 +13,4 @@ const ArrowButton = ({expanded, onClick}) => {
       );
     };
 
-export default ArrowButton;
+export default DropdownButton;
