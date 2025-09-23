@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { FaArrowLeft, FaPlus, FaChevronDown } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import CustomNotification from "../components/CustomNotification.jsx";
 
 const EditPetProfile = () => {
   const navigate = useNavigate();
@@ -245,17 +246,37 @@ const EditPetProfile = () => {
     }
   };
 
-  const handleDelete = async () => {
+  function confirmDelete() {
     if (isNewPet) {
       return; // Don't delete if it's a new pet
     }
 
-    // Confirm deletion
-    const confirmed = window.confirm(`Are you sure you want to delete ${petData.name}? This action cannot be undone.`);
-    if (!confirmed) {
-      return;
-    }
+    toast.error(<CustomNotification /> , {
+      position: "top-center",
+      data: {
+        title: "Delete Pet",
+        content: (
+          <>
+            This will permanently delete {petData.name} and all associated data.<br />
+            Are you sure?
+          </>
+        ),
+        function: handleDelete,
+        icon: "delete"
+      },
+      ariaLabel: `This will permanently delete ${petData.name} and all associated data. Are you sure?`,
+      closeButton: false,
+      autoClose: false,
+      icon: false,
+      theme: 'colored',
+      style: {
+        background: "#EB5757",
+        color: "white"
+      }
+    });
+  }
 
+  const handleDelete = async () => {
     try {
       const response = await fetch(`http://localhost:3000/pets/${id}`, {
         method: 'DELETE',
@@ -295,17 +316,12 @@ const EditPetProfile = () => {
               {isNewPet ? "Add New Pet" : "Edit Pet Profile"}
             </h1>
             {!isNewPet && (
-              <button
-                onClick={handleDelete}
-                className="text-red-500 text-xl focus:outline-none cursor-pointer hover:text-red-700 transition-colors"
+              <span
+                className="material-symbols-outlined cursor-pointer rounded-xl p-1 bg-[#EB5757] text-white hover:bg-[#f9713b] transition-colors"
+                onClick={confirmDelete}
               >
-                <img
-                  src="/src/assets/delete.svg"
-                  alt="Delete"
-                  className="w-6 h-6 filter-red-500"
-                  style={{ filter: 'invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)' }}
-                />
-              </button>
+                delete
+              </span>
             )}
           </div>
         </div>
