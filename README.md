@@ -7,6 +7,7 @@
     - [Why is it called "Rainbowfish"?](#why-is-it-called-rainbowfish)
     - [Our Contributers](#our-contributers)
 - [Tech Stack 💻](#tech-stack-)
+- [Figma Design & Mockups🎨](#Figma-Design)
 - [Getting Started 🚀](#getting-started-)
   - [Requirements](#requirements)
   - [Installation](#installation)
@@ -14,7 +15,7 @@
   - [Usage](#usage)
 - [Contributing ✍️](#contributing-️)
 - [License 📃](#license-)
-- [Contact 💬](#contact-)
+- [Contact 💬](#contact-) 
 
 # Overview 🐟
 
@@ -48,6 +49,11 @@ The Rainbow Fish is a children's book by Marcus Pfister that promotes generosity
 - Express
 - React
 - Node
+
+# Figma Design & Mockups 🎨
+- Desktop Mockup ___ https://www.figma.com/design/CYNmEISzUqrJXlRZwXk1I1/Masha-s-experiment?node-id=6-2&p=f&t=8HiQGDX2MoCsI9a7-0
+- First protoype ___ https://www.figma.com/board/sCo3K25i7f4DVieGUrZoto/fetched-JAM?node-id=0-1&p=f&t=cOgytDIJKJUI59XO-0
+- Wireframe __ https://excalidraw.com/#room=065aa24350cb949cadc3,aklnN9cq2hyB8h8VWUvFCQ
 
 # Getting Started 🚀
 
