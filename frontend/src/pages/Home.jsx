@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../assets/Logo.svg';
-import { FaEdit, FaPlus, FaCog, FaChevronDown, FaCheck, FaExclamationCircle, FaTrash } from 'react-icons/fa';
+import { FaCheck, FaExclamationCircle } from 'react-icons/fa';
+import MobileContainer from '../components/MobileContainer.jsx';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,6 +15,7 @@ import {
   Filler
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import NavBar from '../components/NavBar';
 
 // Register ChartJS components
 ChartJS.register(
@@ -268,184 +270,65 @@ function Home() {
 
 
   return (
-    <div className="flex flex-col h-screen p-3 gap-4" style={{ backgroundColor: '#FCF9ED' }}>
-      <div className="flex-1 bg-white rounded-[20px] p-5 flex flex-col gap-5 shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
-        <div className="flex items-center gap-4 p-2 border-b border-[#E8E6E1] mb-2 bg-transparent">
-          <div className="rounded-2xl p-2" style={{ backgroundColor: 'rgba(202,228,197,1)' }}>
-            <img 
-              src={Logo} 
-              alt="Pet Health Tracker" 
-              className="w-20 h-16 object-contain" 
-            />
-          </div>
-          <div className="flex-1 relative">
-            <select 
-              value={selectedPet}
-              onChange={(e) => setSelectedPet(e.target.value)}
-              className="w-full py-3 px-4 pr-10 rounded-xl border border-[#E8E6E1] bg-white text-[#2D3F2D] text-base appearance-none cursor-pointer hover:border-[#4A654A] focus:outline-none focus:border-[#4A654A] focus:ring-2 focus:ring-[#4A654A]/10"
+    <MobileContainer>
+      <div className="w-full flex flex-col gap-4 overflow-x-hidden">
+        <NavBar pets={pets} selectedPet={selectedPet} setSelectedPet={setSelectedPet} />
+        <div className="bg-white rounded-2xl p-4 sm:p-5 flex flex-col gap-4 shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+          <div className="p-4 bg-white rounded-2xl border border-[#E8E6E1]">
+            <select
+              className="w-full px-4 py-3 rounded-lg border border-[#E8E6E1] bg-white text-[#2D3F2D] text-sm mb-4 cursor-pointer appearance-none"
+              value={selectedGraphType}
+              onChange={(e) => setSelectedGraphType(e.target.value)}
+              disabled={isLoading || !selectedPet}
             >
-              {pets.map((pet, index) => (
-                <option key={index} value={pet.id}>{pet.name}</option>
-              ))}
+              <option value="activity">Walking vs. Time</option>
+              <option value="weight">Weight vs. Time</option>
+              <option value="symptoms">Symptoms vs. Time</option>
+              <option value="bodily">Bodily Functions vs. Time</option>
             </select>
-            <FaChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-[#4A654A] pointer-events-none text-sm" />
-          </div>
-        </div>
-
-        <div className="p-5 bg-white rounded-2xl border border-[#E8E6E1]">
-          <select
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              borderRadius: '8px',
-              border: '1px solid #E8E6E1',
-              backgroundColor: '#FFFFFF',
-              color: '#2D3F2D',
-              fontSize: '0.9rem',
-              marginBottom: '16px',
-              cursor: 'pointer',
-              appearance: 'none',
-              WebkitAppearance: 'none',
-            }}
-            value={selectedGraphType}
-            onChange={(e) => setSelectedGraphType(e.target.value)}
-            disabled={isLoading || !selectedPet}
-          >
-            <option value="activity">Walking vs. Time</option>
-            <option value="weight">Weight vs. Time</option>
-            <option value="symptoms">Symptoms vs. Time</option>
-            <option value="bodily">Bodily Functions vs. Time</option>
-          </select>
-          <div style={{ 
-            height: '300px',
-            backgroundColor: '#FFFFFF',
-            borderRadius: '8px',
-            padding: '1rem',
-            position: 'relative'
-          }}>
-            {isLoading ? (
-              <div style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                textAlign: 'center',
-                color: '#6B7D6B'
-              }}>
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  border: '3px solid #E7F2E7',
-                  borderTop: '3px solid #2D4A2D',
-                  borderRadius: '50%',
-                  animation: 'spin 1s linear infinite',
-                  margin: '0 auto 1rem'
-                }} />
-                Loading data...
-              </div>
-            ) : error ? (
-              <div style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                textAlign: 'center',
-                color: '#CC7A00',
-                backgroundColor: '#FFF3E6',
-                padding: '1rem',
-                borderRadius: '8px',
-                width: '80%'
-              }}>
-                <FaExclamationCircle style={{ fontSize: '24px', marginBottom: '0.5rem' }} />
-                <div>{error}</div>
-              </div>
-            ) : !chartData?.datasets?.[0]?.data?.length ? (
-              <div style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                textAlign: 'center',
-                color: '#6B7D6B'
-              }}>
-                No data available for this time period
-              </div>
-            ) : (
-              <Line 
-                options={getChartOptions(selectedGraphType)} 
-                data={chartData}
-                style={{ maxHeight: '100%' }}
-              />
-            )}
-          </div>
-        </div>
-
-        <div className="flex-1 overflow-y-auto">
-          <div className="text-lg font-semibold text-[#2D3F2D] mb-4 pb-2 border-b border-[#E8E6E1]">
-            Data Log
-          </div>
-          {recentLogs.map((log, index) => (
-            <div key={index} className="flex items-center p-4 border-b border-[#E8E6E1] gap-4 hover:bg-[#FAF9F6] transition-colors">
-              <span className="w-[90px] text-sm text-[#6B7D6B] font-medium">
-                {log.date}
-              </span>
-              <span className="flex-1 text-[0.9375rem] text-[#2D3F2D] font-medium">
-                {log.type}
-              </span>
-              <span className="text-[0.9375rem] text-[#2D3F2D] font-semibold px-3 py-1 bg-[#F3F7F3] rounded-lg min-w-[60px] text-center">
-                {log.value}
-              </span>
-              {getLogIcon(log)}
+            <div className="relative h-[240px] sm:h-[300px] bg-white rounded-lg p-4">
+              {isLoading ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-[#6B7D6B]">
+                  <div className="w-10 h-10 border-4 border-[#E7F2E7] border-t-[#2D4A2D] rounded-full animate-spin mb-4" />
+                  Loading data...
+                </div>
+              ) : error ? (
+                <div className="absolute inset-0 m-auto text-center text-[#CC7A00] bg-[#FFF3E6] p-4 rounded-lg w-[80%]">
+                  <FaExclamationCircle className="text-2xl mx-auto mb-2" />
+                  <div>{error}</div>
+                </div>
+              ) : !chartData?.datasets?.[0]?.data?.length ? (
+                <div className="absolute inset-0 flex items-center justify-center text-[#6B7D6B]">
+                  No data available for this time period
+                </div>
+              ) : (
+                <Line options={getChartOptions(selectedGraphType)} data={chartData} className="max-h-full" />
+              )}
             </div>
-          ))}
+          </div>
+
+          <div className="flex-1 overflow-y-auto">
+            <div className="text-lg font-semibold text-[#2D3F2D] mb-4 pb-2 border-b border-[#E8E6E1]">
+              Data Log
+            </div>
+            {recentLogs.map((log, index) => (
+              <div key={index} className="flex items-center p-4 border-b border-[#E8E6E1] gap-4 hover:bg-[#FAF9F6] transition-colors">
+                <span className="w-[90px] text-sm text-[#6B7D6B] font-medium">
+                  {log.date}
+                </span>
+                <span className="flex-1 text-[0.9375rem] text-[#2D3F2D] font-medium">
+                  {log.type}
+                </span>
+                <span className="text-[0.9375rem] text-[#2D3F2D] font-semibold px-3 py-1 bg-[#F3F7F3] rounded-lg min-w-[60px] text-center">
+                  {log.value}
+                </span>
+                {getLogIcon(log)}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-
-      <div className="fixed bottom-0 left-0 right-0 flex justify-around items-center py-3 px-5 bg-white border-t border-[#E8E6E1] shadow-[0_-2px_8px_rgba(0,0,0,0.05)]">
-        <button 
-          onClick={() => {
-            setActiveTab('log');
-            navigate('/pet-data-log');
-          }}
-          className={`flex flex-col items-center text-xl cursor-pointer px-4 py-2 rounded-lg transition-colors ${
-            activeTab === 'log' 
-              ? 'text-[#2D4A2D] bg-[#F3F7F3]' 
-              : 'text-[#6B7D6B] hover:bg-[#F3F7F3] hover:text-[#2D4A2D]'
-          }`}
-        >
-          <FaEdit />
-          <span className="text-xs mt-1 font-medium">Log</span>
-        </button>
-        <button 
-          onClick={() => {
-            setActiveTab('add');
-            navigate('/add-entry');
-          }}
-          className={`flex flex-col items-center text-xl cursor-pointer px-4 py-2 rounded-lg transition-colors ${
-            activeTab === 'add' 
-              ? 'text-[#2D4A2D] bg-[#F3F7F3]' 
-              : 'text-[#6B7D6B] hover:bg-[#F3F7F3] hover:text-[#2D4A2D]'
-          }`}
-        >
-          <FaPlus />
-          <span className="text-xs mt-1 font-medium">Add</span>
-        </button>
-        <button 
-          onClick={() => {
-            setActiveTab('settings');
-            navigate('/settings');
-          }}
-          className={`flex flex-col items-center text-xl cursor-pointer px-4 py-2 rounded-lg transition-colors ${
-            activeTab === 'settings' 
-              ? 'text-[#2D4A2D] bg-[#F3F7F3]' 
-              : 'text-[#6B7D6B] hover:bg-[#F3F7F3] hover:text-[#2D4A2D]'
-          }`}
-        >
-          <FaCog />
-          <span className="text-xs mt-1 font-medium">Settings</span>
-        </button>
-      </div>
-    </div>
+    </MobileContainer>
   );
 }
 
