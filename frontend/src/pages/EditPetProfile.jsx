@@ -165,7 +165,7 @@ const EditPetProfile = () => {
       // Create FormData for Cloudinary upload
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('upload_preset', 'pet_profiles'); // Your upload preset name
+      formData.append('upload_preset', 'pet_profiles'); // Cloudinary upload preset name
       // Temporarily remove folder to test
       // formData.append('folder', 'pet-profiles');
 
@@ -178,7 +178,7 @@ const EditPetProfile = () => {
 
       // Upload directly to Cloudinary
       const response = await fetch(
-        `https://api.cloudinary.com/v1_1/dtlhmgfmv/image/upload`, // Replace dtlhmgfmv with your cloud name
+        `https://api.cloudinary.com/v1_1/dtlhmgfmv/image/upload`, // dtlhmgfmv is Cloudinary cloud name
         {
           method: 'POST',
           body: formData
@@ -198,7 +198,7 @@ const EditPetProfile = () => {
 
       const data = await response.json();
       console.log('Upload successful:', data);
-      return data.secure_url; // This is your Cloudinary URL
+      return data.secure_url; // Cloudinary URL
     } catch (error) {
       console.error('Upload error:', error);
       throw error;
