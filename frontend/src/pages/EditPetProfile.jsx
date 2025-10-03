@@ -28,6 +28,8 @@ const EditPetProfile = () => {
   const [breedsLoading, setBreedsLoading] = useState(true);
   const [species, setSpecies] = useState([]);
   const [speciesLoading, setSpeciesLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = React.useRef(null);
 
   // Fetch species from database
   useEffect(() => {
@@ -147,6 +149,88 @@ const EditPetProfile = () => {
     });
   };
 
+  // Upload image directly to Cloudinary
+  const uploadToCloudinary = async (file) => {
+    try {
+      // Validate file
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        throw new Error('File size too large. Please choose an image under 5MB.');
+      }
+
+      if (!file.type.startsWith('image/')) {
+        throw new Error('Please select a valid image file.');
+      }
+
+      // Create FormData for Cloudinary upload
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'pet_profiles'); // Your upload preset name
+      // Temporarily remove folder to test
+      // formData.append('folder', 'pet-profiles');
+
+      // Debug: Log what we're sending
+      console.log('Uploading to Cloudinary:');
+      console.log('- File:', file.name, file.type, file.size);
+      console.log('- Upload preset: pet_profiles');
+      console.log('- Folder: pet-profiles');
+      console.log('- Cloud name: dtlhmgfmv');
+
+      // Upload directly to Cloudinary
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/dtlhmgfmv/image/upload`, // Replace dtlhmgfmv with your cloud name
+        {
+          method: 'POST',
+          body: formData
+        }
+      );
+
+      // Debug: Log response details
+      console.log('Cloudinary response status:', response.status);
+      console.log('Cloudinary response headers:', response.headers);
+
+      if (!response.ok) {
+        // Get the error details from Cloudinary
+        const errorData = await response.json();
+        console.error('Cloudinary error details:', errorData);
+        throw new Error(`Upload failed: ${errorData.error?.message || 'Unknown error'}`);
+      }
+
+      const data = await response.json();
+      console.log('Upload successful:', data);
+      return data.secure_url; // This is your Cloudinary URL
+    } catch (error) {
+      console.error('Upload error:', error);
+      throw error;
+    }
+  };
+
+  // Handle file selection and upload
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      // Show loading state
+      setUploading(true);
+
+      // Upload to Cloudinary
+      const cloudinaryUrl = await uploadToCloudinary(file);
+
+      // Update state with Cloudinary URL
+      setPetData(prev => ({
+        ...prev,
+        profile_picture: cloudinaryUrl
+      }));
+
+      toast.success('Image uploaded successfully!');
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   // Filter breeds based on selected species
   const getFilteredBreeds = () => {
     if (!petData.species || speciesLoading) {
@@ -192,53 +276,38 @@ const EditPetProfile = () => {
     const selectedBreed = getFilteredBreeds().find(breed => breed.pet_breed === petData.breed);
     const breedId = selectedBreed ? selectedBreed.id : null;
 
-    // Prepare data for API (convert species and breed names to IDs)
-    const apiData = {
-      ...petData,
-      species_id: speciesId,
-      breed_id: breedId
-    };
-
     try {
-      if (isNewPet) {
-        // Add new pet to database
-        const response = await fetch('http://localhost:3000/pets', {
-          method: 'POST',
+      // Send data to your backend (profile_picture is now a Cloudinary URL)
+      const response = await fetch(
+        isNewPet ? 'http://localhost:3000/pets' : `http://localhost:3000/pets/${id}`,
+        {
+          method: isNewPet ? 'POST' : 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(apiData),
-        });
-
-        if (response.ok) {
-          const newPet = await response.json();
-          console.log("New pet added successfully:", newPet);
-          toast.success("Pet added successfully!");
-          // Navigate back to manage pets page
-          navigate('/manage-pets');
-        } else {
-          console.error("Failed to add pet");
-          toast.error("Failed to add pet. Please try again.");
+          body: JSON.stringify({
+            name: petData.name,
+            species: petData.species,
+            breed: petData.breed,
+            birthday: petData.birthday,
+            sex: petData.sex,
+            description: petData.description,
+            profile_picture: petData.profile_picture, // This is now a Cloudinary URL
+            species_id: speciesId,
+            breed_id: breedId
+          })
         }
+      );
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log(`${isNewPet ? 'New pet added' : 'Pet updated'} successfully:`, result);
+        toast.success(`${isNewPet ? 'Pet added' : 'Pet updated'} successfully!`);
+        // Navigate back to manage pets page
+        navigate('/manage-pets');
       } else {
-        // Update existing pet in database
-        const response = await fetch(`http://localhost:3000/pets/${id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(apiData),
-        });
-
-        if (response.ok) {
-          console.log("Pet updated successfully:", apiData);
-          toast.success("Pet updated successfully!");
-          // Navigate back to manage pets page
-          navigate('/manage-pets');
-        } else {
-          console.error("Failed to update pet");
-          toast.error("Failed to update pet. Please try again.");
-        }
+        console.error(`Failed to ${isNewPet ? 'add' : 'update'} pet`);
+        toast.error(`Failed to ${isNewPet ? 'add' : 'update'} pet. Please try again.`);
       }
     } catch (error) {
       console.error("Error saving pet:", error);
@@ -349,11 +418,28 @@ const EditPetProfile = () => {
                     />
                   )}
                   {/* Add photo overlay */}
-                  <div className="absolute bottom-2 right-2 bg-[#355233] text-white rounded-full w-8 h-8 flex items-center justify-center border-2 border-white">
-                    <FaPlus size={12} />
+                  <div
+                    className={`absolute bottom-2 right-2 bg-[#355233] text-white rounded-full w-8 h-8 flex items-center justify-center border-2 border-white cursor-pointer hover:bg-[#2a4128] transition-colors ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    onClick={() => !uploading && fileInputRef.current.click()}
+                  >
+                    {uploading ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <FaPlus size={12} />
+                    )}
                   </div>
                 </div>
               </div>
+
+              {/* Hidden file input */}
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                className="hidden"
+                onChange={handleFileChange}
+                disabled={uploading}
+              />
 
           {/* Input Fields */}
           <div className="space-y-6">

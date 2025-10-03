@@ -48,45 +48,16 @@ router.post("/", async (req, res, next) => {
       });
     }
 
-    // Use species_id if provided, otherwise convert species name to species_id
-    let pet_species_id;
-    if (species_id) {
-      pet_species_id = species_id;
-    } else if (species === 'Dog') {
-      pet_species_id = 1;
-    } else if (species === 'Cat') {
-      pet_species_id = 2;
-    } else {
-      pet_species_id = 1; // Default to Dog
-    }
+    // Use the IDs directly from frontend (already converted)
+    const pet_species_id = species_id;
+    const pet_breed_id = breed_id;
+    const sex_id = sex === 'Male' ? 1 : 2;
 
-    // Use breed_id if provided, otherwise convert species to pet_breed_id
-    let pet_breed_id;
-    if (breed_id) {
-      pet_breed_id = breed_id;
-    } else if (species === 'Dog') {
-      pet_breed_id = 1; // Use first dog breed as default
-    } else if (species === 'Cat') {
-      pet_breed_id = 23; // Use first cat breed as default
-    } else {
-      pet_breed_id = 1; // Default to dog breed
-    }
-
-    // Convert sex to sex_id
-    let sex_id;
-    if (sex === 'Male') {
-      sex_id = 1;
-    } else if (sex === 'Female') {
-      sex_id = 2;
-    } else {
-      sex_id = 1; // Default to Male
-    }
-
-    console.log('Converted IDs:', { pet_species_id, pet_breed_id, sex_id });
+    console.log('Using IDs from frontend:', { pet_species_id, pet_breed_id, sex_id });
 
     const result = await pool.query(
-      "INSERT INTO pet (pet_breed_id, sex_id, name, birthday, description, profile_picture) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-      [pet_breed_id, sex_id, name, birthday, description, profile_picture || null]
+      "INSERT INTO pet (name, profile_picture, pet_species_id, pet_breed_id, birthday, sex_id, description, date_created) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()) RETURNING *",
+      [name, profile_picture || null, pet_species_id, pet_breed_id, birthday, sex_id, description]
     );
     res.json(result.rows[0]);
   } catch (err) {
@@ -137,48 +108,26 @@ router.put("/:id", async (req, res, next) => {
     console.log('Updating pet with ID:', id);
     console.log('Update data:', { species, sex, name, birthday, description, profile_picture, breed, breed_id, species_id });
 
-    // Use species_id if provided, otherwise convert species name to species_id
-    let pet_species_id;
-    if (species_id) {
-      pet_species_id = species_id;
-    } else if (species === 'Dog') {
-      pet_species_id = 1;
-    } else if (species === 'Cat') {
-      pet_species_id = 2;
-    } else {
-      pet_species_id = 1; // Default to Dog
-    }
+    // Use the IDs directly from frontend (already converted)
+    const pet_species_id = species_id;
+    const pet_breed_id = breed_id;
+    const sex_id = sex === 'Male' ? 1 : 2;
 
-    // Use breed_id if provided, otherwise convert species to pet_breed_id
-    let pet_breed_id;
-    if (breed_id) {
-      pet_breed_id = breed_id;
-    } else if (species === 'Dog') {
-      pet_breed_id = 1; // Use first dog breed as default
-    } else if (species === 'Cat') {
-      pet_breed_id = 23; // Use first cat breed as default
-    } else {
-      pet_breed_id = 1; // Default to dog breed
-    }
-
-    // Convert sex to sex_id
-    let sex_id;
-    if (sex === 'Male') {
-      sex_id = 1;
-    } else if (sex === 'Female') {
-      sex_id = 2;
-    } else {
-      sex_id = 1; // Default to Male
-    }
-
-    console.log('Converted IDs for update:', { pet_species_id, pet_breed_id, sex_id });
+    console.log('Using IDs for update:', { pet_species_id, pet_breed_id, sex_id });
 
     const result = await pool.query(
-      `
-        UPDATE pet SET ${fields.map((field, index) => `${field} = $${index + 1}`).join(", ")}, date_updated = NOW()
-        WHERE id = $${fields.length + 1}
-        RETURNING *
-      `, [...values, id]
+      `UPDATE pet
+       SET name = $1,
+           profile_picture = COALESCE($2, profile_picture),
+           pet_species_id = $3,
+           pet_breed_id = $4,
+           birthday = $5,
+           sex_id = $6,
+           description = $7,
+           date_updated = NOW()
+       WHERE id = $8
+       RETURNING *`,
+      [name, profile_picture, pet_species_id, pet_breed_id, birthday, sex_id, description, id]
     );
 
     if (result.rows.length === 0) {
