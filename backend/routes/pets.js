@@ -48,6 +48,15 @@ router.post("/", async (req, res, next) => {
       });
     }
 
+    // Validate required fields
+    if (!name || !species_id) {
+      console.error('Missing required fields:', { name, species_id });
+      return res.status(400).json({
+        error: 'Name and species_id are required',
+        received: { name, species_id }
+      });
+    }
+
     // Use the IDs directly from frontend (already converted)
     const pet_species_id = species_id;
     const pet_breed_id = breed_id;
@@ -55,11 +64,22 @@ router.post("/", async (req, res, next) => {
 
     console.log('Using IDs from frontend:', { pet_species_id, pet_breed_id, sex_id });
 
-    const result = await pool.query(
-      "INSERT INTO pet (name, profile_picture, pet_species_id, pet_breed_id, birthday, sex_id, description, date_created) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()) RETURNING *",
-      [name, profile_picture || null, pet_species_id, pet_breed_id, birthday, sex_id, description]
-    );
-    res.json(result.rows[0]);
+    try {
+      const result = await pool.query(
+        "INSERT INTO pet (name, profile_picture, pet_breed_id, birthday, sex_id, description, date_created) VALUES ($1, $2, $3, $4, $5, $6, NOW()) RETURNING *",
+        [name, profile_picture || null, pet_breed_id, birthday, sex_id, description]
+      );
+
+      console.log('Pet inserted successfully:', result.rows[0]);
+      res.json(result.rows[0]);
+    } catch (insertError) {
+      console.error('Database insert error:', insertError);
+      return res.status(500).json({
+        error: 'Failed to insert pet',
+        details: insertError.message,
+        code: insertError.code
+      });
+    }
   } catch (err) {
     console.error('Error in POST /pets:', err);
     console.error('Error details:', {
@@ -119,15 +139,14 @@ router.put("/:id", async (req, res, next) => {
       `UPDATE pet
        SET name = $1,
            profile_picture = COALESCE($2, profile_picture),
-           pet_species_id = $3,
-           pet_breed_id = $4,
-           birthday = $5,
-           sex_id = $6,
-           description = $7,
+           pet_breed_id = $3,
+           birthday = $4,
+           sex_id = $5,
+           description = $6,
            date_updated = NOW()
-       WHERE id = $8
+       WHERE id = $7
        RETURNING *`,
-      [name, profile_picture, pet_species_id, pet_breed_id, birthday, sex_id, description, id]
+      [name, profile_picture, pet_breed_id, birthday, sex_id, description, id]
     );
 
     if (result.rows.length === 0) {

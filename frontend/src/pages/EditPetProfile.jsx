@@ -131,6 +131,20 @@ const EditPetProfile = () => {
     }
   }, [id, isNewPet, breeds, species]);
 
+  // Restore uploaded image from localStorage on component mount
+  useEffect(() => {
+    if (isNewPet) {
+      // For new pets, check if there's a stored image
+      const storedImage = localStorage.getItem('newPetProfilePicture');
+      if (storedImage) {
+        setPetData(prev => ({
+          ...prev,
+          profile_picture: storedImage
+        }));
+      }
+    }
+  }, [isNewPet]);
+
   const handleInputChange = (field, value) => {
     console.log(`Updating ${field} to:`, value);
     setPetData((prev) => {
@@ -223,6 +237,10 @@ const EditPetProfile = () => {
         profile_picture: cloudinaryUrl
       }));
 
+      // Store in localStorage for persistence across page refreshes
+      const storageKey = isNewPet ? 'newPetProfilePicture' : `petProfilePicture_${id}`;
+      localStorage.setItem(storageKey, cloudinaryUrl);
+
       toast.success('Image uploaded successfully!');
     } catch (error) {
       toast.error(error.message);
@@ -277,6 +295,21 @@ const EditPetProfile = () => {
     const breedId = selectedBreed ? selectedBreed.id : null;
 
     try {
+      // Prepare the data to send
+      const requestData = {
+        name: petData.name,
+        species: petData.species,
+        breed: petData.breed,
+        birthday: petData.birthday,
+        sex: petData.sex,
+        description: petData.description,
+        profile_picture: petData.profile_picture, // This is now a Cloudinary URL
+        species_id: speciesId,
+        breed_id: breedId
+      };
+
+      console.log('Sending data to backend:', requestData);
+
       // Send data to your backend (profile_picture is now a Cloudinary URL)
       const response = await fetch(
         isNewPet ? 'http://localhost:3000/pets' : `http://localhost:3000/pets/${id}`,
@@ -285,29 +318,33 @@ const EditPetProfile = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            name: petData.name,
-            species: petData.species,
-            breed: petData.breed,
-            birthday: petData.birthday,
-            sex: petData.sex,
-            description: petData.description,
-            profile_picture: petData.profile_picture, // This is now a Cloudinary URL
-            species_id: speciesId,
-            breed_id: breedId
-          })
+          body: JSON.stringify(requestData)
         }
       );
 
       if (response.ok) {
         const result = await response.json();
         console.log(`${isNewPet ? 'New pet added' : 'Pet updated'} successfully:`, result);
+
+        // Clear localStorage after successful save
+        if (isNewPet) {
+          localStorage.removeItem('newPetProfilePicture');
+        } else {
+          localStorage.removeItem(`petProfilePicture_${id}`);
+        }
+
         toast.success(`${isNewPet ? 'Pet added' : 'Pet updated'} successfully!`);
         // Navigate back to manage pets page
         navigate('/manage-pets');
       } else {
-        console.error(`Failed to ${isNewPet ? 'add' : 'update'} pet`);
-        toast.error(`Failed to ${isNewPet ? 'add' : 'update'} pet. Please try again.`);
+        // Get detailed error information
+        const errorText = await response.text();
+        console.error(`Failed to ${isNewPet ? 'add' : 'update'} pet:`, {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorText
+        });
+        toast.error(`Failed to ${isNewPet ? 'add' : 'update'} pet: ${response.status} ${response.statusText}`);
       }
     } catch (error) {
       console.error("Error saving pet:", error);
@@ -341,7 +378,8 @@ const EditPetProfile = () => {
       style: {
         background: "#EB5757",
         color: "white"
-      }
+      },
+      toastId: `delete-pet-${id}` // Add unique toast ID
     });
   }
 
