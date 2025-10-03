@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { FaArrowLeft, FaPlus, FaChevronDown } from "react-icons/fa";
+import { FaArrowLeft, FaPlus, FaChevronDown, FaCamera } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CustomNotification from "../components/CustomNotification.jsx";
@@ -463,7 +463,7 @@ const EditPetProfile = () => {
                     {uploading ? (
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     ) : (
-                      <FaPlus size={12} />
+                      <FaCamera size={12} />
                     )}
                   </div>
                 </div>
