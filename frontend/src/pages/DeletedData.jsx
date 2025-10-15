@@ -35,6 +35,7 @@ const DeletedData = () => {
     setCurrentPage(1);
   }, [activeFilters]);
 
+  console.log("logs", logs);
   const norm = (s) => String(s ?? "").toLowerCase().trim();
 
   // --- HELPERS: split key but preserve remainder (so "Resp. Rate" stays intact) ---

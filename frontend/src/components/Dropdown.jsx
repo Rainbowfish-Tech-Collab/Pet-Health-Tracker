@@ -1,26 +1,43 @@
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import React, { useState, useMemo, useRef, useEffect, useLayoutEffect } from "react";
 import DropdownButton from "./DropdownButton";
 import upperCase from "../utils/upperCase";
-/* Collapsible with max-height transition */
+
+/* ------------------------------- COLLAPSIBLE ------------------------------ */
+// Smoothly animates open/close using max-height CSS transition.
+// Uses a ref to measure scrollHeight of content and sets inline maxHeight to that value when isOpen true, or 0 when false.
+
 const Collapsible = ({ isOpen, children }) => {
   const ref = useRef(null);
   const [height, setHeight] = useState(0);
-  useEffect(() => {
-    if (ref.current) setHeight(isOpen ? ref.current.scrollHeight : 0);
+
+  // Measure synchronously to avoid visual jumps and transition the height property.
+  useLayoutEffect(() => {
+    if (!ref.current) return;
+    // when opening, measure content height; when closing, set to 0
+    const measured = ref.current.scrollHeight;
+    setHeight(isOpen ? measured : 0);
+    // Re-run when children change so nested expansions update the parent's height
   }, [isOpen, children]);
+
   return (
     <div
       ref={ref}
-      className="overflow-hidden transition-[max-height] duration-300 ease-in-out"
-      style={{ maxHeight: `${height}px` }}
+      className="overflow-hidden transition-[height] duration-300 ease-in-out"
+      style={{ height: `${height}px` }}
     >
       {children}
     </div>
   );
 };
 
+// Helper to make keys for our node trees / maps. These are identifiers for checkboxes.
+// Format: CATEGORY.SUBCATEGORY.VALUE (e.g. "stat.Weight.kg" or "activity.Walking")
 const makeKey = (...parts) => parts.join("."); // e.g. "stat.Weight.kg"
 
+// Build maps of immediate children and all descendants for each node in the data tree.
+// These maps are used to drive checkbox toggling (cascade to descendants, update ancestors).
+// The childrenMap allows us to find immediate children of a node to determine if an ancestor should be checked.
+// The descendantsMap allows us to find all descendants of a node to and check or uncheck them when a parent is toggled.
 const buildMaps = (data) => {
   const childrenMap = {};     // immediate children
   const descendantsMap = {};  // all descendants (flattened)
@@ -29,6 +46,8 @@ const buildMaps = (data) => {
     // array of leaf values => children are prefix.value
     if (Array.isArray(node)) {
       const direct = node.map((v) => makeKey(prefix, v));
+
+      console.log('direct', direct);
       childrenMap[prefix] = direct;
       descendantsMap[prefix] = [...direct];
       direct.forEach((child) => {
@@ -97,13 +116,34 @@ const buildMaps = (data) => {
   return { childrenMap, descendantsMap };
 };
 
+
 const Dropdown = ({ data, onFilter }) => {
   const [checked, setChecked] = useState({});
   const [expanded, setExpanded] = useState({});
+  const [open, setOpen] = useState(false); // top-level collapse for the entire dropdown (start collapsed)
+  // activeCount is computed after building the childrenMap so we can exclude ancestor nodes
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (ref.current) setHeight(open ? ref.current.scrollHeight : 0);
+  }, [open, data]); // recalc if data or open changes
+
   console.log('checked state:', checked);
   // build the maps once for the incoming data so toggles are data-driven and reliable
   const { childrenMap, descendantsMap } = useMemo(() => buildMaps(data), [data]);
 
+  // Count only leaf selections (don't count main ancestors/types). A leaf is a key whose childrenMap entry is an empty array.
+  const activeCount = useMemo(() => {
+    return Object.entries(checked).filter(([k, v]) => {
+      if (!v) return false;
+      const children = childrenMap[k];
+      // only count if the key exists in childrenMap and has no children (leaf)
+      return Array.isArray(children) && children.length === 0;
+    }).length;
+  }, [checked, childrenMap]);
+
+  console.log('children', childrenMap);
+  console.log('descendants', descendantsMap);
   // Toggle a single key (works for parent, subcategory, or leaf).
   // - toggles descendants to same state
   // - updates ancestors to checked=true only if ALL immediate children are checked
@@ -133,6 +173,7 @@ const Dropdown = ({ data, onFilter }) => {
 
   const toggleExpand = (path) => setExpanded((p) => ({ ...p, [path]: !p[path] }));
 
+  // render values (leaf nodes) under a parent path
   const renderValues = (parentPath, values) =>
     values.map((v) => {
       const childKey = makeKey(parentPath, v);
@@ -298,31 +339,55 @@ const Dropdown = ({ data, onFilter }) => {
   // apply and clear handlers
   const handleApply = () => {
     onFilter?.(checked || {});
+    // collapse the dropdown after applying
+    setOpen(false);
   };
 
   const handleClear = () => {
     setChecked({});
     onFilter?.({}); // notify parent to clear filters
+    // collapse the dropdown after clearing
+    setOpen(false);
   };
   
   return (
-    <div className="space-y-3">{Object.entries(data).map(([k, v]) => renderCategory(k, v))}
-
-      {/* Filter button */}
-      <div className="pt-2 flex gap-2">
+    <div className="space-y-3">
+      {/* Top-level header that toggles the whole dropdown */}
+      <div className="flex items-center justify-between">
         <button
-          onClick={handleApply}
-          className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          className="flex items-center gap-2 font-semibold select-none cursor-pointer bg-transparent p-0"
         >
-          Apply Filters
+          <span>Filters</span>
+          {activeCount > 0 && (
+            <span className="text-sm text-gray-500">({activeCount})</span>
+          )}
         </button>
-        <button
-          onClick={handleClear}
-          className="px-3 py-1 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
-        >
-          Clear Filters
-        </button>
+        <DropdownButton expanded={open} onClick={() => setOpen((o) => !o)} />
       </div>
+
+      {open && (
+        <div className="space-y-3">
+          {Object.entries(data).map(([k, v]) => renderCategory(k, v))}
+
+          {/* Filter button */}
+          <div className="pt-2 flex gap-2">
+            <button
+              onClick={handleApply}
+              className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Apply Filters
+            </button>
+            <button
+              onClick={handleClear}
+              className="px-3 py-1 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+            >
+              Clear Filters
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
