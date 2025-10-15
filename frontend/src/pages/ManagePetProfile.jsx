@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaArrowLeft, FaPlus } from "react-icons/fa";
+import fetchedLogo from "../assets/fetched-logo.svg";
 
 const ManagePetProfile = () => {
   const navigate = useNavigate();
@@ -63,9 +64,9 @@ const ManagePetProfile = () => {
                   onClick={() => navigate(`/edit-pet/${pet.id}`)}
                 >
                   <img
-                    src={pet.profile_picture || "https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=facearea&w=256&h=256&facepad=2"}
+                    src={pet.profile_picture || fetchedLogo}
                     alt={pet.name}
-                    className="w-32 h-32 rounded-full object-cover border-4 border-[#fcfaec] shadow"
+                    className={`w-32 h-32 rounded-full border-4 border-[#fcfaec] shadow ${!pet.profile_picture ? 'object-contain bg-white p-3' : 'object-cover'}`}
                   />
                   <span className="mt-2 text-base text-gray-700 font-medium">
                     {pet.name}
