@@ -66,7 +66,7 @@ const ManagePetProfile = () => {
                   <img
                     src={pet.profile_picture || fetchedLogo}
                     alt={pet.name}
-                    className={`w-32 h-32 rounded-full border-4 border-[#fcfaec] shadow ${!pet.profile_picture ? 'object-contain bg-white p-3' : 'object-cover'}`}
+                    className={`w-32 h-32 rounded-full border-4 border-[#fcfaec] shadow ${!pet.profile_picture ? 'object-contain bg-[#CAE4C5] p-3' : 'object-cover'}`}
                   />
                   <span className="mt-2 text-base text-gray-700 font-medium">
                     {pet.name}
