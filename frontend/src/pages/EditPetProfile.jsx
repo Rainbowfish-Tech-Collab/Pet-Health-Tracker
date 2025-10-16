@@ -4,6 +4,7 @@ import { FaArrowLeft, FaPlus, FaChevronDown, FaCamera } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CustomNotification from "../components/CustomNotification.jsx";
+import fetchedLogo from "../assets/fetched-logo.svg";
 
 const EditPetProfile = () => {
   const navigate = useNavigate();
@@ -450,9 +451,9 @@ const EditPetProfile = () => {
                     </div>
                   ) : (
                     <img
-                      src={petData.profile_picture || "https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=facearea&w=256&h=256&facepad=2"}
+                      src={petData.profile_picture || fetchedLogo}
                       alt="Pet profile"
-                      className="w-32 h-32 rounded-full object-cover border-4 border-[#fcfaec] shadow"
+                      className={`w-32 h-32 rounded-full border-4 border-[#fcfaec] shadow ${!petData.profile_picture ? 'object-contain bg-[#CAE4C5] p-3' : 'object-cover'}`}
                     />
                   )}
                   {/* Add photo overlay */}
