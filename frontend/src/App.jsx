@@ -2,18 +2,22 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import SpecificDataEntry from './pages/SpecificDataEntry';
-import Login from './components/Login';
-import Register from './components/Register';
+import Login from './pages/Login';
+import Register from './pages/Register';
 import AccountProfile from './pages/AccountProfile';
 import { ToastContainer } from 'react-toastify';
+import ManagePetProfile from './pages/ManagePetProfile';
+import EditPetProfile from './pages/EditPetProfile';
 import './App.css';
 
 function App() {
   return (
     <Router>
-      <Routes>  
+      <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/manage-pets" element={<ManagePetProfile />} />
+        <Route path="/edit-pet/:id" element={<EditPetProfile />} />
         <Route path="/" element={<Home />} />
         <Route path="/account" element={<AccountProfile />} />
         <Route path="/pet-data-log" element={<Home />} /> {/* For now, reuse Home component */}

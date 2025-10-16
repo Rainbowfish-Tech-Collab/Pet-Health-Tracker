@@ -8,7 +8,7 @@ function CustomNotification({ closeToast, data }){
           {data.title}
         </h3>
         <div className="flex items-center justify-between">
-          <span 
+          <span
               className="material-symbols-outlined cursor-pointer hover:text-[#355233] transition-colors"
               onClick={closeToast}
           >

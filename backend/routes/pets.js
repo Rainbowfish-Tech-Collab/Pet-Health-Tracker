@@ -6,18 +6,92 @@ const router = express.Router();
 
 // router: /pets
 
+// Test database connection endpoint
+router.get("/test", async (req, res) => {
+  try {
+    console.log('Testing database connection...');
+    const result = await pool.query('SELECT 1 as test');
+    console.log('Database connection successful:', result.rows[0]);
+    res.json({
+      status: 'success',
+      message: 'Database connection working',
+      result: result.rows[0]
+    });
+  } catch (err) {
+    console.error('Database connection test failed:', err);
+    res.status(500).json({
+      status: 'error',
+      message: 'Database connection failed',
+      error: err.message,
+      code: err.code
+    });
+  }
+});
+
 // POST add a new pet
 router.post("/", async (req, res, next) => {
   try {
-    const { pet_breed_id, sex_id, name, birthday, description, profile_picture } = req.body;
-    const result = await pool.query(
-      "INSERT INTO pet (pet_breed_id, sex_id, name, birthday, description, profile_picture) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-      [pet_breed_id, sex_id, name, birthday, description, profile_picture]
-    );
-    res.json(result.rows[0]);
+    const { species, sex, name, birthday, description, profile_picture, breed, breed_id, species_id } = req.body;
+
+    console.log('Received pet data:', { species, sex, name, birthday, description, profile_picture, breed });
+
+    // Test database connection first
+    try {
+      const testResult = await pool.query('SELECT 1 as test');
+      console.log('Database connection test successful:', testResult.rows[0]);
+    } catch (dbError) {
+      console.error('Database connection failed:', dbError);
+      return res.status(500).json({
+        error: "Database connection failed",
+        details: dbError.message,
+        code: dbError.code
+      });
+    }
+
+    // Validate required fields
+    if (!name || !species_id) {
+      console.error('Missing required fields:', { name, species_id });
+      return res.status(400).json({
+        error: 'Name and species_id are required',
+        received: { name, species_id }
+      });
+    }
+
+    // Use the IDs directly from frontend (already converted)
+    const pet_species_id = species_id;
+    const pet_breed_id = breed_id;
+    const sex_id = sex === 'Male' ? 1 : 2;
+
+    console.log('Using IDs from frontend:', { pet_species_id, pet_breed_id, sex_id });
+
+    try {
+      const result = await pool.query(
+        "INSERT INTO pet (name, profile_picture, pet_breed_id, birthday, sex_id, description, date_created) VALUES ($1, $2, $3, $4, $5, $6, NOW()) RETURNING *",
+        [name, profile_picture || null, pet_breed_id, birthday, sex_id, description]
+      );
+
+      console.log('Pet inserted successfully:', result.rows[0]);
+      res.json(result.rows[0]);
+    } catch (insertError) {
+      console.error('Database insert error:', insertError);
+      return res.status(500).json({
+        error: 'Failed to insert pet',
+        details: insertError.message,
+        code: insertError.code
+      });
+    }
   } catch (err) {
-    console.error(err);
-    next(err);
+    console.error('Error in POST /pets:', err);
+    console.error('Error details:', {
+      message: err.message,
+      stack: err.stack,
+      code: err.code
+    });
+    res.status(500).json({
+      error: "Failed to add pet",
+      details: err.message,
+      code: err.code
+    });
   }
 });
 
@@ -45,25 +119,41 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-// PATCH update a pet by id
-router.patch("/:id", async (req, res, next) => {
+// PUT update a pet by id
+router.put("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
-    const fields = Object.keys(req.body);
-    const values = Object.values(req.body);
+    const { species, sex, name, birthday, description, profile_picture, breed, breed_id, species_id } = req.body;
 
-    if (fields.length === 0) {
-      return res.status(400).json({ error: "No fields to update" });
-    }
+    console.log('Updating pet with ID:', id);
+    console.log('Update data:', { species, sex, name, birthday, description, profile_picture, breed, breed_id, species_id });
+
+    // Use the IDs directly from frontend (already converted)
+    const pet_species_id = species_id;
+    const pet_breed_id = breed_id;
+    const sex_id = sex === 'Male' ? 1 : 2;
+
+    console.log('Using IDs for update:', { pet_species_id, pet_breed_id, sex_id });
 
     const result = await pool.query(
-      `
-        UPDATE pet SET ${fields.map((field, index) => `${field} = $${index + 1}`).join(", ")}, date_updated = NOW()
-        WHERE id = $${fields.length + 1} 
-        RETURNING *
-      `, [...values, id]
+      `UPDATE pet
+       SET name = $1,
+           profile_picture = COALESCE($2, profile_picture),
+           pet_breed_id = $3,
+           birthday = $4,
+           sex_id = $5,
+           description = $6,
+           date_updated = NOW()
+       WHERE id = $7
+       RETURNING *`,
+      [name, profile_picture, pet_breed_id, birthday, sex_id, description, id]
     );
 
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Pet not found" });
+    }
+
+    console.log('Pet updated successfully:', result.rows[0]);
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
@@ -102,7 +192,7 @@ export const checkPetExists = async (req, res, next) => {
 // helper function for our other route handlers to check if a pet exists; scrapped for now
 // async function findPetById(id) {
 //   const result = await pool.query('SELECT * FROM pet WHERE id = $1', [id]);
-//   return result.rows[0] || null; 
+//   return result.rows[0] || null;
 //   //recall result.rows will give an empty array if nothing is found,and accessing an index of an empty array will throw undefined
 // }
 
