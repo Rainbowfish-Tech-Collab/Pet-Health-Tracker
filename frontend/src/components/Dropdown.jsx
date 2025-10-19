@@ -10,7 +10,7 @@ const Collapsible = ({ isOpen, children }) => {
   const ref = useRef(null);
   const [height, setHeight] = useState(0);
 
-  // Measure synchronously to avoid visual jumps and transition the height property.
+  // use useLayoutEffect to measure synchronously to avoid visual jumps and transition the height property. React will perform all necessary DOM mutations before the browser has a chance to paint.
   useLayoutEffect(() => {
     if (!ref.current) return;
     // when opening, measure content height; when closing, set to 0
