@@ -111,3 +111,11 @@
   font-weight: 400;
   font-style: normal;
 }
+
+.dropdown input{
+  accent-color: var(--green01);
+}
+
+.dropdown text{
+  color: var(--green01);
+}

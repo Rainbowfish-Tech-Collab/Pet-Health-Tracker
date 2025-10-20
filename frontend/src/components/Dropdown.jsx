@@ -30,7 +30,7 @@ const Collapsible = ({ isOpen, children }) => {
   );
 };
 
-// Helper to make keys for our node trees / maps. These are identifiers for checkboxes.
+// makeKey Helper makes keys (ids) for our node trees / maps. These are identifiers for checkboxes and helps communicate the selected filters.
 // Format: CATEGORY.SUBCATEGORY.VALUE (e.g. "stat.Weight.kg" or "activity.Walking")
 const makeKey = (...parts) => parts.join("."); // e.g. "stat.Weight.kg"
 
@@ -42,12 +42,13 @@ const buildMaps = (data) => {
   const childrenMap = {};     // immediate children
   const descendantsMap = {};  // all descendants (flattened)
 
-  const visit = (node, prefix) => {
-    // array of leaf values => children are prefix.value
-    if (Array.isArray(node)) {
-      const direct = node.map((v) => makeKey(prefix, v));
+  const visit = (node, prefix) => { //visit a node with its prefix key, the prefix is the key up to this node
+    console.log('visiting', prefix, node);
+    // array of leaf values => creates child keys, children are prefix.value, prefix is the subcategory
+    if (Array.isArray(node)) { //arrays indicate leaf values
+      const direct = node.map((v) => makeKey(prefix, v)); //
 
-      console.log('direct', direct);
+      // console.log('direct', direct);
       childrenMap[prefix] = direct;
       descendantsMap[prefix] = [...direct];
       direct.forEach((child) => {
@@ -57,7 +58,7 @@ const buildMaps = (data) => {
       return;
     }
 
-    // object node (stat, medication, etc.)
+    // object node (stat, medication, etc.), object represents nested subcategories or special cases
     if (typeof node === "object" && node !== null) {
       // medication is special: flatten types/dosages into direct children like "medication.aspirin"
       if (prefix === "medication") {
@@ -178,7 +179,7 @@ const Dropdown = ({ data, onFilter }) => {
     values.map((v) => {
       const childKey = makeKey(parentPath, v);
       return (
-        <label key={childKey} className="block pl-6 mb-1 cursor-pointer select-none">
+        <label key={childKey} className="block pl-6 mb-1 cursor-pointer select-none font-medium">
           <input
             type="checkbox"
             className="mr-2"
@@ -345,13 +346,14 @@ const Dropdown = ({ data, onFilter }) => {
 
   const handleClear = () => {
     setChecked({});
+    setExpanded({}); // collapse any opened sub-sections
     onFilter?.({}); // notify parent to clear filters
     // collapse the dropdown after clearing
     setOpen(false);
   };
   
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 bg-(--gray-5)/50 text-(--green01) p-2 rounded-sm">
       {/* Top-level header that toggles the whole dropdown */}
       <div className="flex items-center justify-between">
         <button
@@ -368,20 +370,20 @@ const Dropdown = ({ data, onFilter }) => {
       </div>
 
       {open && (
-        <div className="space-y-3">
+        <div className="space-y-3 dropdown ">
           {Object.entries(data).map(([k, v]) => renderCategory(k, v))}
 
           {/* Filter button */}
           <div className="pt-2 flex gap-2">
             <button
               onClick={handleApply}
-              className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="px-3 py-1 bg-(--green01-100) text-white rounded-md hover:bg-(--green01) cursor-pointer"
             >
               Apply Filters
             </button>
             <button
               onClick={handleClear}
-              className="px-3 py-1 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+              className="px-3 py-1 bg-(--gray-5) text-gray-800 rounded-md hover:bg-(--gray-4) cursor-pointer"
             >
               Clear Filters
             </button>

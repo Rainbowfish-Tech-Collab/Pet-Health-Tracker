@@ -38,109 +38,45 @@ const DeletedData = () => {
   console.log("logs", logs);
   const norm = (s) => String(s ?? "").toLowerCase().trim();
 
-  // --- HELPERS: split key but preserve remainder (so "Resp. Rate" stays intact) ---
-  function splitKeyPreserveRemainder(key) {
-    if (!key) return [];
-    const firstDot = key.indexOf('.');
-    if (firstDot === -1) return [key];
-    const secondDot = key.indexOf('.', firstDot + 1);
-    if (secondDot === -1) {
-      // only one dot found -> [top, remainder]
-      return [key.slice(0, firstDot), key.slice(firstDot + 1)];
-    }
-    // two or more dots found -> [top, second, remainder]
-    return [
-      key.slice(0, firstDot),
-      key.slice(firstDot + 1, secondDot),
-      key.slice(secondDot + 1), // remainder (may contain dots)
-    ];
-  }
-
-  // map lowercased dropdown segments to the normalized subcategory strings used in logs
-  const segmentMap = {
-    "respiratory rate": "Resp. Rate",
-    "bodily function": "Bodily Func.",
-    // add more mappings here if needed
-  };
-
-  // normalize a single segment (case-insensitive) -> returns mapped display string (not lowercased)
-  function normalizeDropdownSegment(seg) {
-    if (seg == null) return seg;
-    const trimmed = String(seg).trim();
-    const lower = trimmed.toLowerCase();
-    return segmentMap[lower] ?? trimmed;
-  }
-
-  // produce normalized parts for the incoming key (preserves remainder for last part)
-  function parseKeyNormalized(key) {
-    const parts = splitKeyPreserveRemainder(key);
-    // apply mapping only to the non-remainder parts; for remainder (index >=2) we map the whole remainder
-    if (parts.length === 0) return parts;
-    if (parts.length === 1) return [normalizeDropdownSegment(parts[0])];
-    if (parts.length === 2) {
-      return [normalizeDropdownSegment(parts[0]), normalizeDropdownSegment(parts[1])];
-    }
-    // 3 parts: top, second, remainder (map second and remainder)
-    return [
-      normalizeDropdownSegment(parts[0]),
-      normalizeDropdownSegment(parts[1]),
-      normalizeDropdownSegment(parts[2]),
-    ];
-  }
-
-  // Returns true if the log matches the dropdown key
+  // Returns true if the log matches the dropdown key.
+  // Key format expected: top[.subcategory[.remainder]]
+  // remainder may contain additional dots (we join any extra parts for comparison).
   function matchActiveKey(log, rawKey) {
-    // parse and normalize the key segments
-    const parts = parseKeyNormalized(rawKey);
-    if (!parts || parts.length === 0) return false;
+    if (!rawKey) return false;
+    const parts = String(rawKey).split(".");
+    if (parts.length === 0) return false;
 
-    // operate using case-insensitive normalized strings
     const top = norm(parts[0]); // e.g. "stat", "activity", "medication"
     const logType = norm(log.type);
+    if (top !== logType) return false; // top-level must match
 
-    // top-level must match the log type (activity, symptom, medication, stat...)
-    if (top !== logType) return false;
-
-    // top-level only: show all of that type
+    // top-only key -> match all of that type
     if (parts.length === 1) return true;
 
-    // handle stat.fixed.X (promoted fixed values)
-    if (norm(parts[1]) === "fixed") {
-      if (parts.length < 3) return false;
-      return norm(parts[2]) === norm(log.subcategory);
-    }
-
-    // now parts[1] is usually a subcategory or a unit/value
-    const second = norm(parts[1] ?? "");
+    // prepare normalized log fields
     const sub = norm(log.subcategory);
     const unit = norm(log.unit);
     const value = norm(String(log.value));
 
-    // quick match: if second equals normalized subcategory
-    if (second === sub) return true;
+    const second = norm(parts[1] ?? "");
 
-    // Special-case equivalences (keeps readability and explicitness)
-    const equivalentSub =
-      (second === "respiratory rate" && sub === "resp. rate") ||
-      (second === "bodily function" && sub === "bodily func.");
-
-    if (parts.length === 2) {
-      return (
-        second === sub ||
-        equivalentSub ||
-        second === unit ||
-        second === value
-      );
+    // handle stat.fixed.X (promoted fixed values)
+    if (second === "fixed") {
+      if (parts.length < 3) return false;
+      const remainder = parts.slice(2).join(".");
+      return norm(remainder) === sub;
     }
 
-    // parts.length >= 3: e.g., stat.Weight.kg OR medication.Antibiotic.capsule
-    // for keys produced with a remainder, parts[2] may include dots and we preserved it above
-    const third = norm(parts[2] ?? "");
+    // if only two parts: match if second equals subcategory, unit, or value
+    if (parts.length === 2) {
+      return second === sub || second === unit || second === value;
+    }
 
-    // require the subcategory to match the second part (or equivalent)
-    if (!(second === sub || equivalentSub)) return false;
-
-    // check third part vs unit or value
+    // three-or-more parts: join remainder for third comparison
+    const remainder = parts.slice(2).join(".");
+    // require subcategory to match the second part, then check remainder against unit/value
+    if (second !== sub) return false;
+    const third = norm(remainder);
     return third === unit || third === value;
   }
 
@@ -150,10 +86,71 @@ const DeletedData = () => {
     [activeFilters]
   );
 
-  // final filtered logs: if no active keys, show all
+  // final filtered logs:
+  // - if no active keys, show all
+  // - keys grouped by top-level (e.g. "medication") are evaluated per-group
+  //   * For medication: types and dosages are combined with the rules described in the UI:
+  //       - top-only ("medication") => match all medication logs
+  //       - types selected + dosages selected => require type match AND (any) dosage match
+  //       - only types selected => require any type match
+  //       - only dosages selected => require any dosage match
+  //   * For non-medication groups fall back to: any selected key for that group matching the log is sufficient
+  // - groups for different top-levels are ORed (a log matching its group's constraints is included)
   const filteredLogs = useMemo(() => {
     if (activeKeys.length === 0) return logs;
-    return logs.filter((log) => activeKeys.some((key) => matchActiveKey(log, key)));
+
+    // group keys by their top-level segment
+    const groups = activeKeys.reduce((acc, key) => {
+      const top = String(key).split(".")[0]?.toLowerCase() || key;
+      acc[top] = acc[top] || [];
+      acc[top].push(key);
+      return acc;
+    }, {});
+
+    return logs.filter((log) => {
+      const logTop = String(log.type ?? "").toLowerCase();
+      const group = groups[logTop];
+      if (!group) return false;
+
+      // top-only selected (e.g. "medication") -> include all of that type
+      if (group.some((k) => String(k).toLowerCase() === logTop)) return true;
+
+      // Special handling for medication
+      if (logTop === "medication") {
+        // classify selected keys as "type keys" (their second segment equals the log.subcategory)
+        // vs "dosage keys" (others). Use lowercase compare.
+        const subNormalized = String(log.subcategory ?? "").toLowerCase().trim();
+
+        const typeKeys = group.filter((k) => {
+          const parts = String(k).split(".");
+          return parts.length >= 2 && parts[1].toLowerCase().trim() === subNormalized;
+        });
+        const dosageKeys = group.filter((k) => {
+          const parts = String(k).split(".");
+          // dosage keys are those not classified as typeKeys (includes keys that match unit/value or other forms)
+          return !(parts.length >= 2 && parts[1].toLowerCase().trim() === subNormalized);
+        });
+
+        // helper to test whether any key in an array matches this log
+        const anyMatches = (keysArr) => keysArr.some((k) => matchActiveKey(log, k));
+
+        if (typeKeys.length > 0 && dosageKeys.length > 0) {
+          // require at least one matching type AND at least one matching dosage
+          return anyMatches(typeKeys) && anyMatches(dosageKeys);
+        }
+        if (typeKeys.length > 0) {
+          return anyMatches(typeKeys);
+        }
+        if (dosageKeys.length > 0) {
+          return anyMatches(dosageKeys);
+        }
+        return false;
+      }
+
+      // Default behavior for other top-level groups:
+      // include the log if any key in its group matches the log
+      return group.some((key) => matchActiveKey(log, key));
+    });
   }, [logs, activeKeys]);
 
   // Pagination
@@ -174,10 +171,10 @@ const DeletedData = () => {
   return (
     <MobileContainer>
       <TopElement title="Deleted Data" />
-      <MobileContent className="p-2 pt-2">
+      <MobileContent className="p-2 h-auto">
         <Dropdown data={dropdown} onFilter={setActiveFilters} />
 
-        <hr className="my-4 border-gray-300" />
+        <hr className="my-2 border-gray-300" />
 
         {currentLogs.map((log) => {
           const { datePart, timePart } = formatDate(log.date);
@@ -194,12 +191,13 @@ const DeletedData = () => {
         })}
 
         {/* Pagination Controls */}
-        <div className="flex justify-center items-center gap-2 mt-4">
+        <div className="flex justify-center items-center gap-2 text-(--green01) font-bold my-7">
           <button
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            className="material-symbols-rounded text-(--green01) rotate-180 cursor-pointer"
           >
-            Prev
+            play_arrow
           </button>
 
           <span>
@@ -209,8 +207,9 @@ const DeletedData = () => {
           <button
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            className="material-symbols-rounded text-(--green01) cursor-pointer"
           >
-            Next
+            play_arrow
           </button>
         </div>
       </MobileContent>

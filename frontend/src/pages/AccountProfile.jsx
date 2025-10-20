@@ -195,7 +195,7 @@ const Account = () => {
 			<MobileContainer>
         <TopElement title="Profile">
           <span
-            className="material-symbols-outlined cursor-pointer rounded-xl p-1 bg-[#EB5757] text-white hover:bg-[#f9713b] transition-colors"
+            className="material-symbols-rounded cursor-pointer rounded-xl p-1 bg-[#EB5757] text-white hover:bg-[#f9713b] transition-colors"
             onClick={confirmDelete}
           >
             delete
@@ -222,7 +222,7 @@ const Account = () => {
               onChange={handleFileChange}
             />
             <span
-              className="material-symbols-outlined cursor-pointer rounded-2xl p-1 bg-[#355233] text-white hover:bg-[#99CC66] transition-colors absolute bottom-2 right-2"
+              className="material-symbols-rounded cursor-pointer rounded-2xl p-1 bg-[#355233] text-white hover:bg-[#99CC66] transition-colors absolute bottom-2 right-2"
               onClick={() => pictureRef.current.click()}
             >
               photo_camera
@@ -250,7 +250,7 @@ const Account = () => {
               className="bg-[#fffdf5] border border-black w-full px-3 py-2 rounded"
             />
             <span
-              className="material-symbols-outlined cursor-pointer rounded-xl p-0.75 bg-[#355233] text-white hover:bg-[#99CC66] transition-colors"
+              className="material-symbols-rounded cursor-pointer rounded-xl p-0.75 bg-[#355233] text-white hover:bg-[#99CC66] transition-colors"
               onClick={() => makeEditable(usernameRef)}>
               edit
             </span>
@@ -276,7 +276,7 @@ const Account = () => {
                 className="bg-[#fffdf5] border border-black w-full px-3 py-2 rounded"
               />
               <span
-                className="material-symbols-outlined cursor-pointer rounded-xl p-0.75 bg-[#355233] text-white hover:bg-[#99CC66] transition-colors"
+                className="material-symbols-rounded cursor-pointer rounded-xl p-0.75 bg-[#355233] text-white hover:bg-[#99CC66] transition-colors"
                 onClick={() => makeEditable(emailRef)}>
                 edit
               </span>

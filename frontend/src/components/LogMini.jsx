@@ -14,7 +14,7 @@ const LogMini = ({ date, subcategory, value, unit, description }) => {
   }
 
   return (
-    <div className="w-full bg-[#FDD891] rounded-lg p-1.5 gap-y-0 pb-0.5 mb-1 text-xs merriweather-sans log-mini">
+    <div className="w-full bg-(--orange-300) rounded-lg p-1.5 gap-y-0 pb-0.5 mb-1 text-xs merriweather-sans log-mini">
       {/* First row: 48% date | 52% (subcategory + value/unit) */}
       <div className="grid grid-cols-[48%_52%] items-center">
         <div className="text-left">{date}</div>
