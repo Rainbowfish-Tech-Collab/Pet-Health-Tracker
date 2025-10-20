@@ -212,8 +212,8 @@ globalRouter.delete("/:id/:deleteType(soft|hard)", async (req, res, next) => {
     if(deleteType === "soft") result = await pool.query("UPDATE heart_rate_stat SET date_archived = NOW(), date_updated = NOW() WHERE id = $1 AND date_archived IS NULL RETURNING id, stat_id", [id]);
     else if (deleteType === "hard") result = await pool.query("DELETE FROM heart_rate_stat WHERE id = $1 AND date_archived IS NOT NULL RETURNING id, stat_id", [id]);
     if(result.rows.length === 0) throw Object.assign(new Error("log not found"), { status: 404 });
-    await pool.query("UPDATE stat SET date_updated = NOW() WHERE id = $1", [result.rows[0].stat_id]);
-    res.json({ message: `id: ${id}, Stat log ${deleteType === "soft" ? "soft" : "hard"} deleted for statId: ${result.rows[0].stat_id}` });
+    const statResult = await pool.query("UPDATE stat SET date_updated = NOW() WHERE id = $1", [result.rows[0].stat_id]);
+    res.json({ message: `id: ${id}, Stat log ${deleteType === "soft" ? "soft" : "hard"} deleted for statId: ${result.rows[0].stat_id} and petId: ${statResult.rows[0].pet_id}` });
   } catch (err) {
     console.error(err);
     next(err);
